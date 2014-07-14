@@ -41,6 +41,38 @@ class MainTests(unittest.TestCase):
         self.assertEqual(err.getvalue(), "")
         self.assertEqual(ret, 0)
 
+class ColourTests(unittest.TestCase):
+    def test_getColourObj(self):
+        c = prompty.Colour()
+        self.assertIs(c._getColourObj(c.RED), c.RED)
+        self.assertIs(c._getColourObj("black"), c.BLACK)
+        self.assertIs(c._getColourObj("m"), c.MAGENTA)
+        for colour in c.COLOURS:
+            self.assertIs(c._getColourObj(colour), colour)
+            self.assertIs(c._getColourObj(colour[c.NAME_KEY]), colour)
+            self.assertIs(c._getColourObj(colour[c.CODE_KEY]), colour)
+
+    def test_getPrefixObj(self):
+        c = prompty.Colour()
+        self.assertIs(c._getPrefixObj(c.BG_PREFIX), c.BG_PREFIX)
+        self.assertIs(c._getPrefixObj("hi_foreground"), c.HIFG_PREFIX)
+        self.assertIs(c._getPrefixObj("b"), c.EM_PREFIX)
+        for prefix in c.PREFIXES:
+            self.assertIs(c._getPrefixObj(prefix), prefix)
+            self.assertIs(c._getPrefixObj(prefix[c.NAME_KEY]), prefix)
+            self.assertIs(c._getPrefixObj(prefix[c.CODE_KEY]), prefix)
+
+    def test_stopColour(self):
+        c = prompty.Colour()
+        self.assertEqual(c.stopColour(), "\[\033[0m\]")
+        self.assertEqual(c.stopColour(False), "\033[0m")
+
+    def test_startColour(self):
+        c = prompty.Colour()
+        self.assertEqual(c.startColour("green"), "\[\033[0;32m\]")
+        self.assertEqual(c.startColour("green", wrap=False), "\033[0;32m")
+        self.assertEqual(c.startColour("red","b"), "\[\033[1;31m\]")
+
 
 class PromptTests(unittest.TestCase):
     def test_create(self):

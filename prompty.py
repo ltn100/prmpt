@@ -20,13 +20,106 @@ def usage(msg=''):
         print >> sys.stderr, msg
     print >> sys.stderr, USAGE
 
+class Colour(object):
+    NAME_KEY = 0
+    CODE_KEY = 1
+    VAL_KEY  = 2
+    
+    # Colour names
+    BLACK   = {NAME_KEY : "black",   CODE_KEY : "k", VAL_KEY : 0}
+    RED     = {NAME_KEY : "red",     CODE_KEY : "r", VAL_KEY : 1}
+    GREEN   = {NAME_KEY : "green",   CODE_KEY : "g", VAL_KEY : 2}
+    YELLOW  = {NAME_KEY : "yellow",  CODE_KEY : "y", VAL_KEY : 3}
+    BLUE    = {NAME_KEY : "blue",    CODE_KEY : "b", VAL_KEY : 4}
+    MAGENTA = {NAME_KEY : "magenta", CODE_KEY : "m", VAL_KEY : 5}
+    CYAN    = {NAME_KEY : "cyan",    CODE_KEY : "c", VAL_KEY : 6}
+    WHITE   = {NAME_KEY : "white",   CODE_KEY : "w", VAL_KEY : 7}
+    COLOURS = [BLACK,RED,GREEN,YELLOW,BLUE,MAGENTA,CYAN,WHITE]
+    
+    # Prefixes
+    FG_PREFIX   = {NAME_KEY : "foreground",     CODE_KEY : "fg",    VAL_KEY : "0;3"}  # Foreground
+    BG_PREFIX   = {NAME_KEY : "background",     CODE_KEY : "bg",    VAL_KEY : "4"}    # Background
+    EM_PREFIX   = {NAME_KEY : "bold",           CODE_KEY : "b",     VAL_KEY : "1;3"}  # Bold
+    UL_PREFIX   = {NAME_KEY : "underline",      CODE_KEY : "u",     VAL_KEY : "4;3"}  # Underline
+    HIFG_PREFIX = {NAME_KEY : "hi_foreground",  CODE_KEY : "hifg",  VAL_KEY : "0;9"}  # High Intensity Foreground
+    HIBG_PREFIX = {NAME_KEY : "hi_background",  CODE_KEY : "hibg",  VAL_KEY : "0;10"} # High Intensity Background
+    HIEM_PREFIX = {NAME_KEY : "hi_bold",        CODE_KEY : "hib",   VAL_KEY : "1;9"}  # High Intensity Bold
+    PREFIXES = [FG_PREFIX,BG_PREFIX,EM_PREFIX,UL_PREFIX,HIFG_PREFIX,HIBG_PREFIX,HIEM_PREFIX]
+
+    RESET_KEY       = 0
+    NOCOUNT_START   = "\["
+    NOCOUNT_END     = "\]"
+    ESCAPE_CHAR     = "\033["
+    END_CODE        = "m"
+
+    @staticmethod
+    def _encode(code, wrap=True):
+        s = Colour.ESCAPE_CHAR+\
+                str(code)+\
+                Colour.END_CODE
+        if wrap:
+            s = Colour.NOCOUNT_START+\
+                s+\
+                Colour.NOCOUNT_END
+        return s
+
+    @staticmethod
+    def startColour(colour, prefix=FG_PREFIX, wrap=True):
+        col = Colour._getColourObj(colour)
+        pre = Colour._getPrefixObj(prefix)
+        return Colour._encode("%s%s" % (str(pre[Colour.VAL_KEY]), str(col[Colour.VAL_KEY])), wrap=wrap)
+    
+    @staticmethod
+    def stopColour(wrap=True):
+        return Colour._encode(Colour.RESET_KEY, wrap=wrap)
+
+    @staticmethod
+    def _getColourObj(identifier):
+        # Is it a colour dict?
+        if identifier in Colour.COLOURS:
+            return identifier
+        
+        # Is it a name key?
+        for colour in Colour.COLOURS:
+            if identifier == colour[Colour.NAME_KEY]:
+                return colour
+
+        # Is it a code key?
+        for colour in Colour.COLOURS:
+            if identifier == colour[Colour.CODE_KEY]:
+                return colour
+            
+        raise KeyError("No such colour %s" % str(identifier))
+
+    @staticmethod
+    def _getPrefixObj(identifier):
+        # Is it a prefix dict?
+        if identifier in Colour.PREFIXES:
+            return identifier
+        
+        # Is it a name key?
+        for prefix in Colour.PREFIXES:
+            if identifier == prefix[Colour.NAME_KEY]:
+                return prefix
+
+        # Is it a code key?
+        for prefix in Colour.PREFIXES:
+            if identifier == prefix[Colour.CODE_KEY]:
+                return prefix
+            
+        raise KeyError("No such prefix %s" % str(identifier))
 
 class Prompt(object):
+
+    
     def __init__(self):
         pass
 
+    def startColour(self, col):
+        pass
+
     def getPrompt(self):
-        return "\u@\h\$ "
+        return Colour.startColour("green") + "\u" + Colour.stopColour() + "@\h\$ "
 
 
 def main(argv=None):
@@ -44,7 +137,7 @@ def main(argv=None):
 
     # Parse command line options
     try:
-        opts, args = getopt.getopt(argv[1:], "hb", ["help", "bash"])
+        opts, args = getopt.getopt(argv[1:], "hbc", ["help", "bash", "colours"])
     except getopt.error, msg:
         usage(msg)
         return 1
@@ -59,6 +152,15 @@ def main(argv=None):
 
         if option in ("-b", "--bash"):
             print "export PS1=\"$(%s)\"" % sys.argv[0]
+            return 0
+
+        if option in ("-c", "--colours"):
+            for prefix in Colour.PREFIXES:
+                for colour in Colour.COLOURS:
+                    print "%s%s : %s%s" % (Colour.startColour(colour, prefix, False), 
+                                           prefix[Colour.NAME_KEY], 
+                                           colour[Colour.NAME_KEY], 
+                                           Colour.stopColour(False))
             return 0
 
     #if len(args) < 0:
