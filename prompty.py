@@ -2,8 +2,8 @@
 # vim:set softtabstop=4 shiftwidth=4 tabstop=4 expandtab:
 
 # Import external modules
-import getopt
 import sys
+import getopt
 
 
 USAGE = "Usage: %s [options]" % sys.argv[0] + """
@@ -21,6 +21,12 @@ def usage(msg=''):
     print >> sys.stderr, USAGE
 
 
+class Prompt(object):
+    def __init__(self):
+        pass
+
+    def getPrompt(self):
+        return "\u@\h\$ "
 
 
 def main(argv=None):
@@ -38,7 +44,7 @@ def main(argv=None):
 
     # Parse command line options
     try:
-        opts, args = getopt.getopt(argv[1:], "h", ["help"])
+        opts, args = getopt.getopt(argv[1:], "hb", ["help", "bash"])
     except getopt.error, msg:
         usage(msg)
         return 1
@@ -51,9 +57,17 @@ def main(argv=None):
             usage()
             return 0
 
-    if len(args) < 1:
-        usage("Not enough arguments")
-        return 1
+        if option in ("-b", "--bash"):
+            print "export PS1=\"$(%s)\"" % sys.argv[0]
+            return 0
+
+    #if len(args) < 0:
+    #    usage("Not enough arguments")
+    #    return 1
+
+
+    p = Prompt()
+    sys.stdout.write(p.getPrompt())
 
     return 0
 
