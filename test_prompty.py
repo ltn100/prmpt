@@ -21,7 +21,6 @@ def captured_output():
         sys.stdout, sys.stderr = old_out, old_err
 
 
-
 class MainTests(unittest.TestCase):
     def test_help(self):
         argv = ["","-h"]
@@ -40,6 +39,7 @@ class MainTests(unittest.TestCase):
         self.assertTrue(out.getvalue().startswith("export PS1"))
         self.assertEqual(err.getvalue(), "")
         self.assertEqual(ret, 0)
+
 
 class ColourTests(unittest.TestCase):
     def test_getColourObj(self):
@@ -73,6 +73,11 @@ class ColourTests(unittest.TestCase):
         self.assertEqual(c.startColour("green", wrap=False), "\033[0;32m")
         self.assertEqual(c.startColour("red","b"), "\[\033[1;31m\]")
 
+    def test_dynamicColourWrappers(self):
+        c = prompty.Colour()
+        self.assertEqual(c.green("I'm green"), "\\[\033[0;32m\\]I'm green\\[\033[0m\\]")
+
+
 class LexerTests(unittest.TestCase):
     def test_singleStringLiteral(self):
         l = prompty.Lexer(r"literal")
@@ -97,6 +102,64 @@ class LexerTests(unittest.TestCase):
         self.assertEqual("\\", l.get_token())
         self.assertEqual(r"user", l.get_token())
 
+    def test_functionArgsQualifier(self):
+        l = prompty.Lexer(r"\green{literal}")
+        self.assertEqual("\\", l.get_token())
+        self.assertEqual(r"green", l.get_token())
+        self.assertEqual(r"{", l.get_token())
+        self.assertEqual(r"literal", l.get_token())
+        self.assertEqual(r"}", l.get_token())
+
+    def test_functionMultipleArgsQualifier(self):
+        l = prompty.Lexer(r"\green{literal}{another}")
+        self.assertEqual("\\", l.get_token())
+        self.assertEqual(r"green", l.get_token())
+        self.assertEqual(r"{", l.get_token())
+        self.assertEqual(r"literal", l.get_token())
+        self.assertEqual(r"}", l.get_token())
+        self.assertEqual(r"{", l.get_token())
+        self.assertEqual(r"another", l.get_token())
+        self.assertEqual(r"}", l.get_token())
+
+    def test_functionOptionalArgsQualifier(self):
+        l = prompty.Lexer(r"\green[bold]{literal}")
+        self.assertEqual("\\", l.get_token())
+        self.assertEqual(r"green", l.get_token())
+        self.assertEqual(r"[", l.get_token())
+        self.assertEqual(r"bold", l.get_token())
+        self.assertEqual(r"]", l.get_token())
+        self.assertEqual(r"{", l.get_token())
+        self.assertEqual(r"literal", l.get_token())
+        self.assertEqual(r"}", l.get_token())
+
+    def test_whitespace(self):
+        l = prompty.Lexer(r"1 2")
+        self.assertEqual("1", l.get_token())
+        self.assertEqual("2", l.get_token())
+        l = prompty.Lexer(r"1    2")
+        self.assertEqual("1", l.get_token())
+        self.assertEqual("2", l.get_token())
+        l = prompty.Lexer("1\n\n\n2")
+        self.assertEqual("1", l.get_token())
+        self.assertEqual("2", l.get_token())
+        l = prompty.Lexer("1\t\t\t2")
+        self.assertEqual("1", l.get_token())
+        self.assertEqual("2", l.get_token())
+        l = prompty.Lexer("1 \t \n \t\t \n\t2")
+        self.assertEqual("1", l.get_token())
+        self.assertEqual("2", l.get_token())
+
+    def test_comments(self):
+        l = prompty.Lexer(r"% no comment")
+        self.assertEqual("", l.get_token())
+        l = prompty.Lexer(r"before% no comment")
+        self.assertEqual("before", l.get_token())
+        l = prompty.Lexer(r"before % no comment")
+        self.assertEqual("before", l.get_token())
+        l = prompty.Lexer("before% no comment\nafter")
+        self.assertEqual("before", l.get_token())
+        self.assertEqual("after", l.get_token())
+
 
 class ParserTests(unittest.TestCase):
     def test_stringLiteral(self):
@@ -107,11 +170,43 @@ class ParserTests(unittest.TestCase):
         p = prompty.Parser()
         self.assertEqual(r"literal-With$omeUne*pectedC#ars", p.parse(r"literal-With$omeUne*pectedC#ars"))
 
-#     def test_definedConstant(self):
+    def test_definedConstant(self):
+        p = prompty.Parser()
+        self.assertEqual(p.parse(r"\user"), r"\u")
+
+#     def test_multipleDefinedConstant(self):
 #         p = prompty.Parser()
-#         self.assertEqual(r"\user", p.parse(r"\u"))
+#         self.assertEqual(p.parse(r"\user\hostname"), r"\u\h")
 
 
+class FunctionContainerTests(unittest.TestCase):
+    class TestFunctions(object):
+        @staticmethod
+        def test():
+            return "This Is A Test"
+    
+        @staticmethod
+        def _hidden():
+            return "This is secret"
+    
+    def test_userLiteral(self):
+        c = prompty.FunctionContainer()
+        self.assertEqual(c.call("user"), r"\u")
+
+    def test_hostnameLiteral(self):
+        c = prompty.FunctionContainer()
+        self.assertEqual(c.call("hostname"), r"\h")
+
+    def test_colourLiteral(self):
+        c = prompty.FunctionContainer()
+        self.assertEqual(c.call("green","I'm green"), "\\[\033[0;32m\\]I'm green\\[\033[0m\\]")
+        self.assertEqual(c.call("red","I'm red"), "\\[\033[0;31m\\]I'm red\\[\033[0m\\]")
+
+    def test_extendFunctionContainer(self):
+        c = prompty.FunctionContainer()
+        c.addFunctions(FunctionContainerTests.TestFunctions)
+        self.assertEqual(c.call("test"), "This Is A Test")
+        self.assertRaises(KeyError, c.call, "_hidden")
 
 class PromptTests(unittest.TestCase):
     def test_create(self):

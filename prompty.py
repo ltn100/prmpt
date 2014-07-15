@@ -5,6 +5,7 @@
 import sys
 import getopt
 import shlex
+import inspect
 
 
 USAGE = "Usage: %s [options]" % sys.argv[0] + """
@@ -110,30 +111,90 @@ class Colour(object):
             
         raise KeyError("No such prefix %s" % str(identifier))
 
+    @staticmethod
+    def _colourFuncFactory(colour):
+        @staticmethod
+        def func(literal):
+            #function_name = inspect.stack()[0][3]
+            return Colour.startColour(colour) + literal + Colour.stopColour()
+        return func
+    
+    @staticmethod
+    def _populateColourFunctions():
+        for colour in Colour.COLOURS:
+            colourName = colour[Colour.NAME_KEY]
+            setattr(Colour, colourName, Colour._colourFuncFactory(colourName))
+
+# Run the method to populate static colour functions
+Colour._populateColourFunctions()
+
 
 class Lexer(shlex.shlex):
     def __init__(self, instream):
-        shlex.shlex.__init__(self, instream=instream)
+        shlex.shlex.__init__(self, instream=instream.replace('\n','\n\n'))
         self.wordchars = self.wordchars + r":;#~@-_=+*/?'!$^&()|<>" + '"'
         self.commenters = '%'
 
 class Parser(object):
+    def __init__(self):
+        self.funcs = FunctionContainer()
+    
+    def _next(self):
+        return self.lex.next()
+    
+    def _atom(self, token):
+        if token == '\\':
+            # Function
+            name = self._next()
+            #token = self._next()
+            return self.funcs.call(name)
+        return token
+    
     def parse(self, instream):
-        return instream
+        self.lex = Lexer(instream)
+        return self._atom(self.lex.next())
+
+
+class FunctionContainer(object):
+    @staticmethod
+    def user():
+        return r"\u"
+    
+    @staticmethod
+    def hostname():
+        return r"\h"
+    
+
+    def call(self, *args):
+        if len(args) < 1:
+            raise TypeError("call requires a name")
+        name = args[0]
+        args = args[1:]
+        return self.functions[name](*args)
+    
+    def addFunctions(self,cls):
+        for name, func in inspect.getmembers(cls, inspect.isfunction):
+            if name[0] != "_":
+                self.functions[name] = func
+    
+    def __init__(self):
+        self.functions = {}
+        self.addFunctions(self)
+        self.addFunctions(Colour)
+
 
 
 class Prompt(object):
 
     
     def __init__(self):
-        pass
+        self.parser = Parser()
 
-    def startColour(self, col):
-        pass
 
     def getPrompt(self):
         # Something like this?
         # "\green{\user}@\hostname \blue[bold]{workingdir} \$ "
+        print self.parser.parse(r"\user\user")
         return Colour.startColour("green") + "\u" + Colour.stopColour() + "@\h " + Colour.startColour("blue","b") + "\w" + Colour.stopColour() + " \$ "
 
 
