@@ -119,7 +119,9 @@ class Prompt(object):
         pass
 
     def getPrompt(self):
-        return Colour.startColour("green") + "\u" + Colour.stopColour() + "@\h\$ "
+        # Something like this?
+        # "\green{\user}@\hostname \blue[bold]{workingdir} \$ "
+        return Colour.startColour("green") + "\u" + Colour.stopColour() + "@\h " + Colour.startColour("blue","b") + "\w" + Colour.stopColour() + " \$ "
 
 
 def main(argv=None):
