@@ -73,6 +73,45 @@ class ColourTests(unittest.TestCase):
         self.assertEqual(c.startColour("green", wrap=False), "\033[0;32m")
         self.assertEqual(c.startColour("red","b"), "\[\033[1;31m\]")
 
+class LexerTests(unittest.TestCase):
+    def test_singleStringLiteral(self):
+        l = prompty.Lexer(r"literal")
+        self.assertEqual(r"literal", l.get_token())
+
+    def test_multipleStringLiteral(self):
+        l = prompty.Lexer(r"multiple string literals")
+        self.assertEqual(r"multiple", l.get_token())
+        self.assertEqual(r"string", l.get_token())
+        self.assertEqual(r"literals", l.get_token())
+
+    def test_stringLiteralsWithComplexChars(self):
+        l = prompty.Lexer(r"complexChars:;#~@-_=+*/?'!$^&()|<>")
+        self.assertEqual(r"complexChars:;#~@-_=+*/?'!$^&()|<>", l.get_token())
+
+    def test_doubleQuoteTest(self):
+        l = prompty.Lexer(r'complexChars"')
+        self.assertEqual(r'complexChars"', l.get_token())
+
+    def test_contstantQualifier(self):
+        l = prompty.Lexer(r"\user")
+        self.assertEqual("\\", l.get_token())
+        self.assertEqual(r"user", l.get_token())
+
+
+class ParserTests(unittest.TestCase):
+    def test_stringLiteral(self):
+        p = prompty.Parser()
+        self.assertEqual(r"literal", p.parse(r"literal"))
+
+    def test_stringLiteralComplicated(self):
+        p = prompty.Parser()
+        self.assertEqual(r"literal-With$omeUne*pectedC#ars", p.parse(r"literal-With$omeUne*pectedC#ars"))
+
+#     def test_definedConstant(self):
+#         p = prompty.Parser()
+#         self.assertEqual(r"\user", p.parse(r"\u"))
+
+
 
 class PromptTests(unittest.TestCase):
     def test_create(self):

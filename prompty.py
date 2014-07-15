@@ -4,6 +4,7 @@
 # Import external modules
 import sys
 import getopt
+import shlex
 
 
 USAGE = "Usage: %s [options]" % sys.argv[0] + """
@@ -108,6 +109,18 @@ class Colour(object):
                 return prefix
             
         raise KeyError("No such prefix %s" % str(identifier))
+
+
+class Lexer(shlex.shlex):
+    def __init__(self, instream):
+        shlex.shlex.__init__(self, instream=instream)
+        self.wordchars = self.wordchars + r":;#~@-_=+*/?'!$^&()|<>" + '"'
+        self.commenters = '%'
+
+class Parser(object):
+    def parse(self, instream):
+        return instream
+
 
 class Prompt(object):
 
