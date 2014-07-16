@@ -168,15 +168,39 @@ class ParserTests(unittest.TestCase):
 
     def test_stringLiteralComplicated(self):
         p = prompty.Parser()
-        self.assertEqual(r"literal-With$omeUne*pectedC#ars", p.parse(r"literal-With$omeUne*pectedC#ars"))
+        self.assertEqual(r"literal-With$omeUne*pectedC#ars.", p.parse(r"literal-With$omeUne*pectedC#ars."))
+
+    def test_multipleStringLiteral(self):
+        p = prompty.Parser()
+        self.assertEqual(r"literalstringsareconcatenated", p.parse(r"literal strings are concatenated"))
 
     def test_definedConstant(self):
         p = prompty.Parser()
         self.assertEqual(p.parse(r"\user"), r"\u")
 
-#     def test_multipleDefinedConstant(self):
-#         p = prompty.Parser()
-#         self.assertEqual(p.parse(r"\user\hostname"), r"\u\h")
+    def test_multipleDefinedConstant(self):
+        p = prompty.Parser()
+        self.assertEqual(p.parse(r"\user\hostname"), r"\u\h")
+        self.assertEqual(p.parse(r"\user \hostname"), r"\u\h")
+
+    def test_definedConstantAndLiterals(self):
+        p = prompty.Parser()
+        self.assertEqual(p.parse(r"a\user"), r"a\u")
+        self.assertEqual(p.parse(r"a\user b"), r"a\ub")
+        self.assertEqual(p.parse(r"a\user b\user c d    \user"), r"a\ub\ucd\u")
+
+    def test_functionWithArgument(self):
+        p = prompty.Parser()
+        self.assertEqual(p.parse(r"\green{hello}"), "\\[\033[0;32m\\]hello\\[\033[0m\\]")
+
+    def test_functionWithLiteralArgument(self):
+        p = prompty.Parser()
+        self.assertEqual(p.parse(r"\green{\user}"), "\\[\033[0;32m\\]\\u\\[\033[0m\\]")
+
+    def test_functionWithMultipleLiteralArgument(self):
+        p = prompty.Parser()
+        self.assertEqual(p.parse(r"\green{\user\hostname}"), "\\[\033[0;32m\\]\\u\\h\\[\033[0m\\]")
+        self.assertEqual(p.parse(r"\green{a\user b\hostname}"), "\\[\033[0;32m\\]a\\ub\\h\\[\033[0m\\]")
 
 
 class FunctionContainerTests(unittest.TestCase):

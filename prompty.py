@@ -138,21 +138,46 @@ class Lexer(shlex.shlex):
 class Parser(object):
     def __init__(self):
         self.funcs = FunctionContainer()
-    
-    def _next(self):
-        return self.lex.next()
-    
-    def _atom(self, token):
-        if token == '\\':
-            # Function
-            name = self._next()
-            #token = self._next()
-            return self.funcs.call(name)
+
+    @staticmethod
+    def _guardedNext(lex):
+        token = None
+        try:
+            token = lex.next()
+        except StopIteration:
+            pass
         return token
+    
+    def _atom(self, lex, token):
+        out = ""
+        while True:
+            try:
+                if token == '\\':
+                    # Function
+                    name = lex.next()
+                    args = [name]
+                    token = self._guardedNext(lex)
+                    if token == '{':
+                        # Arguments
+                        args.append(self._atom(lex, lex.next()))
+                        token = self._guardedNext(lex)
+                    out += self.funcs.call(*args)
+                    if token is None:
+                        raise StopIteration
+                elif token == '}':
+                    # End scope
+                    break
+                else:
+                    # String literal
+                    out += token
+                    token = lex.next()
+            except StopIteration:
+                break
+        return out
     
     def parse(self, instream):
         self.lex = Lexer(instream)
-        return self._atom(self.lex.next())
+        return self._atom(self.lex, self.lex.next())
 
 
 class FunctionContainer(object):
@@ -164,6 +189,17 @@ class FunctionContainer(object):
     def hostname():
         return r"\h"
     
+    @staticmethod
+    def workingdir():
+        return r"\w"
+
+    @staticmethod
+    def dollar():
+        return r"\$"
+
+    @staticmethod
+    def space():
+        return r" "
 
     def call(self, *args):
         if len(args) < 1:
@@ -186,16 +222,12 @@ class FunctionContainer(object):
 
 class Prompt(object):
 
-    
     def __init__(self):
         self.parser = Parser()
 
 
     def getPrompt(self):
-        # Something like this?
-        # "\green{\user}@\hostname \blue[bold]{workingdir} \$ "
-        print self.parser.parse(r"\user\user")
-        return Colour.startColour("green") + "\u" + Colour.stopColour() + "@\h " + Colour.startColour("blue","b") + "\w" + Colour.stopColour() + " \$ "
+        return self.parser.parse(r"\green{\user}@\hostname\space\blue{\workingdir}\space\dollar\space")
 
 
 def main(argv=None):
