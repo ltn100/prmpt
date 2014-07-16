@@ -174,16 +174,22 @@ class ParserTests(unittest.TestCase):
         p = prompty.Parser()
         self.assertEqual(r"literalstringsareconcatenated", p.parse(r"literal strings are concatenated"))
 
-    def test_definedConstant(self):
+    def test_functionNoArgument(self):
         p = prompty.Parser()
         self.assertEqual(p.parse(r"\user"), r"\u")
 
-    def test_multipleDefinedConstant(self):
+    def test_multipleFunctionNoArgument(self):
         p = prompty.Parser()
         self.assertEqual(p.parse(r"\user\hostname"), r"\u\h")
         self.assertEqual(p.parse(r"\user \hostname"), r"\u\h")
 
-    def test_definedConstantAndLiterals(self):
+    def test_functionEmptyArgument(self):
+        p = prompty.Parser()
+        self.assertEqual(p.parse(r"\user{}"), r"\u")
+        self.assertEqual(p.parse(r"\user{}\user{}"), r"\u\u")
+        self.assertEqual(p.parse(r"\user{}\hostname{}otherstuff"), r"\u\hotherstuff")
+
+    def test_functionNoArgumentAndLiterals(self):
         p = prompty.Parser()
         self.assertEqual(p.parse(r"a\user"), r"a\u")
         self.assertEqual(p.parse(r"a\user b"), r"a\ub")

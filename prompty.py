@@ -159,7 +159,9 @@ class Parser(object):
                     token = self._guardedNext(lex)
                     if token == '{':
                         # Arguments
-                        args.append(self._atom(lex, lex.next()))
+                        arg = self._atom(lex, lex.next())
+                        if arg:
+                            args.append(arg)
                         token = self._guardedNext(lex)
                     out += self.funcs.call(*args)
                     if token is None:
@@ -227,7 +229,7 @@ class Prompt(object):
 
 
     def getPrompt(self):
-        return self.parser.parse(r"\green{\user}@\hostname\space\blue{\workingdir}\space\dollar\space")
+        return self.parser.parse(r"\green{\user{}}@\hostname\space\blue{\workingdir}\space\dollar\space")
 
 
 def main(argv=None):
