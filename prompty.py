@@ -132,13 +132,10 @@ Colour._populateColourFunctions()
 class Lexer(shlex.shlex):
     def __init__(self, instream):
         shlex.shlex.__init__(self, instream=instream.replace('\n','\n\n'))
-        self.wordchars = self.wordchars + r":;#~@-_=+*/?'!$^&()|<>" + '"'
+        self.wordchars = self.wordchars + r":;#~@-_=+*/?'!$^&()|<>." + '"'
         self.commenters = '%'
 
 class Parser(object):
-    def __init__(self):
-        self.funcs = FunctionContainer()
-
     @staticmethod
     def _guardedNext(lex):
         token = None
@@ -149,21 +146,21 @@ class Parser(object):
         return token
     
     def _atom(self, lex, token):
-        out = ""
+        out = []
         while True:
             try:
                 if token == '\\':
                     # Function
                     name = lex.next()
-                    args = [name]
+                    args = []
                     token = self._guardedNext(lex)
-                    if token == '{':
+                    while token == '{':
                         # Arguments
                         arg = self._atom(lex, lex.next())
                         if arg:
                             args.append(arg)
                         token = self._guardedNext(lex)
-                    out += self.funcs.call(*args)
+                    out.append({'type': 'function', 'name': name, 'args': args})
                     if token is None:
                         raise StopIteration
                 elif token == '}':
@@ -171,7 +168,7 @@ class Parser(object):
                     break
                 else:
                     # String literal
-                    out += token
+                    out.append({ 'type': 'literal', 'value': token})
                     token = lex.next()
             except StopIteration:
                 break
@@ -181,6 +178,23 @@ class Parser(object):
         self.lex = Lexer(instream)
         return self._atom(self.lex, self.lex.next())
 
+
+class Compiler(object):
+    def __init__(self):
+        self.funcs = FunctionContainer()
+
+    def compile(self, parsedStruct):
+        out = ""
+        for element in parsedStruct:
+            if element['type'] == 'literal':
+                out += element['value']
+            elif element['type'] == 'function':
+                args = [element['name']]
+                for arg in element['args']:
+                    args.append(self.compile(arg))
+                out += self.funcs.call(*args)
+                
+        return out
 
 class FunctionContainer(object):
     @staticmethod
@@ -198,6 +212,17 @@ class FunctionContainer(object):
     @staticmethod
     def dollar():
         return r"\$"
+    
+    @staticmethod
+    def lower(literal):
+        return str(literal).lower()
+
+    @staticmethod
+    def greater(a,b):
+        if a > b:
+            return a
+        else:
+            return b
 
     @staticmethod
     def space():
@@ -226,10 +251,11 @@ class Prompt(object):
 
     def __init__(self):
         self.parser = Parser()
+        self.compiler = Compiler()
 
 
     def getPrompt(self):
-        return self.parser.parse(r"\green{\user{}}@\hostname\space\blue{\workingdir}\space\dollar\space")
+        return self.compiler.compile(self.parser.parse(r"\green{\user{}}@\hostname\space\blue{\workingdir}\space\dollar\space"))
 
 
 def main(argv=None):
