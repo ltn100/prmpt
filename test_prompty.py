@@ -170,8 +170,8 @@ class ParserTests(unittest.TestCase):
     def test_stringLiteralComplicated(self):
         p = prompty.Parser()
         self.assertListEqual([{'type': 'literal', 
-                               'value':r"literal-With$omeUne*pectedC#ars."}],
-                             p.parse(r"literal-With$omeUne*pectedC#ars."))
+                               'value':r"literal-With$omeUne*pectedC#ars.,"}],
+                             p.parse(r"literal-With$omeUne*pectedC#ars.,"))
   
     def test_multipleStringLiteral(self):
         p = prompty.Parser()
@@ -183,46 +183,46 @@ class ParserTests(unittest.TestCase):
   
     def test_functionNoArgument(self):
         p = prompty.Parser()
-        self.assertListEqual([{'type': 'function', 'name': r"user", 'args': []}],
+        self.assertListEqual([{'type': 'function', 'name': r"user"}],
                              p.parse(r"\user"))
   
     def test_multipleFunctionNoArgument(self):
         p = prompty.Parser()
-        self.assertEqual([{'type': 'function', 'name': r"user", 'args': []},
-                          {'type': 'function', 'name': r"hostname", 'args': []}],
+        self.assertEqual([{'type': 'function', 'name': r"user"},
+                          {'type': 'function', 'name': r"hostname"}],
                          p.parse(r"\user\hostname"))
-        self.assertEqual([{'type': 'function', 'name': r"user", 'args': []},
-                          {'type': 'function', 'name': r"hostname", 'args': []}],
+        self.assertEqual([{'type': 'function', 'name': r"user"},
+                          {'type': 'function', 'name': r"hostname"}],
                          p.parse(r"\user \hostname"))
  
     def test_functionEmptyArgument(self):
         p = prompty.Parser()
-        self.assertEqual([{'type': 'function', 'name': r"user", 'args': []}],
+        self.assertEqual([{'type': 'function', 'name': r"user"}],
                          p.parse(r"\user{}"))
-        self.assertEqual([{'type': 'function', 'name': r"user", 'args': []},
-                          {'type': 'function', 'name': r"user", 'args': []}],
+        self.assertEqual([{'type': 'function', 'name': r"user"},
+                          {'type': 'function', 'name': r"user"}],
                          p.parse(r"\user{}\user{}"))
-        self.assertEqual([{'type': 'function', 'name': r"user", 'args': []},
-                          {'type': 'function', 'name': r"hostname", 'args': []},
+        self.assertEqual([{'type': 'function', 'name': r"user"},
+                          {'type': 'function', 'name': r"hostname"},
                           {'type': 'literal', 'value': r"otherstuff"}],
                          p.parse(r"\user{}\hostname{}otherstuff"))
  
     def test_functionNoArgumentAndLiterals(self):
         p = prompty.Parser()
         self.assertEqual([{'type': 'literal', 'value': r"a"},
-                          {'type': 'function', 'name': r"user", 'args': []}],
+                          {'type': 'function', 'name': r"user"}],
                          p.parse(r"a\user"))
         self.assertEqual([{'type': 'literal', 'value': r"a"},
-                          {'type': 'function', 'name': r"user", 'args': []},
+                          {'type': 'function', 'name': r"user"},
                           {'type': 'literal', 'value': r"b"}],
                          p.parse(r"a\user b"))
         self.assertEqual([{'type': 'literal', 'value': r"a"},
-                          {'type': 'function', 'name': r"user", 'args': []},
+                          {'type': 'function', 'name': r"user"},
                           {'type': 'literal', 'value': r"b"},
-                          {'type': 'function', 'name': r"user", 'args': []},
+                          {'type': 'function', 'name': r"user"},
                           {'type': 'literal', 'value': r"c"},
                           {'type': 'literal', 'value': r"d"},
-                          {'type': 'function', 'name': r"user", 'args': []}],
+                          {'type': 'function', 'name': r"user"}],
                          p.parse(r"a\user b\user c d    \user"))
  
     def test_functionWithArgument(self):
@@ -235,22 +235,22 @@ class ParserTests(unittest.TestCase):
     def test_functionWithLiteralArgument(self):
         p = prompty.Parser()
         self.assertEqual([{'type': 'function', 'name': r"green", 'args': 
-                                [[{'type': 'function', 'name': r"user", 'args': []}]]
+                                [[{'type': 'function', 'name': r"user"}]]
                           }],
                          p.parse(r"\green{\user}"))
  
     def test_functionWithMultipleLiteralArgument(self):
         p = prompty.Parser()
         self.assertEqual([{'type': 'function', 'name': r"green", 'args': 
-                                [[{'type': 'function', 'name': r"user", 'args': []},
-                                 {'type': 'function', 'name': r"hostname", 'args': []}]]
+                                [[{'type': 'function', 'name': r"user"},
+                                 {'type': 'function', 'name': r"hostname"}]]
                           }],
                          p.parse(r"\green{\user\hostname}"))
         self.assertEqual([{'type': 'function', 'name': r"green", 'args': 
                                 [[{'type': 'literal', 'value': r"a"},
-                                 {'type': 'function', 'name': r"user", 'args': []},
+                                 {'type': 'function', 'name': r"user"},
                                  {'type': 'literal', 'value': r"b"},
-                                 {'type': 'function', 'name': r"hostname", 'args': []}]]
+                                 {'type': 'function', 'name': r"hostname"}]]
                           }],
                          p.parse(r"\green{a\user b\hostname}"))
 
@@ -265,10 +265,26 @@ class ParserTests(unittest.TestCase):
                                 [[{'type': 'literal', 'value': r"1"}],
                                  [{'type': 'literal', 'value': r"2"},
                                   {'type': 'function', 'name': r"green", 'args': 
-                                   [[{'type': 'function', 'name': r"hostname", 'args': []}]]}]]
+                                   [[{'type': 'function', 'name': r"hostname"}]]}]]
                           }],
                          p.parse(r"\range{1}{2\green{\hostname}}"))
 
+    def test_functionWithOptionalLiteralArgument(self):
+        p = prompty.Parser()
+        self.assertEqual([{'type': 'function', 'name': r"green", 'args': 
+                                [[{'type': 'function', 'name': r"user"}]],
+                                'optargs': [[{'type': 'literal', 'value': r"bold"}]]
+                          }],
+                         p.parse(r"\green[bold]{\user}"))
+
+    def test_functionWithMultipleOptionalArguments(self):
+        p = prompty.Parser()
+        self.assertEqual([{'type': 'function', 'name': r"green", 'args': 
+                                [[{'type': 'function', 'name': r"user"}]],
+                                'optargs': [[{'type': 'literal', 'value': r"bold"}],
+                                            [{'type': 'function', 'name': r"bg"}]]
+                          }],
+                         p.parse(r"\green[bold][\bg]{\user}"))
 
 class CompilerTests(unittest.TestCase):
     def test_singleLiteral(self):
@@ -282,23 +298,32 @@ class CompilerTests(unittest.TestCase):
 
     def test_singleFunction(self):
         c = prompty.Compiler()
-        self.assertEqual(r"\u", c.compile([{'type': 'function', 'name': r"user", 'args': []}]) )
+        self.assertEqual(r"\u", c.compile([{'type': 'function', 'name': r"user"}]) )
 
     def test_nestedFunction(self):
         c = prompty.Compiler()
         self.assertEqual("\\[\033[0;32m\\]\\u\\[\033[0m\\]", 
                          c.compile([{'type': 'function', 'name': r"green", 'args': 
-                                     [[{'type': 'function', 'name': r"user", 'args': []}]]}]) )
+                                     [[{'type': 'function', 'name': r"user"}]]}]) )
 
     def test_functionWithMultipleLiteralArgument(self):
         c = prompty.Compiler()
         self.assertEqual("\\[\033[0;32m\\]a\\ub\\h\\[\033[0m\\]", 
                          c.compile([{'type': 'function', 'name': r"green", 'args': 
                                 [[{'type': 'literal', 'value': r"a"},
-                                 {'type': 'function', 'name': r"user", 'args': []},
+                                 {'type': 'function', 'name': r"user"},
                                  {'type': 'literal', 'value': r"b"},
-                                 {'type': 'function', 'name': r"hostname", 'args': []}]]
+                                 {'type': 'function', 'name': r"hostname"}]]
                           }]) )
+
+    def test_nestedFunctionOptionalArg(self):
+        c = prompty.Compiler()
+        self.assertEqual("\\[\033[1;32m\\]\\u\\[\033[0m\\]", 
+                         c.compile([{'type': 'function', 'name': r"green", 'args': 
+                                [[{'type': 'function', 'name': r"user"}]],
+                                'optargs': [[{'type': 'literal', 'value': r"bold"}]]
+                          }]) )
+
 
     def test_multipleAruments(self):
         c = prompty.Compiler()

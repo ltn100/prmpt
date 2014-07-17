@@ -114,9 +114,9 @@ class Colour(object):
     @staticmethod
     def _colourFuncFactory(colour):
         @staticmethod
-        def func(literal):
+        def func(literal, prefix=Colour.FG_PREFIX):
             #function_name = inspect.stack()[0][3]
-            return Colour.startColour(colour) + literal + Colour.stopColour()
+            return Colour.startColour(colour,prefix) + literal + Colour.stopColour()
         return func
     
     @staticmethod
@@ -132,7 +132,7 @@ Colour._populateColourFunctions()
 class Lexer(shlex.shlex):
     def __init__(self, instream):
         shlex.shlex.__init__(self, instream=instream.replace('\n','\n\n'))
-        self.wordchars = self.wordchars + r":;#~@-_=+*/?'!$^&()|<>." + '"'
+        self.wordchars = self.wordchars + r":;#~@-_=+*/?'!$^&()|<>.," + '"'
         self.commenters = '%'
 
 class Parser(object):
@@ -153,17 +153,26 @@ class Parser(object):
                     # Function
                     name = lex.next()
                     args = []
+                    optargs = []
                     token = self._guardedNext(lex)
-                    while token == '{':
+                    while token in ['{', '[']:
                         # Arguments
                         arg = self._atom(lex, lex.next())
                         if arg:
-                            args.append(arg)
+                            if token == '{':
+                                args.append(arg)
+                            elif token == '[':
+                                optargs.append(arg)
                         token = self._guardedNext(lex)
-                    out.append({'type': 'function', 'name': name, 'args': args})
+                    func = {'type': 'function', 'name': name}
+                    if args:
+                        func['args'] = args
+                    if optargs:
+                        func['optargs'] = optargs
+                    out.append(func)
                     if token is None:
                         raise StopIteration
-                elif token == '}':
+                elif token in ['}',']']:
                     # End scope
                     break
                 else:
@@ -187,11 +196,20 @@ class Compiler(object):
         out = ""
         for element in parsedStruct:
             if element['type'] == 'literal':
+                # Literals go to the output verbatim
                 out += element['value']
             elif element['type'] == 'function':
+                # First arg is the function name
                 args = [element['name']]
-                for arg in element['args']:
-                    args.append(self.compile(arg))
+                # Then the required arguments
+                if 'args' in element:
+                    for arg in element['args']:
+                        args.append(self.compile(arg))
+                # Finally any optional arguments
+                if 'optargs' in element:
+                    for optarg in element['optargs']:
+                        args.append(self.compile(optarg))
+                # Call the function!
                 out += self.funcs.call(*args)
                 
         return out
@@ -255,7 +273,22 @@ class Prompt(object):
 
 
     def getPrompt(self):
-        return self.compiler.compile(self.parser.parse(r"\green{\user{}}@\hostname\space\blue{\workingdir}\space\dollar\space"))
+        return self.compiler.compile(self.parser.parse(
+            r"""
+            \green{
+                \user{}
+            }
+            @
+            \hostname
+            \space
+            \blue[bold]{
+                \workingdir
+            }
+            \space
+            \dollar
+            \space
+            """
+        ))
 
 
 def main(argv=None):
