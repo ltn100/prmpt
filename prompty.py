@@ -3,9 +3,13 @@
 
 # Import external modules
 import sys
+import os
+import re
 import getopt
 import shlex
 import inspect
+import getpass
+import socket
 
 
 USAGE = "Usage: %s [options]" % sys.argv[0] + """
@@ -22,7 +26,7 @@ def usage(msg=''):
         print >> sys.stderr, msg
     print >> sys.stderr, USAGE
 
-class Colour(object):
+class ColourFunctions(object):
     NAME_KEY = 0
     CODE_KEY = 1
     VAL_KEY  = 2
@@ -49,84 +53,85 @@ class Colour(object):
     PREFIXES = [FG_PREFIX,BG_PREFIX,EM_PREFIX,UL_PREFIX,HIFG_PREFIX,HIBG_PREFIX,HIEM_PREFIX]
 
     RESET_KEY       = 0
-    NOCOUNT_START   = "\["
-    NOCOUNT_END     = "\]"
+    NOCOUNT_START   = "\001"
+    NOCOUNT_END     = "\002"
     ESCAPE_CHAR     = "\033["
     END_CODE        = "m"
 
-    @staticmethod
-    def _encode(code, wrap=True):
-        s = Colour.ESCAPE_CHAR+\
+
+    def _encode(self, code, wrap=True):
+        s = ColourFunctions.ESCAPE_CHAR+\
                 str(code)+\
-                Colour.END_CODE
+                ColourFunctions.END_CODE
         if wrap:
-            s = Colour.NOCOUNT_START+\
+            s = ColourFunctions.NOCOUNT_START+\
                 s+\
-                Colour.NOCOUNT_END
+                ColourFunctions.NOCOUNT_END
         return s
 
-    @staticmethod
-    def startColour(colour, prefix=FG_PREFIX, wrap=True):
-        col = Colour._getColourObj(colour)
-        pre = Colour._getPrefixObj(prefix)
-        return Colour._encode("%s%s" % (str(pre[Colour.VAL_KEY]), str(col[Colour.VAL_KEY])), wrap=wrap)
+    def startColour(self, colour, prefix=FG_PREFIX, wrap=True):
+        col = self._getColourObj(colour)
+        pre = self._getPrefixObj(prefix)
+        return self._encode("%s%s" % (str(pre[self.VAL_KEY]), str(col[self.VAL_KEY])), wrap=wrap)
     
-    @staticmethod
-    def stopColour(wrap=True):
-        return Colour._encode(Colour.RESET_KEY, wrap=wrap)
+    def stopColour(self, wrap=True):
+        return self._encode(self.RESET_KEY, wrap=wrap)
 
-    @staticmethod
-    def _getColourObj(identifier):
+    def _getColourObj(self,identifier):
         # Is it a colour dict?
-        if identifier in Colour.COLOURS:
+        if identifier in self.COLOURS:
             return identifier
         
         # Is it a name key?
-        for colour in Colour.COLOURS:
-            if identifier == colour[Colour.NAME_KEY]:
+        for colour in self.COLOURS:
+            if identifier == colour[self.NAME_KEY]:
                 return colour
 
         # Is it a code key?
-        for colour in Colour.COLOURS:
-            if identifier == colour[Colour.CODE_KEY]:
+        for colour in self.COLOURS:
+            if identifier == colour[self.CODE_KEY]:
                 return colour
             
         raise KeyError("No such colour %s" % str(identifier))
 
-    @staticmethod
-    def _getPrefixObj(identifier):
+    def _getPrefixObj(self, identifier):
         # Is it a prefix dict?
-        if identifier in Colour.PREFIXES:
+        if identifier in self.PREFIXES:
             return identifier
         
         # Is it a name key?
-        for prefix in Colour.PREFIXES:
-            if identifier == prefix[Colour.NAME_KEY]:
+        for prefix in self.PREFIXES:
+            if identifier == prefix[self.NAME_KEY]:
                 return prefix
 
         # Is it a code key?
-        for prefix in Colour.PREFIXES:
-            if identifier == prefix[Colour.CODE_KEY]:
+        for prefix in self.PREFIXES:
+            if identifier == prefix[self.CODE_KEY]:
                 return prefix
             
         raise KeyError("No such prefix %s" % str(identifier))
 
     @staticmethod
-    def _colourFuncFactory(colour):
-        @staticmethod
-        def func(literal, prefix=Colour.FG_PREFIX):
+    def _colourFuncFactory(cls, colour):
+        def func(self, literal, prefix=cls.FG_PREFIX):
             #function_name = inspect.stack()[0][3]
-            return Colour.startColour(colour,prefix) + literal + Colour.stopColour()
+            return self.startColour(colour,prefix) + literal + self.stopColour()
         return func
     
     @staticmethod
-    def _populateColourFunctions():
-        for colour in Colour.COLOURS:
-            colourName = colour[Colour.NAME_KEY]
-            setattr(Colour, colourName, Colour._colourFuncFactory(colourName))
+    def _populateClassFunctions(cls):
+        for colour in cls.COLOURS:
+            colourName = colour[cls.NAME_KEY]
+            setattr(cls, colourName, cls._colourFuncFactory(cls, colourName))
 
-# Run the method to populate static colour functions
-Colour._populateColourFunctions()
+
+    def __new__(cls, *args, **kwargs):
+        # Add the new instance methods to the 
+        # class object before instantiating it
+        cls._populateClassFunctions(cls)
+        
+        # Instantiate the new class and return it
+        return object.__new__(cls, *args, **kwargs)
 
 
 class Lexer(shlex.shlex):
@@ -158,11 +163,11 @@ class Parser(object):
                     while token in ['{', '[']:
                         # Arguments
                         arg = self._atom(lex, lex.next())
-                        if arg:
-                            if token == '{':
-                                args.append(arg)
-                            elif token == '[':
-                                optargs.append(arg)
+
+                        if token == '{':
+                            args.append(arg)
+                        elif token == '[':
+                            optargs.append(arg)
                         token = self._guardedNext(lex)
                     func = {'type': 'function', 'name': name}
                     if args:
@@ -189,8 +194,12 @@ class Parser(object):
 
 
 class Compiler(object):
-    def __init__(self):
-        self.funcs = FunctionContainer()
+    def __init__(self, status=None):
+        if status is None:
+            status = Status()
+            
+        self.status = status
+        self.funcs = FunctionContainer(status)
 
     def compile(self, parsedStruct):
         out = ""
@@ -210,73 +219,166 @@ class Compiler(object):
                     for optarg in element['optargs']:
                         args.append(self.compile(optarg))
                 # Call the function!
-                out += self.funcs.call(*args)
+                out += str(self.funcs._call(*args))
                 
         return out
 
-class FunctionContainer(object):
-    @staticmethod
-    def user():
-        return r"\u"
-    
-    @staticmethod
-    def hostname():
-        return r"\h"
-    
-    @staticmethod
-    def workingdir():
-        return r"\w"
+class StandardFunctions(object):
 
-    @staticmethod
-    def dollar():
-        return r"\$"
+#               \a     an ASCII bell character (07)
+#               \d     the date in "Weekday Month Date" format (e.g., "Tue May 26")
+#               \D{format}
+#                      the format is passed to strftime(3) and the result is inserted into
+#                      the  prompt  string;  an  empty format results in a locale-specific
+#                      time representation.  The braces are required
+#               \e     an ASCII escape character (033)
+#              x\h     the hostname up to the first `.'
+#              x\H     the hostname
+#               \j     the number of jobs currently managed by the shell
+#               \l     the basename of the shell's terminal device name
+#              x\n     newline
+#              x\r     carriage return
+#               \s     the name of the shell, the basename of $0  (the  portion  following
+#                      the final slash)
+#               \t     the current time in 24-hour HH:MM:SS format
+#               \T     the current time in 12-hour HH:MM:SS format
+#               \@     the current time in 12-hour am/pm format
+#               \A     the current time in 24-hour HH:MM format
+#              x\u     the username of the current user
+#               \v     the version of bash (e.g., 2.00)
+#               \V     the release of bash, version + patch level (e.g., 2.00.0)
+#              x\w     the  current working directory, with $HOME abbreviated with a tilde
+#                      (uses the value of the PROMPT_DIRTRIM variable)
+#              x\W     the basename of the current working directory, with $HOME  abbreviated with a tilde
+#               \!     the history number of this command
+#               \#     the command number of this command
+#              x\$     if the effective UID is 0, a #, otherwise a $
+#               \nnn   the character corresponding to the octal number nnn
+#               \\     a backslash
+#              x\[     begin a sequence of non-printing characters, which could be used to
+#                      embed a terminal control sequence into the prompt
+#              x\]     end a sequence of non-printing characters
+
+
+    def space(self):
+        return r" "
     
+    def newline(self):
+        return r"\n"
+
+    def carriagereturn(self):
+        return r"\r"
+
+    def user(self):
+        return getpass.getuser()
+
+    def hostname(self):
+        return socket.gethostname().split(".")[0]
+
+    def hostnamefull(self):
+        return socket.gethostname()
+
+    def workingdir(self):
+        home = os.path.expanduser(r"~")
+        cwd = os.getcwd()
+        return re.sub(r'^%s' % home, r"~", cwd)
+
+    def workingdirbase(self):
+        return os.path.basename(os.getcwd())
+
+    def dollar(self, euid=None):
+        if euid is None:
+            euid = os.geteuid()
+        if int(euid) == 0:
+            return r"#"
+        else:
+            return r"$"
+
+class ExpressionFunctions(object):
     @staticmethod
-    def lower(literal):
+    def _tobool(expr):
+        if str(expr).lower() in ['true', '1', 't', 'y', 'yes']:
+            return True
+        else:
+            return False
+    
+    def equals(self, a,b):
+        return a == b
+
+    def ifexpr(self, cond,thenval,elseval=None):
+        if ExpressionFunctions._tobool(cond):
+            return thenval
+        else:
+            if elseval:
+                return elseval
+            else:
+                return ""
+
+    def exitsuccess(self):
+        if self.status.exitCode == 0:
+            return True
+        else:
+            return False
+
+
+class FunctionContainer(object):
+
+    def lower(self, literal):
         return str(literal).lower()
 
-    @staticmethod
-    def greater(a,b):
+    def greater(self, a,b):
         if a > b:
             return a
         else:
             return b
 
-    @staticmethod
-    def space():
-        return r" "
+    def join(self, *args):
+        if len(args) < 1:
+            raise TypeError("join needs at least one argument")
+        delim = args[0]
+        args = args[1:]
+        return str(delim).join(args)
 
-    def call(self, *args):
+
+    def _call(self, *args):
         if len(args) < 1:
             raise TypeError("call requires a name")
         name = args[0]
         args = args[1:]
         return self.functions[name](*args)
     
-    def addFunctions(self,cls):
-        for name, func in inspect.getmembers(cls, inspect.isfunction):
+    def _addFunctions(self, obj):
+        objName = "obj" + obj.__class__.__name__
+        setattr(self, objName, obj)
+        obj.status = self.status
+        for name, func in inspect.getmembers(obj, inspect.ismethod):
             if name[0] != "_":
                 self.functions[name] = func
     
-    def __init__(self):
+    def __init__(self, status=None):
+        if status is None:
+            status = Status()
+        self.status = status
         self.functions = {}
-        self.addFunctions(self)
-        self.addFunctions(Colour)
+        self._addFunctions(self)
+        for cls in [StandardFunctions, ExpressionFunctions, ColourFunctions]:
+            self._addFunctions(cls())
 
 
 
 class Prompt(object):
 
-    def __init__(self):
+    def __init__(self, status):
+        self.status = status
         self.parser = Parser()
-        self.compiler = Compiler()
+        self.compiler = Compiler(status)
 
 
     def getPrompt(self):
         return self.compiler.compile(self.parser.parse(
             r"""
             \green{
-                \user{}
+                \user
             }
             @
             \hostname
@@ -290,6 +392,10 @@ class Prompt(object):
             """
         ))
 
+
+class Status(object):
+    def __init__(self, exitCode=0):
+        self.exitCode = exitCode
 
 def main(argv=None):
     """Main function. This is the entry point for the program and is run when
@@ -320,24 +426,27 @@ def main(argv=None):
             return 0
 
         if option in ("-b", "--bash"):
-            print "export PS1=\"$(%s)\"" % sys.argv[0]
+            print "export PS1=\"\\$(%s \\$?)\"" % sys.argv[0]
             return 0
 
         if option in ("-c", "--colours"):
-            for prefix in Colour.PREFIXES:
-                for colour in Colour.COLOURS:
-                    print "%s%s : %s%s" % (Colour.startColour(colour, prefix, False), 
-                                           prefix[Colour.NAME_KEY], 
-                                           colour[Colour.NAME_KEY], 
-                                           Colour.stopColour(False))
+            for prefix in ColourFunctions.PREFIXES:
+                for colour in ColourFunctions.COLOURS:
+                    print "%s%s : %s%s" % (ColourFunctions.startColour(colour, prefix, False), 
+                                           prefix[ColourFunctions.NAME_KEY], 
+                                           colour[ColourFunctions.NAME_KEY], 
+                                           ColourFunctions.stopColour(False))
             return 0
 
-    #if len(args) < 0:
-    #    usage("Not enough arguments")
-    #    return 1
+    if len(args) < 1:
+        usage("Not enough arguments")
+        return 1
 
+    exitStatus = argv[1]
 
-    p = Prompt()
+    s = Status(exitStatus)
+
+    p = Prompt(s)
     sys.stdout.write(p.getPrompt())
 
     return 0

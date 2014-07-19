@@ -3,6 +3,9 @@
 
 # Import external modules
 import sys
+import os
+import getpass
+import socket
 import unittest
 from contextlib import contextmanager
 from StringIO import StringIO
@@ -43,7 +46,7 @@ class MainTests(unittest.TestCase):
 
 class ColourTests(unittest.TestCase):
     def test_getColourObj(self):
-        c = prompty.Colour()
+        c = prompty.ColourFunctions()
         self.assertIs(c._getColourObj(c.RED), c.RED)
         self.assertIs(c._getColourObj("black"), c.BLACK)
         self.assertIs(c._getColourObj("m"), c.MAGENTA)
@@ -53,7 +56,7 @@ class ColourTests(unittest.TestCase):
             self.assertIs(c._getColourObj(colour[c.CODE_KEY]), colour)
 
     def test_getPrefixObj(self):
-        c = prompty.Colour()
+        c = prompty.ColourFunctions()
         self.assertIs(c._getPrefixObj(c.BG_PREFIX), c.BG_PREFIX)
         self.assertIs(c._getPrefixObj("hi_foreground"), c.HIFG_PREFIX)
         self.assertIs(c._getPrefixObj("b"), c.EM_PREFIX)
@@ -63,19 +66,19 @@ class ColourTests(unittest.TestCase):
             self.assertIs(c._getPrefixObj(prefix[c.CODE_KEY]), prefix)
 
     def test_stopColour(self):
-        c = prompty.Colour()
-        self.assertEqual(c.stopColour(), "\[\033[0m\]")
+        c = prompty.ColourFunctions()
+        self.assertEqual(c.stopColour(), "\001\033[0m\002")
         self.assertEqual(c.stopColour(False), "\033[0m")
 
     def test_startColour(self):
-        c = prompty.Colour()
-        self.assertEqual(c.startColour("green"), "\[\033[0;32m\]")
+        c = prompty.ColourFunctions()
+        self.assertEqual(c.startColour("green"), "\001\033[0;32m\002")
         self.assertEqual(c.startColour("green", wrap=False), "\033[0;32m")
-        self.assertEqual(c.startColour("red","b"), "\[\033[1;31m\]")
+        self.assertEqual(c.startColour("red","b"), "\001\033[1;31m\002")
 
     def test_dynamicColourWrappers(self):
-        c = prompty.Colour()
-        self.assertEqual(c.green("I'm green"), "\\[\033[0;32m\\]I'm green\\[\033[0m\\]")
+        c = prompty.ColourFunctions()
+        self.assertEqual(c.green("I'm green"), "\001\033[0;32m\002I'm green\001\033[0m\002")
 
 
 class LexerTests(unittest.TestCase):
@@ -197,13 +200,13 @@ class ParserTests(unittest.TestCase):
  
     def test_functionEmptyArgument(self):
         p = prompty.Parser()
-        self.assertEqual([{'type': 'function', 'name': r"user"}],
+        self.assertEqual([{'type': 'function', 'name': r"user", 'args': [[]]}],
                          p.parse(r"\user{}"))
-        self.assertEqual([{'type': 'function', 'name': r"user"},
-                          {'type': 'function', 'name': r"user"}],
+        self.assertEqual([{'type': 'function', 'name': r"user", 'args': [[]]},
+                          {'type': 'function', 'name': r"user", 'args': [[]]}],
                          p.parse(r"\user{}\user{}"))
-        self.assertEqual([{'type': 'function', 'name': r"user"},
-                          {'type': 'function', 'name': r"hostname"},
+        self.assertEqual([{'type': 'function', 'name': r"user", 'args': [[]]},
+                          {'type': 'function', 'name': r"hostname", 'args': [[]]},
                           {'type': 'literal', 'value': r"otherstuff"}],
                          p.parse(r"\user{}\hostname{}otherstuff"))
  
@@ -269,6 +272,14 @@ class ParserTests(unittest.TestCase):
                           }],
                          p.parse(r"\range{1}{2\green{\hostname}}"))
 
+    def test_functionWithEmptyFirstArgument(self):
+        p = prompty.Parser()
+        self.assertEqual([{'type': 'function', 'name': r"range", 'args': 
+                                [[],
+                                 [{'type': 'literal', 'value': r"2"}]]
+                          }],
+                         p.parse(r"\range{}{2}"))
+
     def test_functionWithOptionalLiteralArgument(self):
         p = prompty.Parser()
         self.assertEqual([{'type': 'function', 'name': r"green", 'args': 
@@ -286,89 +297,164 @@ class ParserTests(unittest.TestCase):
                           }],
                          p.parse(r"\green[bold][\bg]{\user}"))
 
+
 class CompilerTests(unittest.TestCase):
+    user=getpass.getuser()
+    host=socket.gethostname()
+     
     def test_singleLiteral(self):
         c = prompty.Compiler()
         self.assertEqual(r"literalvalue", c.compile([{'type': 'literal', 'value': r"literalvalue"}]) )
-
+ 
     def test_multipleLiteral(self):
         c = prompty.Compiler()
         self.assertEqual(r"literalvalue", c.compile([{'type': 'literal', 'value': r"literal"},
                                                       {'type': 'literal', 'value': r"value"}]) )
-
+ 
     def test_singleFunction(self):
         c = prompty.Compiler()
-        self.assertEqual(r"\u", c.compile([{'type': 'function', 'name': r"user"}]) )
-
+        self.assertEqual(CompilerTests.user, c.compile([{'type': 'function', 'name': r"user"}]) )
+ 
     def test_nestedFunction(self):
         c = prompty.Compiler()
-        self.assertEqual("\\[\033[0;32m\\]\\u\\[\033[0m\\]", 
+        self.assertEqual("\001\033[0;32m\002%s\001\033[0m\002" % CompilerTests.user, 
                          c.compile([{'type': 'function', 'name': r"green", 'args': 
                                      [[{'type': 'function', 'name': r"user"}]]}]) )
-
+ 
     def test_functionWithMultipleLiteralArgument(self):
         c = prompty.Compiler()
-        self.assertEqual("\\[\033[0;32m\\]a\\ub\\h\\[\033[0m\\]", 
+        self.assertEqual("\001\033[0;32m\002a%sb%s\001\033[0m\002" % (CompilerTests.user,CompilerTests.host),
                          c.compile([{'type': 'function', 'name': r"green", 'args': 
                                 [[{'type': 'literal', 'value': r"a"},
                                  {'type': 'function', 'name': r"user"},
                                  {'type': 'literal', 'value': r"b"},
-                                 {'type': 'function', 'name': r"hostname"}]]
+                                 {'type': 'function', 'name': r"hostnamefull"}]]
                           }]) )
-
+ 
     def test_nestedFunctionOptionalArg(self):
         c = prompty.Compiler()
-        self.assertEqual("\\[\033[1;32m\\]\\u\\[\033[0m\\]", 
+        self.assertEqual("\001\033[1;32m\002%s\001\033[0m\002" % CompilerTests.user, 
                          c.compile([{'type': 'function', 'name': r"green", 'args': 
                                 [[{'type': 'function', 'name': r"user"}]],
                                 'optargs': [[{'type': 'literal', 'value': r"bold"}]]
                           }]) )
-
-
+ 
+ 
     def test_multipleAruments(self):
         c = prompty.Compiler()
         self.assertEqual(r"2", c.compile([{'type': 'function', 'name': r"greater", 'args': 
                                            [[{'type': 'literal', 'value': r"1"}],
                                             [{'type': 'literal', 'value': r"2"}]
                                             ]}]) )
+ 
+    def test_emptyAruments(self):
+        c = prompty.Compiler()
+        self.assertEqual("..", c.compile([{'type': 'function', 'name': r"join", 'args': 
+                                           [[{'type': 'literal', 'value': r"."}], 
+                                            [], [], []]
+                                           }]) )
+        self.assertEqual(".1.2", c.compile([{'type': 'function', 'name': r"join", 'args': 
+                                           [ [{'type': 'literal', 'value': r"."}]
+                                            , [], [{'type': 'literal', 'value': r"1"}],
+                                            [{'type': 'literal', 'value': r"2"}]
+                                            ]}]) )
+ 
+    def test_equalFunction(self):
+        c = prompty.Compiler()
+        self.assertEqual("True", c.compile([{'args': [[{'type': 'literal', 'value': '1'}], 
+                                                    [{'type': 'literal', 'value': '1'}]], 
+                                           'type': 'function', 'name': 'equals'}]) )
 
 
-class FunctionContainerTests(unittest.TestCase):
+class StandardFunctionTests(unittest.TestCase):
     class TestFunctions(object):
-        @staticmethod
-        def test():
+        def test(self):
             return "This Is A Test"
-    
-        @staticmethod
-        def _hidden():
+
+        def _hidden(self):
             return "This is secret"
-    
-    def test_userLiteral(self):
-        c = prompty.FunctionContainer()
-        self.assertEqual(c.call("user"), r"\u")
 
-    def test_hostnameLiteral(self):
-        c = prompty.FunctionContainer()
-        self.assertEqual(c.call("hostname"), r"\h")
 
-    def test_colourLiteral(self):
+    def test_user(self):
         c = prompty.FunctionContainer()
-        self.assertEqual(c.call("green","I'm green"), "\\[\033[0;32m\\]I'm green\\[\033[0m\\]")
-        self.assertEqual(c.call("red","I'm red"), "\\[\033[0;31m\\]I'm red\\[\033[0m\\]")
+        self.assertEqual(getpass.getuser(), c._call("user"))
+
+    def test_hostname(self):
+        c = prompty.FunctionContainer()
+        self.assertEqual(socket.gethostname().split(".")[0], c._call("hostname"))
+
+    def test_hostnamefull(self):
+        c = prompty.FunctionContainer()
+        self.assertEqual(socket.gethostname(), c._call("hostnamefull"))
+
+    def test_workingdir(self):
+        c = prompty.FunctionContainer()
+        os.chdir(os.path.expanduser("~"))
+        self.assertEqual(r"~", c._call("workingdir"))
+        os.chdir("/tmp")
+        self.assertEqual(r"/tmp", c._call("workingdir"))
+
+    def test_workingdirbase(self):
+        c = prompty.FunctionContainer()
+        os.chdir("/tmp")
+        self.assertEqual(r"tmp", c._call("workingdirbase"))
+        os.chdir("/usr/local")
+        self.assertEqual(r"local", c._call("workingdirbase"))
+
+    def test_dollar(self):
+        c = prompty.FunctionContainer()
+        self.assertEqual(r"$", c._call("dollar"))
+        self.assertEqual(r"#", c._call("dollar",0))
+
+    def test_newline(self):
+        c = prompty.FunctionContainer()
+        self.assertEqual(r"\n", c._call("newline"))
+
+    def test_return(self):
+        c = prompty.FunctionContainer()
+        self.assertEqual(r"\r", c._call("carriagereturn"))
 
     def test_extendFunctionContainer(self):
         c = prompty.FunctionContainer()
-        c.addFunctions(FunctionContainerTests.TestFunctions)
-        self.assertEqual(c.call("test"), "This Is A Test")
-        self.assertRaises(KeyError, c.call, "_hidden")
+        c._addFunctions(StandardFunctionTests.TestFunctions())
+        self.assertEqual(r"This Is A Test", c._call("test"))
+        self.assertRaises(KeyError, c._call, "_hidden")
+
+
+class ExpressionFunctionTests(unittest.TestCase):
+    def test_equal(self):
+        c = prompty.FunctionContainer()
+        self.assertEqual(True, c._call("equals","1","1"))
+
+    def test_if(self):
+        c = prompty.FunctionContainer()
+        self.assertEqual("1", c._call("ifexpr","True","1","2"))
+        self.assertEqual("2", c._call("ifexpr","False","1","2"))
+        self.assertEqual("1", c._call("ifexpr","True","1"))
+        self.assertEqual("", c._call("ifexpr","0","1"))
+        self.assertEqual("1", c._call("ifexpr","1","1"))
+
+    def test_exitSuccess(self):
+        c = prompty.FunctionContainer(prompty.Status(0))
+        self.assertEqual(True, c._call("exitsuccess"))
+        c = prompty.FunctionContainer(prompty.Status(1))
+        self.assertEqual(False, c._call("exitsuccess"))
+
+
+class ColourFunctionTests(unittest.TestCase):
+    def test_colourLiteral(self):
+        c = prompty.FunctionContainer()
+        self.assertEqual("\001\033[0;32m\002I'm green\001\033[0m\002",  c._call("green","I'm green"))
+        self.assertEqual("\001\033[0;31m\002I'm red\001\033[0m\002",    c._call("red","I'm red"))
+
 
 class PromptTests(unittest.TestCase):
     def test_create(self):
-        p = prompty.Prompt()
+        p = prompty.Prompt(prompty.Status())
         self.assertIsInstance(p, prompty.Prompt)
 
     def test_getPrompt(self):
-        p = prompty.Prompt()
+        p = prompty.Prompt(prompty.Status())
         s = p.getPrompt()
         self.assertIsInstance(s, basestring)
         self.assertGreater(len(s), 0)
