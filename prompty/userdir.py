@@ -20,6 +20,9 @@ class UserDir(object):
         self.promtyUserDir = os.path.join(self.homeDir,PROMPTY_USER_DIR)
         self.promtyBaseDir = prompty.getPromptyBaseDir()
         self.skelDir = os.path.join(self.promtyBaseDir,SKEL_DIR)
+        
+        # Initialise if promptyUserDir does not exist
+        self.initialise()
     
     def initialise(self):
         if not os.path.isdir(self.promtyUserDir):
