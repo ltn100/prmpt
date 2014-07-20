@@ -20,6 +20,7 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+bin/promptyc
 
 # Installer logs
 pip-log.txt

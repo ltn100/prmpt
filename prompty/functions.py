@@ -46,33 +46,33 @@ import colours
 #              x\]     end a sequence of non-printing characters
 
 
-def space(container):
+def space(status):
     return r" "
 
-def newline(container):
+def newline(status):
     return r"\n"
 
-def carriagereturn(container):
+def carriagereturn(status):
     return r"\r"
 
-def user(container):
+def user(status):
     return getpass.getuser()
 
-def hostname(container):
+def hostname(status):
     return socket.gethostname().split(".")[0]
 
-def hostnamefull(container):
+def hostnamefull(status):
     return socket.gethostname()
 
-def workingdir(container):
+def workingdir(status):
     home = os.path.expanduser(r"~")
     cwd = os.getcwd()
     return re.sub(r'^%s' % home, r"~", cwd)
 
-def workingdirbase(container):
+def workingdirbase(status):
     return os.path.basename(os.getcwd())
 
-def dollar(container, euid=None):
+def dollar(status, euid=None):
     if euid is None:
         euid = os.geteuid()
     if int(euid) == 0:
@@ -87,10 +87,10 @@ def _tobool(expr):
     else:
         return False
 
-def equals(container, a,b):
+def equals(status, a,b):
     return a == b
 
-def ifexpr(container, cond,thenval,elseval=None):
+def ifexpr(status, cond,thenval,elseval=None):
     if _tobool(cond):
         return thenval
     else:
@@ -99,31 +99,31 @@ def ifexpr(container, cond,thenval,elseval=None):
         else:
             return ""
 
-def exitsuccess(container):
-    if container.status.exitCode == 0:
+def exitsuccess(status):
+    if status.exitCode == 0:
         return True
     else:
         return False
 
 
-def lower(container, literal):
+def lower(status, literal):
     return str(literal).lower()
 
-def greater(container, a,b):
+def greater(status, a,b):
     if a > b:
         return a
     else:
         return b
 
-def join(container, *args):
+def join(status, *args):
     if len(args) < 1:
         raise TypeError("join needs at least one argument")
     delim = args[0]
     args = args[1:]
     return str(delim).join(args)
 
-def smiley(container):
-    out = dollar(container)
+def smiley(status):
+    out = dollar(status)
     return out
 
 
