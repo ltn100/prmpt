@@ -3,36 +3,19 @@
 
 # Import external modules
 import os
-import inspect
+
 
 import parser
 import compiler
-import functions
 
 
 
-class FunctionContainer(object):
-
-    def _call(self, *args):
-        if len(args) < 1:
-            raise TypeError("call requires a name")
-        name = args[0]
-        args = [self.status] + list(args[1:])
-        return self.functions[name](*args)
 
 
-    def _addFunctions(self, module):
-        for name, func in inspect.getmembers(module, inspect.isfunction):
-            if name[0] != "_":
-                self.functions[name] = func
-
-    def __init__(self, status=None):
-        if status is None:
-            status = Status()
-        self.status = status
-        self.functions = {}
-        self._addFunctions(functions)
-
+class Status(object):
+    def __init__(self, exitCode=0):
+        self.exitCode = int(exitCode)
+        self.euid = os.geteuid()
 
 
 class Prompt(object):
@@ -64,9 +47,6 @@ class Prompt(object):
         ))
 
 
-class Status(object):
-    def __init__(self, exitCode=0):
-        self.exitCode = int(exitCode)
-        self.euid = os.geteuid()
+
 
 

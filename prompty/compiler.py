@@ -2,6 +2,7 @@
 # vim:set softtabstop=4 shiftwidth=4 tabstop=4 expandtab:
 
 import prompty
+import functions
 
 class Compiler(object):
     def __init__(self, status=None):
@@ -9,7 +10,7 @@ class Compiler(object):
             status = prompty.Status()
             
         self.status = status
-        self.funcs = prompty.FunctionContainer(status)
+        self.funcs = functions.FunctionContainer(status)
 
     def compile(self, parsedStruct):
         out = ""

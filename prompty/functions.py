@@ -7,8 +7,10 @@ import os
 import re
 import getpass
 import socket
+import inspect
 
 import colours
+import prompty
 
 
 #               \a     an ASCII bell character (07)
@@ -139,5 +141,25 @@ def smiley(status):
     return out
 
 
+class FunctionContainer(object):
 
+    def _call(self, *args):
+        if len(args) < 1:
+            raise TypeError("call requires a name")
+        name = args[0]
+        args = [self.status] + list(args[1:])
+        return self.functions[name](*args)
+
+
+    def _addFunctions(self, module):
+        for name, func in inspect.getmembers(module, inspect.isfunction):
+            if name[0] != "_":
+                self.functions[name] = func
+
+    def __init__(self, status=None):
+        if status is None:
+            status = prompty.Status()
+        self.status = status
+        self.functions = {}
+        self._addFunctions(sys.modules[__name__])
 

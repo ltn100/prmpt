@@ -378,46 +378,46 @@ class StandardFunctionTests(unittest.TestCase):
 
 
     def test_user(self):
-        c = prompty.prompty.FunctionContainer()
+        c = prompty.functions.FunctionContainer()
         self.assertEqual(getpass.getuser(), c._call("user"))
 
     def test_hostname(self):
-        c = prompty.prompty.FunctionContainer()
+        c = prompty.functions.FunctionContainer()
         self.assertEqual(socket.gethostname().split(".")[0], c._call("hostname"))
  
     def test_hostnamefull(self):
-        c = prompty.prompty.FunctionContainer()
+        c = prompty.functions.FunctionContainer()
         self.assertEqual(socket.gethostname(), c._call("hostnamefull"))
  
     def test_workingdir(self):
-        c = prompty.prompty.FunctionContainer()
+        c = prompty.functions.FunctionContainer()
         os.chdir(os.path.expanduser("~"))
         self.assertEqual(r"~", c._call("workingdir"))
         os.chdir("/tmp")
         self.assertEqual(r"/tmp", c._call("workingdir"))
  
     def test_workingdirbase(self):
-        c = prompty.prompty.FunctionContainer()
+        c = prompty.functions.FunctionContainer()
         os.chdir("/tmp")
         self.assertEqual(r"tmp", c._call("workingdirbase"))
         os.chdir("/usr/local")
         self.assertEqual(r"local", c._call("workingdirbase"))
  
     def test_dollar(self):
-        c = prompty.prompty.FunctionContainer()
+        c = prompty.functions.FunctionContainer()
         self.assertEqual(ur"$", c._call("dollar"))
         self.assertEqual(ur"#", c._call("dollar",0))
  
     def test_newline(self):
-        c = prompty.prompty.FunctionContainer()
+        c = prompty.functions.FunctionContainer()
         self.assertEqual(u"\n", c._call("newline"))
  
     def test_return(self):
-        c = prompty.prompty.FunctionContainer()
+        c = prompty.functions.FunctionContainer()
         self.assertEqual(u"\r", c._call("carriagereturn"))
  
     def test_extendFunctionContainer(self):
-        c = prompty.prompty.FunctionContainer()
+        c = prompty.functions.FunctionContainer()
         # Import this module
         c._addFunctions(sys.modules[__name__])
         self.assertEqual(r"This Is A Test", c._call("testFunc"))
@@ -426,11 +426,11 @@ class StandardFunctionTests(unittest.TestCase):
  
 class ExpressionFunctionTests(unittest.TestCase):
     def test_equal(self):
-        c = prompty.prompty.FunctionContainer()
+        c = prompty.functions.FunctionContainer()
         self.assertEqual(True, c._call("equals","1","1"))
  
     def test_if(self):
-        c = prompty.prompty.FunctionContainer()
+        c = prompty.functions.FunctionContainer()
         self.assertEqual("1", c._call("ifexpr","True","1","2"))
         self.assertEqual("2", c._call("ifexpr","False","1","2"))
         self.assertEqual("1", c._call("ifexpr","True","1"))
@@ -438,15 +438,15 @@ class ExpressionFunctionTests(unittest.TestCase):
         self.assertEqual("1", c._call("ifexpr","1","1"))
  
     def test_exitSuccess(self):
-        c = prompty.prompty.FunctionContainer(prompty.prompty.Status(0))
+        c = prompty.functions.FunctionContainer(prompty.prompty.Status(0))
         self.assertEqual(True, c._call("exitsuccess"))
-        c = prompty.prompty.FunctionContainer(prompty.prompty.Status(1))
+        c = prompty.functions.FunctionContainer(prompty.prompty.Status(1))
         self.assertEqual(False, c._call("exitsuccess"))
  
  
 class ColourFunctionTests(unittest.TestCase):
     def test_colourLiteral(self):
-        c = prompty.prompty.FunctionContainer()
+        c = prompty.functions.FunctionContainer()
         self.assertEqual("\001\033[0;32m\002I'm green\001\033[0m\002",  c._call("green","I'm green"))
         self.assertEqual("\001\033[0;31m\002I'm red\001\033[0m\002",    c._call("red","I'm red"))
  
