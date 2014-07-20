@@ -45,15 +45,19 @@ import colours
 #                      embed a terminal control sequence into the prompt
 #              x\]     end a sequence of non-printing characters
 
+colours._populateFunctions(sys.modules[__name__])
+
+def unichar(status, code):
+    return unichr(int(code))
 
 def space(status):
-    return r" "
+    return u" "
 
 def newline(status):
-    return r"\n"
+    return u"\n"
 
 def carriagereturn(status):
-    return r"\r"
+    return u"\r"
 
 def user(status):
     return getpass.getuser()
@@ -74,11 +78,11 @@ def workingdirbase(status):
 
 def dollar(status, euid=None):
     if euid is None:
-        euid = os.geteuid()
+        euid = status.euid
     if int(euid) == 0:
-        return r"#"
+        return ur"#"
     else:
-        return r"$"
+        return ur"$"
 
 
 def _tobool(expr):
@@ -97,7 +101,7 @@ def ifexpr(status, cond,thenval,elseval=None):
         if elseval:
             return elseval
         else:
-            return ""
+            return u""
 
 def exitsuccess(status):
     if status.exitCode == 0:
@@ -107,7 +111,7 @@ def exitsuccess(status):
 
 
 def lower(status, literal):
-    return str(literal).lower()
+    return unicode(literal).lower()
 
 def greater(status, a,b):
     if a > b:
@@ -120,12 +124,20 @@ def join(status, *args):
         raise TypeError("join needs at least one argument")
     delim = args[0]
     args = args[1:]
-    return str(delim).join(args)
+    return unicode(delim).join(args)
 
 def smiley(status):
-    out = dollar(status)
+    if status.exitCode == 0:
+        out = colours.startColour(status, "green", "bold")
+        out += dollar(status)
+        out += u":)"
+    else:
+        out = colours.startColour(status, "red", "bold")
+        out += dollar(status)
+        out += u":("
+    out += colours.stopColour(status)
     return out
 
 
-colours._populateFunctions(sys.modules[__name__])
+
 

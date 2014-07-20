@@ -96,7 +96,7 @@ class Compiler(object):
                     for optarg in element['optargs']:
                         args.append(self.compile(optarg))
                 # Call the function!
-                out += str(self.funcs._call(*args))
+                out += unicode(self.funcs._call(*args))
                 
         return out
 
@@ -147,7 +147,7 @@ class Prompt(object):
             \blue[bold]{
                 \workingdir
             }
-            \space
+            \newline
             \smiley
             \space
             """
@@ -156,6 +156,7 @@ class Prompt(object):
 
 class Status(object):
     def __init__(self, exitCode=0):
-        self.exitCode = exitCode
+        self.exitCode = int(exitCode)
+        self.euid = os.geteuid()
 
 

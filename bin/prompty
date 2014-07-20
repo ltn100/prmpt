@@ -78,7 +78,9 @@ def main(argv=None):
     s = prompty.prompty.Status(exitStatus)
 
     p = prompty.prompty.Prompt(s)
-    sys.stdout.write(p.getPrompt())
+
+    # Encode unicode to UTF-8 for terminal printing
+    sys.stdout.write(p.getPrompt().encode("utf8"))
 
     return 0
 

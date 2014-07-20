@@ -405,16 +405,16 @@ class StandardFunctionTests(unittest.TestCase):
  
     def test_dollar(self):
         c = prompty.prompty.FunctionContainer()
-        self.assertEqual(r"$", c._call("dollar"))
-        self.assertEqual(r"#", c._call("dollar",0))
+        self.assertEqual(ur"$", c._call("dollar"))
+        self.assertEqual(ur"#", c._call("dollar",0))
  
     def test_newline(self):
         c = prompty.prompty.FunctionContainer()
-        self.assertEqual(r"\n", c._call("newline"))
+        self.assertEqual(u"\n", c._call("newline"))
  
     def test_return(self):
         c = prompty.prompty.FunctionContainer()
-        self.assertEqual(r"\r", c._call("carriagereturn"))
+        self.assertEqual(u"\r", c._call("carriagereturn"))
  
     def test_extendFunctionContainer(self):
         c = prompty.prompty.FunctionContainer()

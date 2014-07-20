@@ -30,15 +30,15 @@ HIEM_PREFIX = {NAME_KEY : "hi_bold",        CODE_KEY : "hib",   VAL_KEY : "1;9"}
 PREFIXES = [FG_PREFIX,BG_PREFIX,EM_PREFIX,UL_PREFIX,HIFG_PREFIX,HIBG_PREFIX,HIEM_PREFIX]
 
 RESET_KEY       = 0
-NOCOUNT_START   = "\001"
-NOCOUNT_END     = "\002"
-ESCAPE_CHAR     = "\033["
-END_CODE        = "m"
+NOCOUNT_START   = u"\001"
+NOCOUNT_END     = u"\002"
+ESCAPE_CHAR     = u"\033["
+END_CODE        = u"m"
 
 
 def _encode(code, wrap=True):
     s = ESCAPE_CHAR+\
-            str(code)+\
+            unicode(code)+\
             END_CODE
     if wrap:
         s = NOCOUNT_START+\
@@ -83,19 +83,19 @@ def _getPrefixObj(identifier):
     raise KeyError("No such prefix %s" % str(identifier))
 
 
-def startColour(container, colour, prefix=FG_PREFIX, wrap=True):
+def startColour(status, colour, prefix=FG_PREFIX, wrap=True):
     col = _getColourObj(colour)
     pre = _getPrefixObj(prefix)
-    return _encode("%s%s" % (str(pre[VAL_KEY]), str(col[VAL_KEY])), wrap=wrap)
+    return _encode("%s%s" % (unicode(pre[VAL_KEY]), unicode(col[VAL_KEY])), wrap=wrap)
 
 
-def stopColour(container, wrap=True):
+def stopColour(status, wrap=True):
     return _encode(RESET_KEY, wrap=wrap)
 
 
 def _colourFuncFactory(colour):
-    def func(container, literal, prefix=FG_PREFIX):
-        return startColour(container, colour, prefix) + literal + stopColour(container)
+    def func(status, literal, prefix=FG_PREFIX):
+        return startColour(status, colour, prefix) + literal + stopColour(status)
     return func
 
 
