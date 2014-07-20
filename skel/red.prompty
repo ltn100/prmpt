@@ -1,0 +1,34 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% vim: set filetype=tex:
+%
+% Red prompty
+% =============
+% A promty script ported from the 'Red Prompt' bash prompt.
+%
+% http://www.gilesorr.com/bashprompt/prompts/red.html
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\yellow[bold]{
+    \red[bg]{
+        % Transition from yellow fg to red bg
+        \unichar{0x2588}
+        \unichar{0x2593}
+        \unichar{0x2592}
+        \unichar{0x2591}
+    }
+}
+\red[bg]{\white[bold]{\user @\hostname}}
+\red{
+    % Transition from red fg to default background
+    \unichar{0x2588}
+    \unichar{0x2593}
+    \unichar{0x2592}
+    \unichar{0x2591}
+}
+\space
+\white[bold]{\date\space\datefmt}
+\newline
+
+% 2nd line
+\red{\workingdir}\space

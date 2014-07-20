@@ -101,13 +101,21 @@ def hostname(status):
 def hostnamefull(status):
     return socket.gethostname()
 
+def isrealpath(status, path=None):
+    if path is None:
+        path = os.getenv('PWD')
+    if path == os.path.realpath(path):
+        return True
+    else:
+        return False
+
 def workingdir(status):
+    cwd = os.getenv('PWD')
     home = os.path.expanduser(r"~")
-    cwd = os.getcwd()
     return re.sub(r'^%s' % home, r"~", cwd)
 
 def workingdirbase(status):
-    return os.path.basename(os.getcwd())
+    return os.path.basename(os.getenv('PWD'))
 
 def dollar(status, euid=None):
     if euid is None:

@@ -406,13 +406,16 @@ class StandardFunctionTests(unittest.TestCase):
         os.chdir(os.path.expanduser("~"))
         self.assertEqual(r"~", c._call("workingdir"))
         os.chdir("/tmp")
+        os.environ["PWD"] = os.getcwd()
         self.assertEqual(r"/tmp", c._call("workingdir"))
 
     def test_workingdirbase(self):
         c = prompty.functions.FunctionContainer()
         os.chdir("/tmp")
+        os.environ["PWD"] = os.getcwd()
         self.assertEqual(r"tmp", c._call("workingdirbase"))
         os.chdir("/usr/local")
+        os.environ["PWD"] = os.getcwd()
         self.assertEqual(r"local", c._call("workingdirbase"))
 
     def test_dollar(self):
