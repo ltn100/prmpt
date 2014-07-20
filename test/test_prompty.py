@@ -8,12 +8,15 @@ import imp
 import getpass
 import socket
 import shutil
+import tempfile
 import unittest
 from contextlib import contextmanager
 from StringIO import StringIO
 
+TEST_DIR = os.path.dirname(__file__)
+
 # Add base directory to path so that it can find the prompty package
-sys.path[0:0] = [os.path.join(os.path.dirname(__file__), "..")]
+sys.path[0:0] = [os.path.dirname(TEST_DIR)]
 
 import prompty
 
@@ -477,14 +480,32 @@ class UserDirTests(unittest.TestCase):
         self.assertEquals(os.path.join(os.path.expanduser('~'),prompty.userdir.PROMPTY_USER_DIR), u.getDir())
 
     def test_initialise(self):
-        u = prompty.userdir.UserDir("/tmp")
+        tmpDir = tempfile.mkdtemp()
+        u = prompty.userdir.UserDir(tmpDir)
         u.initialise()
         self.assertTrue(os.path.isdir(u.getDir()))
         self.assertTrue(os.path.exists(u.getConfigFile()))
         # Cleanup
-        shutil.rmtree(u.getDir())
+        shutil.rmtree(tmpDir)
 
 
+class ConfigTests(unittest.TestCase):
+    def test_loadConfig(self):
+        c = prompty.config.Config()
+        c.load(os.path.join(os.path.dirname(TEST_DIR), 
+                            prompty.userdir.SKEL_DIR, 
+                            prompty.userdir.PROMPTY_CONFIG_FILE))
+        self.assertEquals(os.path.join(os.path.dirname(TEST_DIR), 
+                                       prompty.userdir.SKEL_DIR, 
+                                       "default.prompt"), c.promptFile)
+
+    def test_loadPrompt(self):
+        c = prompty.config.Config()
+        c.promptFile = os.path.join(os.path.dirname(TEST_DIR), 
+                                       prompty.userdir.SKEL_DIR, 
+                                       "default.prompt")
+        c.loadPromptFile()
+        self.assertGreater(len(c.promptString), 0)
 
 #---------------------------------------------------------------------------#
 #                          End of functions                                 #

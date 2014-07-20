@@ -9,6 +9,7 @@ import sys
 import parser
 import compiler
 import userdir
+import config
 
 
 def getPromptyBaseDir():
@@ -33,27 +34,16 @@ class Prompt(object):
         self.parser = parser.Parser()
         self.compiler = compiler.Compiler(status)
         self.userDir = userdir.UserDir()
+        self.config = config.Config()
+        self.config.load(self.userDir.getConfigFile())
 
 
     def getPrompt(self):
-        return self.compiler.compile(self.parser.parse(
-            r"""
-            \green{
-                \user
-            }
-            @
-            \white{
-                \hostname
-            }
-            \space
-            \blue[bold]{
-                \workingdir
-            }
-            \newline
-            \smiley
-            \space
-            """
-        ))
+        return self.compiler.compile(
+                    self.parser.parse(
+                        self.config.promptString
+                    )
+                )
 
 
 
