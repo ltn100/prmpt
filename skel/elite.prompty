@@ -1,0 +1,38 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% vim: set filetype=tex:
+%
+% Elite prompty
+% =============
+% A promty script ported from the 'Elite' bash prompt 
+% oringinally created by "KrON"
+%
+% http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/x847.html
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% First line
+\red{\unichar{0x250c}\unichar{0x2500}}
+\blue{(}
+    \red{\user}
+    \blue{@}
+    \red{\hostname}
+\blue{)}
+\red{\unichar{0x2500}}
+\blue{(}
+\red{\datefmt{#H#M}}
+    \blue{-:-}
+    \red{\datefmt{#A,\space #d\space #B\space #Y}}
+\blue{)}
+\red{\unichar{0x2500}\unichar{0x2500}}
+\blue{\closesquare\unichar{0x2219}}
+\red{\unichar{0x2500}\unichar{0x2219}\unichar{0x2219}}
+\blue{\unichar{0x0b7}}
+\newline
+
+% Second line
+\red{\unichar{0x2514}\unichar{0x2500}}
+\blue{(}
+    \red{\workingdirbase}
+\blue{)}
+\red{\unichar{0x2500}\unichar{0x2219}}
+\blue{\unichar{0x0b7}}

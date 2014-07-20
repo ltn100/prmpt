@@ -8,14 +8,15 @@ import re
 import getpass
 import socket
 import inspect
+import datetime
 
 import colours
 import prompty
 
 
 #               \a     an ASCII bell character (07)
-#               \d     the date in "Weekday Month Date" format (e.g., "Tue May 26")
-#               \D{format}
+#              x\d     the date in "Weekday Month Date" format (e.g., "Tue May 26")
+#              x\D{format}
 #                      the format is passed to strftime(3) and the result is inserted into
 #                      the  prompt  string;  an  empty format results in a locale-specific
 #                      time representation.  The braces are required
@@ -49,8 +50,27 @@ import prompty
 
 colours._populateFunctions(sys.modules[__name__])
 
+# ----- Special Characters --------
 def unichar(status, code):
-    return unichr(int(code))
+    return unichr(int(code,0))
+
+def backslash(status):
+    return u"\\"
+
+def percent(status):
+    return u"%"
+
+def opencurly(status):
+    return u"{"
+
+def closecurly(status):
+    return u"}"
+
+def opensquare(status):
+    return u"["
+
+def closesquare(status):
+    return u"]"
 
 def space(status):
     return u" "
@@ -60,6 +80,17 @@ def newline(status):
 
 def carriagereturn(status):
     return u"\r"
+
+def datefmt(status,format=None):
+    now = datetime.datetime.now()
+    if format:
+        format = format.replace('#', '%')
+        return now.strftime(format)
+    else:
+        return now.strftime("%X")
+    
+def date(status):
+    return datefmt(status, "%a %b %d")
 
 def user(status):
     return getpass.getuser()

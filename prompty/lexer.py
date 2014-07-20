@@ -7,5 +7,9 @@ import shlex
 class Lexer(shlex.shlex):
     def __init__(self, instream):
         shlex.shlex.__init__(self, instream=instream.replace('\n','\n\n'))
-        self.wordchars = self.wordchars + r":;#~@-_=+*/?'!$^&()|<>.," + '"'
+        asciiCharSet = set([chr(i) for i in range(128)])
+        # Discard special chars
+        for char in "%\\{}[] \t\n\r":
+            asciiCharSet.discard(char)
+        self.wordchars = ''.join(asciiCharSet)
         self.commenters = '%'

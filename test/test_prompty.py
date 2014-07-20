@@ -4,6 +4,7 @@
 # Import external modules
 import sys
 import os
+import re
 import imp
 import getpass
 import socket
@@ -434,6 +435,16 @@ class StandardFunctionTests(unittest.TestCase):
         self.assertEqual(r"This Is A Test", c._call("testFunc"))
         self.assertRaises(KeyError, c._call, "_hiddenFunc")
 
+    def test_date(self):
+        c = prompty.functions.FunctionContainer()
+        self.assertTrue(bool(re.match(r"^[a-zA-z]+ [a-zA-z]+ [0-9]+$",c._call("date"))))
+
+    def test_datefmt(self):
+        c = prompty.functions.FunctionContainer()
+        self.assertTrue(bool(re.match(r"^[0-9:]+$",c._call("datefmt"))))
+        self.assertTrue(bool(re.match(r"^hello$",c._call("datefmt","hello"))))
+        self.assertTrue(bool(re.match(r"^[0-9]{2}$",c._call("datefmt","#d"))))
+
 
 class ExpressionFunctionTests(unittest.TestCase):
     def test_equal(self):
@@ -497,13 +508,13 @@ class ConfigTests(unittest.TestCase):
                             prompty.userdir.PROMPTY_CONFIG_FILE))
         self.assertEquals(os.path.join(os.path.dirname(TEST_DIR), 
                                        prompty.userdir.SKEL_DIR, 
-                                       "default.prompt"), c.promptFile)
+                                       "default.prompty"), c.promptFile)
 
     def test_loadPrompt(self):
         c = prompty.config.Config()
         c.promptFile = os.path.join(os.path.dirname(TEST_DIR), 
                                        prompty.userdir.SKEL_DIR, 
-                                       "default.prompt")
+                                       "default.prompty")
         c.loadPromptFile()
         self.assertGreater(len(c.promptString), 0)
 
