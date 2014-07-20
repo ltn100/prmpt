@@ -4,3 +4,7 @@
 import prompty
 import functions
 import colours
+import compiler
+import parser
+import lexer
+import userdir

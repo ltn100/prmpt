@@ -73,7 +73,7 @@ def main(argv=None):
         usage("Not enough arguments")
         return 1
 
-    exitStatus = argv[1]
+    exitStatus = int(args[0])
 
     s = prompty.prompty.Status(exitStatus)
 
@@ -82,7 +82,7 @@ def main(argv=None):
     # Encode unicode to UTF-8 for terminal printing
     sys.stdout.write(p.getPrompt().encode("utf8"))
 
-    return 0
+    return exitStatus
 
 
 
