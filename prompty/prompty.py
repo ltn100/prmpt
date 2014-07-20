@@ -3,13 +3,21 @@
 
 # Import external modules
 import os
+import sys
 
-
+# Import prompty modules
 import parser
 import compiler
+import userdir
 
 
-
+def getPromptyBaseDir():
+    return os.path.dirname(
+        os.path.dirname(
+            # The filename of this module
+            sys.modules[__name__].__file__
+        )
+    )
 
 
 class Status(object):
@@ -24,6 +32,7 @@ class Prompt(object):
         self.status = status
         self.parser = parser.Parser()
         self.compiler = compiler.Compiler(status)
+        self.userDir = userdir.UserDir()
 
 
     def getPrompt(self):

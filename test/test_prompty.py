@@ -7,6 +7,7 @@ import os
 import imp
 import getpass
 import socket
+import shutil
 import unittest
 from contextlib import contextmanager
 from StringIO import StringIO
@@ -474,6 +475,14 @@ class UserDirTests(unittest.TestCase):
     def test_userDirLocation(self):
         u = prompty.userdir.UserDir()
         self.assertEquals(os.path.join(os.path.expanduser('~'),prompty.userdir.PROMPTY_USER_DIR), u.getDir())
+
+    def test_initialise(self):
+        u = prompty.userdir.UserDir("/tmp")
+        u.initialise()
+        self.assertTrue(os.path.isdir(u.getDir()))
+        self.assertTrue(os.path.exists(u.getConfigFile()))
+        # Cleanup
+        shutil.rmtree(u.getDir())
 
 
 

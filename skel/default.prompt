@@ -1,0 +1,19 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This is the default prompt for prompty
+%
+% vim: set filetype=tex:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\green{
+    \user
+}
+@
+\white{
+    \hostname
+}
+\space
+\blue[bold]{
+    \workingdir
+}
+\newline
+%\smiley
+\space
