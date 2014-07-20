@@ -3,102 +3,12 @@
 
 # Import external modules
 import os
-import sys
-import shlex
 import inspect
 
+import parser
+import compiler
 import functions
 
-
-
-class Lexer(shlex.shlex):
-    def __init__(self, instream):
-        shlex.shlex.__init__(self, instream=instream.replace('\n','\n\n'))
-        self.wordchars = self.wordchars + r":;#~@-_=+*/?'!$^&()|<>.," + '"'
-        self.commenters = '%'
-
-class Parser(object):
-    @staticmethod
-    def _guardedNext(lex):
-        token = None
-        try:
-            token = lex.next()
-        except StopIteration:
-            pass
-        return token
-    
-    def _atom(self, lex, token):
-        out = []
-        while True:
-            try:
-                if token == '\\':
-                    # Function
-                    name = lex.next()
-                    args = []
-                    optargs = []
-                    token = self._guardedNext(lex)
-                    while token in ['{', '[']:
-                        # Arguments
-                        arg = self._atom(lex, lex.next())
-
-                        if token == '{':
-                            args.append(arg)
-                        elif token == '[':
-                            optargs.append(arg)
-                        token = self._guardedNext(lex)
-                    func = {'type': 'function', 'name': name}
-                    if args:
-                        func['args'] = args
-                    if optargs:
-                        func['optargs'] = optargs
-                    out.append(func)
-                    if token is None:
-                        raise StopIteration
-                elif token in ['}',']']:
-                    # End scope
-                    break
-                else:
-                    # String literal
-                    out.append({ 'type': 'literal', 'value': token})
-                    token = lex.next()
-            except StopIteration:
-                break
-        return out
-    
-    def parse(self, instream):
-        self.lex = Lexer(instream)
-        return self._atom(self.lex, self.lex.next())
-
-
-class Compiler(object):
-    def __init__(self, status=None):
-        if status is None:
-            status = Status()
-            
-        self.status = status
-        self.funcs = FunctionContainer(status)
-
-    def compile(self, parsedStruct):
-        out = ""
-        for element in parsedStruct:
-            if element['type'] == 'literal':
-                # Literals go to the output verbatim
-                out += element['value']
-            elif element['type'] == 'function':
-                # First arg is the function name
-                args = [element['name']]
-                # Then the required arguments
-                if 'args' in element:
-                    for arg in element['args']:
-                        args.append(self.compile(arg))
-                # Finally any optional arguments
-                if 'optargs' in element:
-                    for optarg in element['optargs']:
-                        args.append(self.compile(optarg))
-                # Call the function!
-                out += unicode(self.funcs._call(*args))
-                
-        return out
 
 
 class FunctionContainer(object):
@@ -129,8 +39,8 @@ class Prompt(object):
 
     def __init__(self, status):
         self.status = status
-        self.parser = Parser()
-        self.compiler = Compiler(status)
+        self.parser = parser.Parser()
+        self.compiler = compiler.Compiler(status)
 
 
     def getPrompt(self):
