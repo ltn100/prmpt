@@ -179,6 +179,9 @@ def smiley(status):
     out += colours.stopColour(status)
     return out
 
+def isgitrepo(status):
+    return status.git.isRepo()
+
 
 class FunctionContainer(object):
 

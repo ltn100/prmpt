@@ -10,6 +10,7 @@ import parser
 import compiler
 import userdir
 import config
+import git
 
 
 def getPromptyBaseDir():
@@ -25,6 +26,7 @@ class Status(object):
     def __init__(self, exitCode=0):
         self.exitCode = int(exitCode)
         self.euid = os.geteuid()
+        self.git = git.Git()
 
 
 class Prompt(object):

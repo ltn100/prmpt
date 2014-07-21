@@ -11,6 +11,7 @@ import socket
 import shutil
 import tempfile
 import unittest
+import distutils.spawn
 from contextlib import contextmanager
 from StringIO import StringIO
 
@@ -520,6 +521,16 @@ class ConfigTests(unittest.TestCase):
                                        "default.prompty")
         c.loadPromptFile()
         self.assertGreater(len(c.promptString), 0)
+
+
+class GitTests(unittest.TestCase):
+    def test_commandAvailable(self):
+        git_exists = bool(distutils.spawn.find_executable(prompty.git.GIT_COMMAND))
+        g = prompty.git.Git()
+        self.assertEquals(git_exists, g.exists)
+        g = prompty.git.Git("bogus_command_foo")
+        self.assertEquals(False, g.exists)
+
 
 #---------------------------------------------------------------------------#
 #                          End of functions                                 #
