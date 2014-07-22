@@ -525,11 +525,13 @@ class ConfigTests(unittest.TestCase):
 
 class GitTests(unittest.TestCase):
     def test_commandAvailable(self):
-        git_exists = bool(distutils.spawn.find_executable(prompty.git.GIT_COMMAND))
+        git_installed = bool(distutils.spawn.find_executable(prompty.git.GIT_COMMAND))
         g = prompty.git.Git()
-        self.assertEquals(git_exists, g.exists)
+        self.assertEquals(git_installed, g.installed())
         g = prompty.git.Git("bogus_command_foo")
-        self.assertEquals(False, g.exists)
+        self.assertEquals(False, g.installed())
+
+
 
 
 #---------------------------------------------------------------------------#
