@@ -2,58 +2,38 @@
 # vim:set softtabstop=4 shiftwidth=4 tabstop=4 expandtab:
 
 # Import external modules
-import sys
 import os
 import re
 import getpass
 import socket
-import inspect
 import datetime
 
 import colours
-import prompty
 
 
+#            TODO:
 #               \a     an ASCII bell character (07)
-#              x\d     the date in "Weekday Month Date" format (e.g., "Tue May 26")
-#              x\D{format}
-#                      the format is passed to strftime(3) and the result is inserted into
-#                      the  prompt  string;  an  empty format results in a locale-specific
-#                      time representation.  The braces are required
-#               \e     an ASCII escape character (033)
-#              x\h     the hostname up to the first `.'
-#              x\H     the hostname
 #               \j     the number of jobs currently managed by the shell
 #               \l     the basename of the shell's terminal device name
-#              x\n     newline
-#              x\r     carriage return
 #               \s     the name of the shell, the basename of $0  (the  portion  following
 #                      the final slash)
 #               \t     the current time in 24-hour HH:MM:SS format
 #               \T     the current time in 12-hour HH:MM:SS format
 #               \@     the current time in 12-hour am/pm format
 #               \A     the current time in 24-hour HH:MM format
-#              x\u     the username of the current user
 #               \v     the version of bash (e.g., 2.00)
 #               \V     the release of bash, version + patch level (e.g., 2.00.0)
-#              x\w     the  current working directory, with $HOME abbreviated with a tilde
-#                      (uses the value of the PROMPT_DIRTRIM variable)
-#              x\W     the basename of the current working directory, with $HOME  abbreviated with a tilde
 #               \!     the history number of this command
 #               \#     the command number of this command
-#              x\$     if the effective UID is 0, a #, otherwise a $
-#               \nnn   the character corresponding to the octal number nnn
-#               \\     a backslash
-#              x\[     begin a sequence of non-printing characters, which could be used to
-#                      embed a terminal control sequence into the prompt
-#              x\]     end a sequence of non-printing characters
 
-colours._populateFunctions(sys.modules[__name__])
+
 
 # ----- Special Characters --------
+# \e
 def unichar(status, code):
     return unichr(int(code,0))
 
+# \\
 def backslash(status):
     return u"\\"
 
@@ -75,12 +55,21 @@ def closesquare(status):
 def space(status):
     return u" "
 
+# \n
 def newline(status):
     return u"\n"
 
+# \r
 def carriagereturn(status):
     return u"\r"
 
+# \e
+def escape(status):
+    return u"\033"
+
+
+# ----- Bash Prompt Functions --------
+# \D
 def datefmt(status,format=None):
     now = datetime.datetime.now()
     if format:
@@ -88,18 +77,41 @@ def datefmt(status,format=None):
         return now.strftime(format)
     else:
         return now.strftime("%X")
-    
+
+# \d
 def date(status):
     return datefmt(status, "%a %b %d")
 
+# \u
 def user(status):
     return getpass.getuser()
 
+# \h
 def hostname(status):
     return socket.gethostname().split(".")[0]
 
+# \H
 def hostnamefull(status):
     return socket.gethostname()
+
+# \w
+def workingdir(status):
+    cwd = os.getenv('PWD')
+    home = os.path.expanduser(r"~")
+    return re.sub(r'^%s' % home, r"~", cwd)
+
+# \W
+def workingdirbase(status):
+    return os.path.basename(os.getenv('PWD'))
+
+# \$
+def dollar(status, euid=None):
+    if euid is None:
+        euid = status.euid
+    if int(euid) == 0:
+        return ur"#"
+    else:
+        return ur"$"
 
 def isrealpath(status, path=None):
     if path is None:
@@ -109,31 +121,26 @@ def isrealpath(status, path=None):
     else:
         return False
 
-def workingdir(status):
-    cwd = os.getenv('PWD')
-    home = os.path.expanduser(r"~")
-    return re.sub(r'^%s' % home, r"~", cwd)
 
-def workingdirbase(status):
-    return os.path.basename(os.getenv('PWD'))
+# ----- Expression Functions --------
 
-def dollar(status, euid=None):
-    if euid is None:
-        euid = status.euid
-    if int(euid) == 0:
-        return ur"#"
-    else:
-        return ur"$"
-
-
-def _tobool(expr):
-    if str(expr).lower() in ['true', '1', 't', 'y', 'yes']:
+def exitsuccess(status):
+    if status.exitCode == 0:
         return True
     else:
         return False
 
 def equals(status, a,b):
     return a == b
+
+def greater(status, a,b):
+    if a > b:
+        return a
+    else:
+        return b
+
+
+# ----- Control Functions --------
 
 def ifexpr(status, cond,thenval,elseval=None):
     if _tobool(cond):
@@ -144,21 +151,11 @@ def ifexpr(status, cond,thenval,elseval=None):
         else:
             return u""
 
-def exitsuccess(status):
-    if status.exitCode == 0:
-        return True
-    else:
-        return False
 
+# ----- String Functions --------
 
 def lower(status, literal):
     return unicode(literal).lower()
-
-def greater(status, a,b):
-    if a > b:
-        return a
-    else:
-        return b
 
 def join(status, *args):
     if len(args) < 1:
@@ -166,6 +163,9 @@ def join(status, *args):
     delim = args[0]
     args = args[1:]
     return unicode(delim).join(args)
+
+
+# ----- Misc Functions --------
 
 def smiley(status):
     if status.exitCode == 0:
@@ -179,29 +179,14 @@ def smiley(status):
     out += colours.stopColour(status)
     return out
 
-def isgitrepo(status):
-    return status.git.isRepo()
 
 
-class FunctionContainer(object):
+#============================================
+# Internal Functions
+#============================================
 
-    def _call(self, *args):
-        if len(args) < 1:
-            raise TypeError("call requires a name")
-        name = args[0]
-        args = [self.status] + list(args[1:])
-        return self.functions[name](*args)
-
-
-    def _addFunctions(self, module):
-        for name, func in inspect.getmembers(module, inspect.isfunction):
-            if name[0] != "_":
-                self.functions[name] = func
-
-    def __init__(self, status=None):
-        if status is None:
-            status = prompty.Status()
-        self.status = status
-        self.functions = {}
-        self._addFunctions(sys.modules[__name__])
-
+def _tobool(expr):
+    if str(expr).lower() in ['true', '1', 't', 'y', 'yes']:
+        return True
+    else:
+        return False

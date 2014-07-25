@@ -2,7 +2,7 @@
 # vim:set softtabstop=4 shiftwidth=4 tabstop=4 expandtab:
 
 # Import external modules
-
+import sys
 
 NAME_KEY = 0
 CODE_KEY = 1
@@ -103,3 +103,7 @@ def _populateFunctions(module):
     for colour in COLOURS:
         colourName = colour[NAME_KEY]
         setattr(module, colourName, _colourFuncFactory(colourName))
+        
+
+# Populate the functions in this module
+_populateFunctions(sys.modules[__name__])

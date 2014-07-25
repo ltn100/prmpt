@@ -74,6 +74,7 @@ class ColourTests(unittest.TestCase):
             self.assertIs(prompty.colours._getColourObj(colour), colour)
             self.assertIs(prompty.colours._getColourObj(colour[prompty.colours.NAME_KEY]), colour)
             self.assertIs(prompty.colours._getColourObj(colour[prompty.colours.CODE_KEY]), colour)
+        self.assertRaises(KeyError, prompty.colours._getColourObj, "burple")
  
     def test_getPrefixObj(self):
         self.assertIs(prompty.colours._getPrefixObj(prompty.colours.BG_PREFIX), prompty.colours.BG_PREFIX)
@@ -83,6 +84,7 @@ class ColourTests(unittest.TestCase):
             self.assertIs(prompty.colours._getPrefixObj(prefix), prefix)
             self.assertIs(prompty.colours._getPrefixObj(prefix[prompty.colours.NAME_KEY]), prefix)
             self.assertIs(prompty.colours._getPrefixObj(prefix[prompty.colours.CODE_KEY]), prefix)
+        self.assertRaises(KeyError, prompty.colours._getPrefixObj, "upsidedown")
  
     def test_stopColour(self):
         self.assertEqual(prompty.colours.stopColour(None), "\001\033[0m\002")
@@ -390,73 +392,114 @@ def _hiddenFunc(status):
 
 class StandardFunctionTests(unittest.TestCase):
 
+    def test_noname(self):
+        c = prompty.functionContainer.FunctionContainer()
+        self.assertRaises(TypeError, c._call)
+
     def test_user(self):
-        c = prompty.functions.FunctionContainer()
+        c = prompty.functionContainer.FunctionContainer()
         self.assertEqual(getpass.getuser(), c._call("user"))
 
     def test_hostname(self):
-        c = prompty.functions.FunctionContainer()
+        c = prompty.functionContainer.FunctionContainer()
         self.assertEqual(socket.gethostname().split(".")[0], c._call("hostname"))
 
     def test_hostnamefull(self):
-        c = prompty.functions.FunctionContainer()
+        c = prompty.functionContainer.FunctionContainer()
         self.assertEqual(socket.gethostname(), c._call("hostnamefull"))
 
     def test_workingdir(self):
-        c = prompty.functions.FunctionContainer()
+        origcwd = os.getcwd()
+        c = prompty.functionContainer.FunctionContainer()
         os.chdir(os.path.expanduser("~"))
-        self.assertEqual(r"~", c._call("workingdir"))
-        os.chdir("/tmp")
         os.environ["PWD"] = os.getcwd()
-        self.assertEqual(r"/tmp", c._call("workingdir"))
+        self.assertEqual(r"~", c._call("workingdir"))
+        tmpDir = tempfile.mkdtemp()
+        os.chdir(tmpDir)
+        os.environ["PWD"] = os.getcwd()
+        self.assertEqual(tmpDir, c._call("workingdir"))
+        # Cleanup
+        os.chdir(origcwd)
+        os.environ["PWD"] = os.getcwd()
+        shutil.rmtree(tmpDir)
 
     def test_workingdirbase(self):
-        c = prompty.functions.FunctionContainer()
-        os.chdir("/tmp")
+        origcwd = os.getcwd()
+        c = prompty.functionContainer.FunctionContainer()
+        tmpDir = tempfile.mkdtemp()
+        os.chdir(tmpDir)
         os.environ["PWD"] = os.getcwd()
-        self.assertEqual(r"tmp", c._call("workingdirbase"))
+        self.assertEqual(os.path.basename(tmpDir), c._call("workingdirbase"))
         os.chdir("/usr/local")
         os.environ["PWD"] = os.getcwd()
         self.assertEqual(r"local", c._call("workingdirbase"))
+        # Cleanup
+        os.chdir(origcwd)
+        os.environ["PWD"] = os.getcwd()
+        shutil.rmtree(tmpDir)
 
     def test_dollar(self):
-        c = prompty.functions.FunctionContainer()
+        c = prompty.functionContainer.FunctionContainer()
         self.assertEqual(ur"$", c._call("dollar"))
         self.assertEqual(ur"#", c._call("dollar",0))
 
-    def test_newline(self):
-        c = prompty.functions.FunctionContainer()
-        self.assertEqual(u"\n", c._call("newline"))
-
-    def test_return(self):
-        c = prompty.functions.FunctionContainer()
-        self.assertEqual(u"\r", c._call("carriagereturn"))
+    def test_specialChars(self):
+        c = prompty.functionContainer.FunctionContainer()
+        chars = [
+                 ("newline",            u"\n"),
+                 ("carriagereturn",     u"\r"),
+                 ("space",              u" "),
+                 ("backslash",          u"\\"),
+                 ("percent",            u"%"),
+                 ("opencurly",          u"{"),
+                 ("closecurly",         u"}"),
+                 ("opensquare",         u"["),
+                 ("closesquare",        u"]"),
+                 ("escape",             u"\033")
+                ]
+        for char in chars:
+            self.assertEqual(char[1], c._call(char[0]))
 
     def test_extendFunctionContainer(self):
-        c = prompty.functions.FunctionContainer()
+        c = prompty.functionContainer.FunctionContainer()
         # Import this module
-        c._addFunctions(sys.modules[__name__])
+        c.addFunctions(sys.modules[__name__])
         self.assertEqual(r"This Is A Test", c._call("testFunc"))
         self.assertRaises(KeyError, c._call, "_hiddenFunc")
 
     def test_date(self):
-        c = prompty.functions.FunctionContainer()
+        c = prompty.functionContainer.FunctionContainer()
         self.assertTrue(bool(re.match(r"^[a-zA-z]+ [a-zA-z]+ [0-9]+$",c._call("date"))))
 
     def test_datefmt(self):
-        c = prompty.functions.FunctionContainer()
+        c = prompty.functionContainer.FunctionContainer()
         self.assertTrue(bool(re.match(r"^[0-9:]+$",c._call("datefmt"))))
         self.assertTrue(bool(re.match(r"^hello$",c._call("datefmt","hello"))))
         self.assertTrue(bool(re.match(r"^[0-9]{2}$",c._call("datefmt","#d"))))
 
+    def test_isRealPath(self):
+        origcwd = os.getcwd()
+        c = prompty.functionContainer.FunctionContainer()
+        self.assertTrue(c._call("isrealpath"))
+        tmpDir = tempfile.mkdtemp()
+        link = os.path.join(tmpDir, "link")
+        os.symlink(tmpDir, link)
+        os.chdir(link)
+        os.environ["PWD"] = link
+        self.assertFalse(c._call("isrealpath"))
+        # Cleanup
+        os.chdir(origcwd)
+        os.environ["PWD"] = os.getcwd()
+        shutil.rmtree(tmpDir)
+
 
 class ExpressionFunctionTests(unittest.TestCase):
     def test_equal(self):
-        c = prompty.functions.FunctionContainer()
+        c = prompty.functionContainer.FunctionContainer()
         self.assertEqual(True, c._call("equals","1","1"))
 
     def test_if(self):
-        c = prompty.functions.FunctionContainer()
+        c = prompty.functionContainer.FunctionContainer()
         self.assertEqual("1", c._call("ifexpr","True","1","2"))
         self.assertEqual("2", c._call("ifexpr","False","1","2"))
         self.assertEqual("1", c._call("ifexpr","True","1"))
@@ -464,15 +507,15 @@ class ExpressionFunctionTests(unittest.TestCase):
         self.assertEqual("1", c._call("ifexpr","1","1"))
 
     def test_exitSuccess(self):
-        c = prompty.functions.FunctionContainer(prompty.prompty.Status(0))
+        c = prompty.functionContainer.FunctionContainer(prompty.prompty.Status(0))
         self.assertEqual(True, c._call("exitsuccess"))
-        c = prompty.functions.FunctionContainer(prompty.prompty.Status(1))
+        c = prompty.functionContainer.FunctionContainer(prompty.prompty.Status(1))
         self.assertEqual(False, c._call("exitsuccess"))
 
 
 class ColourFunctionTests(unittest.TestCase):
     def test_colourLiteral(self):
-        c = prompty.functions.FunctionContainer()
+        c = prompty.functionContainer.FunctionContainer()
         self.assertEqual("\001\033[0;32m\002I'm green\001\033[0m\002",  c._call("green","I'm green"))
         self.assertEqual("\001\033[0;31m\002I'm red\001\033[0m\002",    c._call("red","I'm red"))
 
@@ -497,9 +540,28 @@ class UserDirTests(unittest.TestCase):
     def test_initialise(self):
         tmpDir = tempfile.mkdtemp()
         u = prompty.userdir.UserDir(tmpDir)
-        u.initialise()
         self.assertTrue(os.path.isdir(u.getDir()))
         self.assertTrue(os.path.exists(u.getConfigFile()))
+        # Cleanup
+        shutil.rmtree(tmpDir)
+
+    def test_initialiseExitst(self):
+        tmpDir = tempfile.mkdtemp()
+        # Create .prompty file in the way
+        open(os.path.join(tmpDir, prompty.userdir.PROMPTY_USER_DIR), 'a').close()
+        self.assertRaises(IOError, prompty.userdir.UserDir, tmpDir)
+        # Cleanup
+        shutil.rmtree(tmpDir)
+
+    def test_copyFiles(self):
+        tmpDir = tempfile.mkdtemp()
+        test1 = os.path.join(tmpDir, "test1")
+        test2 = os.path.join(tmpDir, "test2")
+        # touch test1
+        open(os.path.join(tmpDir, "test1"), 'a').close()
+        prompty.userdir.UserDir.copy(test1, test2)
+        self.assertTrue(os.path.exists(test2))
+        self.assertRaises(IOError, prompty.userdir.UserDir.copy, "/file/doesnt/exist", test2)
         # Cleanup
         shutil.rmtree(tmpDir)
 
@@ -527,9 +589,9 @@ class GitTests(unittest.TestCase):
     def test_commandAvailable(self):
         git_installed = bool(distutils.spawn.find_executable(prompty.git.GIT_COMMAND))
         g = prompty.git.Git()
-        self.assertEquals(git_installed, g.installed())
+        self.assertEquals(git_installed, g.installed)
         g = prompty.git.Git("bogus_command_foo")
-        self.assertEquals(False, g.installed())
+        self.assertEquals(False, g.installed)
 
 
 

@@ -17,7 +17,7 @@ def getPromptyBaseDir():
     return os.path.dirname(
         os.path.dirname(
             # The filename of this module
-            sys.modules[__name__].__file__
+            os.path.normpath(os.path.abspath(sys.modules[__name__].__file__))
         )
     )
 
