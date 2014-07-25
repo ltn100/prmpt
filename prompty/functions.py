@@ -167,6 +167,36 @@ def join(status, *args):
 
 # ----- Misc Functions --------
 
+def tick(status):
+    return unichr(0x2714)
+
+def cross(status):
+    return unichr(0x2718)
+
+def highvoltage(status):
+    return unichr(0x26A1)
+
+def plbranch(status):
+    return unichr(0xe0a0)
+
+def plline(status):
+    return unichr(0xe0a1)
+
+def pllock(status):
+    return unichr(0xe0a2)
+
+def plrightarrowfill(status):
+    return unichr(0xe0b0)
+
+def plrightarrow(status):
+    return unichr(0xe0b1)
+
+def plleftarrowfill(status):
+    return unichr(0xe0b2)
+
+def plleftarrow(status):
+    return unichr(0xe0b3)
+
 def smiley(status):
     if status.exitCode == 0:
         out = colours.startColour(status, "green", "bold")
