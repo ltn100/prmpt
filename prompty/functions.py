@@ -197,13 +197,25 @@ def plleftarrowfill(status):
 def plleftarrow(status):
     return unichr(0xe0b3)
 
+def powerline(status,content,background="blue",foreground="white"):
+    out =  colours.startColour(status, fgcolour=foreground)
+    out += colours.startColour(status, bgcolour=background)
+    out += " "
+    out += content
+    out += " "
+    out += colours.startColour(status, bgcolour=foreground)
+    out += colours.startColour(status, fgcolour=background)
+    out += plrightarrowfill(status)
+    out += colours.stopColour(status)
+    return out
+
 def smiley(status):
     if status.exitCode == 0:
-        out = colours.startColour(status, "green", "bold")
+        out = colours.startColour(status, "green", prefix="bold")
         out += dollar(status)
         out += u":)"
     else:
-        out = colours.startColour(status, "red", "bold")
+        out = colours.startColour(status, "red", prefix="bold")
         out += dollar(status)
         out += u":("
     out += colours.stopColour(status)

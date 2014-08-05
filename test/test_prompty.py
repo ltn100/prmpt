@@ -77,9 +77,9 @@ class ColourTests(unittest.TestCase):
         self.assertRaises(KeyError, prompty.colours._getColourObj, "burple")
  
     def test_getPrefixObj(self):
-        self.assertIs(prompty.colours._getPrefixObj(prompty.colours.BG_PREFIX), prompty.colours.BG_PREFIX)
-        self.assertIs(prompty.colours._getPrefixObj("hi_foreground"), prompty.colours.HIFG_PREFIX)
-        self.assertIs(prompty.colours._getPrefixObj("b"), prompty.colours.EM_PREFIX)
+        self.assertIs(prompty.colours._getPrefixObj(prompty.colours.NORMAL), prompty.colours.NORMAL)
+        self.assertIs(prompty.colours._getPrefixObj("italic"), prompty.colours.ITALIC)
+        self.assertIs(prompty.colours._getPrefixObj("b"), prompty.colours.BOLD)
         for prefix in prompty.colours.PREFIXES:
             self.assertIs(prompty.colours._getPrefixObj(prefix), prefix)
             self.assertIs(prompty.colours._getPrefixObj(prefix[prompty.colours.NAME_KEY]), prefix)
@@ -91,13 +91,14 @@ class ColourTests(unittest.TestCase):
         self.assertEqual(prompty.colours.stopColour(None, False), "\033[0m")
  
     def test_startColour(self):
-        self.assertEqual(prompty.colours.startColour(None, "green"), "\001\033[0;32m\002")
-        self.assertEqual(prompty.colours.startColour(None, "green", wrap=False), "\033[0;32m")
-        self.assertEqual(prompty.colours.startColour(None, "red","b"), "\001\033[1;31m\002")
+        self.assertEqual(prompty.colours.startColour(None, "green"), "\001\033[32m\002")
+        self.assertEqual(prompty.colours.startColour(None, "green", wrap=False), "\033[32m")
+        self.assertEqual(prompty.colours.startColour(None, "red",prefix="b"), "\001\033[1;31m\002")
  
     def test_dynamicColourWrappers(self):
         prompty.colours._populateFunctions(sys.modules[__name__])
-        self.assertEqual(sys.modules[__name__].green(None, "I'm green"), "\001\033[0;32m\002I'm green\001\033[0m\002")
+        self.assertEqual(sys.modules[__name__].green(None, "I'm green"), "\001\033[32m\002I'm green\001\033[0m\002")
+        self.assertEqual(sys.modules[__name__].green(None, "I'm green and bold", "bold"), "\001\033[1;32m\002I'm green and bold\001\033[0m\002")
 
 
 class LexerTests(unittest.TestCase):
@@ -336,13 +337,13 @@ class CompilerTests(unittest.TestCase):
 
     def test_nestedFunction(self):
         c = prompty.compiler.Compiler()
-        self.assertEqual("\001\033[0;32m\002%s\001\033[0m\002" % CompilerTests.user, 
+        self.assertEqual("\001\033[32m\002%s\001\033[0m\002" % CompilerTests.user, 
                          c.compile([{'type': 'function', 'name': r"green", 'args': 
                                      [[{'type': 'function', 'name': r"user"}]]}]) )
 
     def test_functionWithMultipleLiteralArgument(self):
         c = prompty.compiler.Compiler()
-        self.assertEqual("\001\033[0;32m\002a%sb%s\001\033[0m\002" % (CompilerTests.user,CompilerTests.host),
+        self.assertEqual("\001\033[32m\002a%sb%s\001\033[0m\002" % (CompilerTests.user,CompilerTests.host),
                          c.compile([{'type': 'function', 'name': r"green", 'args': 
                                 [[{'type': 'literal', 'value': r"a"},
                                  {'type': 'function', 'name': r"user"},
@@ -516,8 +517,8 @@ class ExpressionFunctionTests(unittest.TestCase):
 class ColourFunctionTests(unittest.TestCase):
     def test_colourLiteral(self):
         c = prompty.functionContainer.FunctionContainer()
-        self.assertEqual("\001\033[0;32m\002I'm green\001\033[0m\002",  c._call("green","I'm green"))
-        self.assertEqual("\001\033[0;31m\002I'm red\001\033[0m\002",    c._call("red","I'm red"))
+        self.assertEqual("\001\033[32m\002I'm green\001\033[0m\002",  c._call("green","I'm green"))
+        self.assertEqual("\001\033[31m\002I'm red\001\033[0m\002",    c._call("red","I'm red"))
 
 
 class PromptTests(unittest.TestCase):

@@ -10,7 +10,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \yellow[bold]{
-    \red[bg]{
+    \redbg{
         % Transition from yellow fg to red bg
         \unichar{0x2588}
         \unichar{0x2593}
@@ -18,7 +18,7 @@
         \unichar{0x2591}
     }
 }
-\red[bg]{\white[bold]{\user @\hostname}}
+\redbg{\white[bold]{\user @\hostname}}
 \red{
     % Transition from red fg to default background
     \unichar{0x2588}
