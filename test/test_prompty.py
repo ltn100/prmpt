@@ -66,16 +66,52 @@ class MainTests(unittest.TestCase):
 
 
 class ColourTests(unittest.TestCase):
-    def test_getColourObj(self):
-        self.assertIs(prompty.colours._getColourObj(prompty.colours.RED), prompty.colours.RED)
-        self.assertIs(prompty.colours._getColourObj("black"), prompty.colours.BLACK)
-        self.assertIs(prompty.colours._getColourObj("m"), prompty.colours.MAGENTA)
+#     def test_getColourObj(self):
+#         self.assertIs(prompty.colours._getColourObj(prompty.colours.RED), prompty.colours.RED)
+#         self.assertIs(prompty.colours._getColourObj("black"), prompty.colours.BLACK)
+#         self.assertIs(prompty.colours._getColourObj("m"), prompty.colours.MAGENTA)
+#         for colour in prompty.colours.COLOURS:
+#             self.assertIs(prompty.colours._getColourObj(colour), colour)
+#             self.assertIs(prompty.colours._getColourObj(colour[prompty.colours.NAME_KEY]), colour)
+#             self.assertIs(prompty.colours._getColourObj(colour[prompty.colours.CODE_KEY]), colour)
+#         self.assertRaises(KeyError, prompty.colours._getColourObj, "burple")
+
+    def test_getColourCode4Bit(self):
+        self.assertEquals(prompty.colours.RED[prompty.colours.VAL_KEY], prompty.colours._getColourCode(prompty.colours.RED) )
+        self.assertEquals(prompty.colours.BLACK[prompty.colours.VAL_KEY], prompty.colours._getColourCode("black"))
+        self.assertEquals(prompty.colours.MAGENTA[prompty.colours.VAL_KEY], prompty.colours._getColourCode("m"))
         for colour in prompty.colours.COLOURS:
-            self.assertIs(prompty.colours._getColourObj(colour), colour)
-            self.assertIs(prompty.colours._getColourObj(colour[prompty.colours.NAME_KEY]), colour)
-            self.assertIs(prompty.colours._getColourObj(colour[prompty.colours.CODE_KEY]), colour)
-        self.assertRaises(KeyError, prompty.colours._getColourObj, "burple")
- 
+            self.assertEquals(colour[prompty.colours.VAL_KEY], prompty.colours._getColourCode(colour) )
+            self.assertEquals(colour[prompty.colours.VAL_KEY], prompty.colours._getColourCode(colour[prompty.colours.NAME_KEY]) )
+            self.assertEquals(colour[prompty.colours.VAL_KEY], prompty.colours._getColourCode(colour[prompty.colours.CODE_KEY]) )
+        self.assertRaises(ValueError, prompty.colours._getColourCode, "burple")
+
+    def test_getColourCodeBg4Bit(self):
+        for colour in prompty.colours.COLOURS:
+            self.assertEquals(int(colour[prompty.colours.VAL_KEY])+prompty.colours.BG_OFFSET, 
+                              prompty.colours._getColourCode(colour,prompty.colours.BACKGROUND) )
+            self.assertEquals(int(colour[prompty.colours.VAL_KEY])+prompty.colours.BG_OFFSET, 
+                              prompty.colours._getColourCode(colour[prompty.colours.NAME_KEY],prompty.colours.BACKGROUND) )
+            self.assertEquals(int(colour[prompty.colours.VAL_KEY])+prompty.colours.BG_OFFSET, 
+                              prompty.colours._getColourCode(colour[prompty.colours.CODE_KEY],prompty.colours.BACKGROUND) )
+        self.assertRaises(ValueError, prompty.colours._getColourCode, "burple")
+
+    def test_getColourCode8Bit(self):
+        self.assertEquals("38;5;145", prompty.colours._getColourCode("145") )
+        self.assertEquals("38;5;0", prompty.colours._getColourCode("0") )
+        self.assertEquals("38;5;255", prompty.colours._getColourCode("255") )
+        self.assertRaises(ValueError, prompty.colours._getColourCode, "256")
+        self.assertRaises(ValueError, prompty.colours._getColourCode, "0x456")
+        self.assertEquals("38;5;16", prompty.colours._getColourCode("#000") )
+        self.assertEquals("38;5;196", prompty.colours._getColourCode("#f00") )
+        self.assertEquals("38;5;46", prompty.colours._getColourCode("#0f0") )
+        self.assertEquals("38;5;21", prompty.colours._getColourCode("#00f") )
+        self.assertRaises(ValueError, prompty.colours._getColourCode, "#bat")
+        self.assertEquals("38;5;231", prompty.colours._getColourCode("#gff") )
+        self.assertEquals("38;5;232", prompty.colours._getColourCode("#g05") )
+        self.assertEquals("38;5;239", prompty.colours._getColourCode("#g4e") )
+        self.assertEquals("38;5;255", prompty.colours._getColourCode("#gee") )
+
     def test_getPrefixObj(self):
         self.assertIs(prompty.colours._getPrefixObj(prompty.colours.NORMAL), prompty.colours.NORMAL)
         self.assertIs(prompty.colours._getPrefixObj("italic"), prompty.colours.ITALIC)

@@ -3,37 +3,41 @@
 
 # Import external modules
 import sys
+import re
 
 NAME_KEY = 0
 CODE_KEY = 1
 VAL_KEY  = 2
 
-# \e[x;yy;zz
-# x = prefix
-# yy = 
 
-# Colour names
-BLACK   = {NAME_KEY : "black",      CODE_KEY : "k",     VAL_KEY : 0}
-RED     = {NAME_KEY : "red",        CODE_KEY : "r",     VAL_KEY : 1}
-GREEN   = {NAME_KEY : "green",      CODE_KEY : "g",     VAL_KEY : 2}
-YELLOW  = {NAME_KEY : "yellow",     CODE_KEY : "y",     VAL_KEY : 3}
-BLUE    = {NAME_KEY : "blue",       CODE_KEY : "b",     VAL_KEY : 4}
-MAGENTA = {NAME_KEY : "magenta",    CODE_KEY : "m",     VAL_KEY : 5}
-CYAN    = {NAME_KEY : "cyan",       CODE_KEY : "c",     VAL_KEY : 6}
-LGREY   = {NAME_KEY : "lightgrey",  CODE_KEY : "lg",    VAL_KEY : 7}
-DGREY   = {NAME_KEY : "darkgrey",   CODE_KEY : "dg",    VAL_KEY : 60}
-LRED    = {NAME_KEY : "lightred",   CODE_KEY : "lr",    VAL_KEY : 61}
-LGREEN  = {NAME_KEY : "lightgreen", CODE_KEY : "lgn",   VAL_KEY : 62}
-LYELLOW = {NAME_KEY : "lightyellow",CODE_KEY : "ly",    VAL_KEY : 63}
-LBLUE   = {NAME_KEY : "lightblue",  CODE_KEY : "lb",    VAL_KEY : 64}
-LMAGENTA= {NAME_KEY : "lightmagenta",CODE_KEY :"lm",    VAL_KEY : 65}
-LCYAN   = {NAME_KEY : "lightcyan",  CODE_KEY : "lc",    VAL_KEY : 66}
-WHITE   = {NAME_KEY : "white",      CODE_KEY : "w",     VAL_KEY : 67}
+FOREGROUND = 1
+BACKGROUND = 2
+
+
+# 4-bit colour names
+BLACK   = {NAME_KEY : "black",      CODE_KEY : "k",     VAL_KEY : 30}
+RED     = {NAME_KEY : "red",        CODE_KEY : "r",     VAL_KEY : 31}
+GREEN   = {NAME_KEY : "green",      CODE_KEY : "g",     VAL_KEY : 32}
+YELLOW  = {NAME_KEY : "yellow",     CODE_KEY : "y",     VAL_KEY : 33}
+BLUE    = {NAME_KEY : "blue",       CODE_KEY : "b",     VAL_KEY : 34}
+MAGENTA = {NAME_KEY : "magenta",    CODE_KEY : "m",     VAL_KEY : 35}
+CYAN    = {NAME_KEY : "cyan",       CODE_KEY : "c",     VAL_KEY : 36}
+LGREY   = {NAME_KEY : "lightgrey",  CODE_KEY : "lg",    VAL_KEY : 37}
+DGREY   = {NAME_KEY : "darkgrey",   CODE_KEY : "dg",    VAL_KEY : 90}
+LRED    = {NAME_KEY : "lightred",   CODE_KEY : "lr",    VAL_KEY : 91}
+LGREEN  = {NAME_KEY : "lightgreen", CODE_KEY : "lgn",   VAL_KEY : 92}
+LYELLOW = {NAME_KEY : "lightyellow",CODE_KEY : "ly",    VAL_KEY : 93}
+LBLUE   = {NAME_KEY : "lightblue",  CODE_KEY : "lb",    VAL_KEY : 94}
+LMAGENTA= {NAME_KEY : "lightmagenta",CODE_KEY :"lm",    VAL_KEY : 95}
+LCYAN   = {NAME_KEY : "lightcyan",  CODE_KEY : "lc",    VAL_KEY : 96}
+WHITE   = {NAME_KEY : "white",      CODE_KEY : "w",     VAL_KEY : 97}
 COLOURS = [BLACK,RED,GREEN,YELLOW,BLUE,MAGENTA,CYAN,LGREY,
            DGREY,LRED,LGREEN,LYELLOW,LBLUE,LMAGENTA,LCYAN,WHITE]
 
-FG_OFFSET = 30
-BG_OFFSET = 40
+# 4-bit colour background offset
+BG_OFFSET = 10
+
+
 
 # Prefixes
 NORMAL      = {NAME_KEY : "normal",     CODE_KEY : "n",     VAL_KEY : 0}
@@ -72,47 +76,151 @@ def _encode(code, wrap=True):
     return s
 
 
-def _get8bitColourObj(identifier):
-    raise ValueError
-
-def _get24bitColourObj(identifier):
-    raise ValueError
-
-def _getColourObj(identifier):
+def _get4bitColourCode(identifier, area=FOREGROUND):
+    """
+    4-bit colour codes can be any of the following:
+        r, red, lr, lightred, etc.
+    """
+    if area == FOREGROUND:
+        offset = 0
+    else:
+        offset = BG_OFFSET
+        
     if isinstance(identifier, dict):
         # Is it a colour dict?
         if identifier in COLOURS:
-            return identifier
+            return identifier[VAL_KEY]+offset
     else:
         # Assume identifier is a sting
         if len(identifier) == 0:
-            raise KeyError("No such colour %s" % str(identifier))
+            raise ValueError("No such colour %s" % str(identifier))
         
         # Is it a name key?
         for colour in COLOURS:
             if identifier == colour[NAME_KEY]:
-                return colour
-    
+                return colour[VAL_KEY]+offset
+            
         # Is it a code key?
         for colour in COLOURS:
             if identifier == colour[CODE_KEY]:
-                return colour
-        
-        # Look for a colour code
-        try:
-            # 8-bit colour code
-            colour = _get8bitColourObj(identifier)
-            return colour
-        except ValueError:
-            try:
-                # 24-bit colour code
-                colour = _get24bitColourObj(identifier)
-                return colour
-            except ValueError:
-                pass
-        
-    raise KeyError("No such colour %s" % str(identifier))
+                return colour[VAL_KEY]+offset
+    
+    raise ValueError
 
+NEAREST_8BIT_CODE = [0x30, 0x73, 0x9b, 0xc3, 0x3b, 0xff]
+NEAREST_8BIT_GREY_CODE = [0x04, 0x0d, 0x17, 0x21, 0x2b, 0x35, 0x3f, 0x49,
+                          0x53, 0x5c, 0x63, 0x6e, 0x7b, 0x85, 0x8f, 0x99, 
+                          0xa3, 0xad, 0xb7, 0xc1, 0xcb, 0xd5, 0xdf, 0xe9, 0xf7, 0xff]
+
+
+
+def _get8bitColourCode(identifier, area=FOREGROUND):
+    """
+    8-bit colour codes can be any of the following:
+        0, 5, 126, 255, #0f0, #fff, #a3e, etc.
+    """
+    # Assume identifier is a sting
+    identifier = str(identifier)
+    if len(identifier) == 0:
+        raise ValueError("No such colour %s" % str(identifier))
+    
+    if area == FOREGROUND:
+        prefix = "38;5;"
+    else:
+        prefix = "48;5;"
+    
+    # Check lead char
+    if identifier[0] == "#":
+        if not re.match("^#[0-9a-fA-Fg][0-9a-fA-F][0-9a-fA-F]$",identifier):
+            raise ValueError
+        
+        if identifier[1] == 'g':
+            # Grey-scale values
+            hex_val = int(identifier[2:4], 16)
+            nearest_segment = 0
+            for idx, v in enumerate(NEAREST_8BIT_GREY_CODE):
+                if hex_val <= v:
+                    nearest_segment = idx
+                    break
+
+            if nearest_segment == 0:
+                identifier = 16
+            elif nearest_segment == len(NEAREST_8BIT_GREY_CODE)-1:
+                identifier = 231
+            else:
+                identifier = nearest_segment+231
+            return "%s%d" % (prefix, identifier)
+        
+        else:
+            nearest_segments = [0,0,0] # R,G,B
+            
+            for i in xrange(3):
+                hex_val = (int(identifier[i+1], 16)*16)+7
+                for idx, v in enumerate(NEAREST_8BIT_CODE):
+                    if hex_val <= v:
+                        nearest_segments[i] = idx
+                        break
+    
+            identifier = nearest_segments[0]*36 + nearest_segments[1]*6 +nearest_segments[2] + 16
+            return "%s%d" % (prefix, identifier)
+
+    else:
+        # Assume an integer value
+        identifier = int(identifier)
+        if identifier < 0 or identifier > 255:
+            raise ValueError
+        return "%s%d" % (prefix, identifier)
+    
+    
+    raise ValueError
+
+def _get24bitColourCode(identifier, area=FOREGROUND):
+    raise ValueError
+
+# def _getColourObj(identifier):
+#     if isinstance(identifier, dict):
+#         # Is it a colour dict?
+#         if identifier in COLOURS:
+#             return identifier
+#     else:
+#         # Assume identifier is a sting
+#         if len(identifier) == 0:
+#             raise KeyError("No such colour %s" % str(identifier))
+#         
+#         # Is it a name key?
+#         for colour in COLOURS:
+#             if identifier == colour[NAME_KEY]:
+#                 return colour
+#     
+#         # Is it a code key?
+#         for colour in COLOURS:
+#             if identifier == colour[CODE_KEY]:
+#                 return colour
+#         
+#         
+#     raise KeyError("No such colour %s" % str(identifier))
+
+
+def _getColourCode(identifier, area=FOREGROUND):
+    try:
+        colourCode = _get4bitColourCode(identifier,area)
+        return colourCode
+    except ValueError:
+        pass
+    
+    try:
+        colourCode = _get8bitColourCode(identifier,area)
+        return colourCode
+    except ValueError:
+        pass
+
+    try:
+        colourCode = _get24bitColourCode(identifier,area)
+        return colourCode
+    except ValueError:
+        pass
+    
+    raise ValueError("No such colour %s" % str(identifier))
 
 def _getPrefixObj(identifier):
     # Is it a prefix dict?
@@ -142,14 +250,12 @@ def startColour(status, fgcolour=None, bgcolour=None, prefix=None, wrap=True):
     if fgcolour:
         if colourCode:
             colourCode += ";"
-        fgcol = _getColourObj(fgcolour)
-        colourCode += unicode(fgcol[VAL_KEY]+FG_OFFSET)
+        colourCode += unicode(_getColourCode(fgcolour, FOREGROUND))
 
     if bgcolour:
         if colourCode:
             colourCode += ";"
-        bgcol = _getColourObj(bgcolour)
-        colourCode += unicode(bgcol[VAL_KEY]+BG_OFFSET)
+        colourCode += unicode(_getColourCode(bgcolour, BACKGROUND))
 
     return _encode(colourCode, wrap=wrap)
 
