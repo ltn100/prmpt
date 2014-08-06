@@ -94,6 +94,7 @@ class ColourTests(unittest.TestCase):
         self.assertEqual(prompty.colours.startColour(None, "green"), "\001\033[32m\002")
         self.assertEqual(prompty.colours.startColour(None, "green", wrap=False), "\033[32m")
         self.assertEqual(prompty.colours.startColour(None, "red",prefix="b"), "\001\033[1;31m\002")
+        self.assertEqual(prompty.colours.startColour(None, "1"), "\001\033[38;5;1m\002")
  
     def test_dynamicColourWrappers(self):
         prompty.colours._populateFunctions(sys.modules[__name__])

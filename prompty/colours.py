@@ -22,12 +22,12 @@ MAGENTA = {NAME_KEY : "magenta",    CODE_KEY : "m",     VAL_KEY : 5}
 CYAN    = {NAME_KEY : "cyan",       CODE_KEY : "c",     VAL_KEY : 6}
 LGREY   = {NAME_KEY : "lightgrey",  CODE_KEY : "lg",    VAL_KEY : 7}
 DGREY   = {NAME_KEY : "darkgrey",   CODE_KEY : "dg",    VAL_KEY : 60}
-LRED    = {NAME_KEY : "lightred",   CODE_KEY : "lr",     VAL_KEY : 61}
-LGREEN  = {NAME_KEY : "lightgreen", CODE_KEY : "lgn",     VAL_KEY : 62}
-LYELLOW = {NAME_KEY : "lightyellow",CODE_KEY : "ly",     VAL_KEY : 63}
-LBLUE   = {NAME_KEY : "lightblue",  CODE_KEY : "lb",     VAL_KEY : 64}
+LRED    = {NAME_KEY : "lightred",   CODE_KEY : "lr",    VAL_KEY : 61}
+LGREEN  = {NAME_KEY : "lightgreen", CODE_KEY : "lgn",   VAL_KEY : 62}
+LYELLOW = {NAME_KEY : "lightyellow",CODE_KEY : "ly",    VAL_KEY : 63}
+LBLUE   = {NAME_KEY : "lightblue",  CODE_KEY : "lb",    VAL_KEY : 64}
 LMAGENTA= {NAME_KEY : "lightmagenta",CODE_KEY :"lm",    VAL_KEY : 65}
-LCYAN   = {NAME_KEY : "lightcyan",  CODE_KEY : "lc",     VAL_KEY : 66}
+LCYAN   = {NAME_KEY : "lightcyan",  CODE_KEY : "lc",    VAL_KEY : 66}
 WHITE   = {NAME_KEY : "white",      CODE_KEY : "w",     VAL_KEY : 67}
 COLOURS = [BLACK,RED,GREEN,YELLOW,BLUE,MAGENTA,CYAN,LGREY,
            DGREY,LRED,LGREEN,LYELLOW,LBLUE,LMAGENTA,LCYAN,WHITE]
@@ -72,20 +72,44 @@ def _encode(code, wrap=True):
     return s
 
 
-def _getColourObj(identifier):
-    # Is it a colour dict?
-    if identifier in COLOURS:
-        return identifier
-    
-    # Is it a name key?
-    for colour in COLOURS:
-        if identifier == colour[NAME_KEY]:
-            return colour
+def _get8bitColourObj(identifier):
+    raise ValueError
 
-    # Is it a code key?
-    for colour in COLOURS:
-        if identifier == colour[CODE_KEY]:
+def _get24bitColourObj(identifier):
+    raise ValueError
+
+def _getColourObj(identifier):
+    if isinstance(identifier, dict):
+        # Is it a colour dict?
+        if identifier in COLOURS:
+            return identifier
+    else:
+        # Assume identifier is a sting
+        if len(identifier) == 0:
+            raise KeyError("No such colour %s" % str(identifier))
+        
+        # Is it a name key?
+        for colour in COLOURS:
+            if identifier == colour[NAME_KEY]:
+                return colour
+    
+        # Is it a code key?
+        for colour in COLOURS:
+            if identifier == colour[CODE_KEY]:
+                return colour
+        
+        # Look for a colour code
+        try:
+            # 8-bit colour code
+            colour = _get8bitColourObj(identifier)
             return colour
+        except ValueError:
+            try:
+                # 24-bit colour code
+                colour = _get24bitColourObj(identifier)
+                return colour
+            except ValueError:
+                pass
         
     raise KeyError("No such colour %s" % str(identifier))
 
@@ -133,6 +157,11 @@ def startColour(status, fgcolour=None, bgcolour=None, prefix=None, wrap=True):
 def stopColour(status, wrap=True):
     return _encode(RESET_KEY, wrap=wrap)
 
+
+def colour(status, literal, fgcolour=None, bgcolour=None, prefix=None):
+    return startColour(status, fgcolour=fgcolour, bgcolour=bgcolour, prefix=prefix) + \
+            literal + \
+            stopColour(status)
 
 def _colourFuncFactory(colour):
     def fgfunc(status, literal, prefix=None):
