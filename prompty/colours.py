@@ -39,7 +39,7 @@ BG_OFFSET = 10
 
 
 
-# Prefixes
+# Styles
 NORMAL      = {NAME_KEY : "normal",     CODE_KEY : "n",     VAL_KEY : 0}
 BOLD        = {NAME_KEY : "bold",       CODE_KEY : "b",     VAL_KEY : 1}
 DIM         = {NAME_KEY : "dim",        CODE_KEY : "d",     VAL_KEY : 2}
@@ -48,7 +48,7 @@ UNDERLINE   = {NAME_KEY : "underline",  CODE_KEY : "u",     VAL_KEY : 4}
 BLINK       = {NAME_KEY : "blink",      CODE_KEY : "bl",    VAL_KEY : 5}
 INVERTED    = {NAME_KEY : "inverted",   CODE_KEY : "in",    VAL_KEY : 7}
 
-PREFIXES = [NORMAL,BOLD,DIM,ITALIC,UNDERLINE,BLINK,INVERTED]
+STYLES = [NORMAL,BOLD,DIM,ITALIC,UNDERLINE,BLINK,INVERTED]
 
 RESET_KEY       = 0
 NOCOUNT_START   = u"\001"
@@ -125,9 +125,9 @@ def _get8bitColourCode(identifier, area=FOREGROUND):
         raise ValueError("No such colour %s" % str(identifier))
     
     if area == FOREGROUND:
-        prefix = "38;5;"
+        style = "38;5;"
     else:
-        prefix = "48;5;"
+        style = "48;5;"
     
     # Check lead char
     if identifier[0] == "#":
@@ -149,7 +149,7 @@ def _get8bitColourCode(identifier, area=FOREGROUND):
                 identifier = 231
             else:
                 identifier = nearest_segment+231
-            return "%s%d" % (prefix, identifier)
+            return "%s%d" % (style, identifier)
         
         else:
             nearest_segments = [0,0,0] # R,G,B
@@ -162,14 +162,14 @@ def _get8bitColourCode(identifier, area=FOREGROUND):
                         break
     
             identifier = nearest_segments[0]*36 + nearest_segments[1]*6 +nearest_segments[2] + 16
-            return "%s%d" % (prefix, identifier)
+            return "%s%d" % (style, identifier)
 
     try:
         # Check for valid integer value
         identifier = int(identifier)
         if identifier < 0 or identifier > 255:
             raise ValueError
-        return "%s%d" % (prefix, identifier)
+        return "%s%d" % (style, identifier)
     except ValueError:
         pass
     
@@ -190,9 +190,9 @@ def _get24bitColourCode(identifier, area=FOREGROUND):
         raise ValueError("No such colour %s" % str(identifier))
     
     if area == FOREGROUND:
-        prefix = "38;2;"
+        style = "38;2;"
     else:
-        prefix = "48;2;"
+        style = "48;2;"
     
     # Check lead char
     if identifier[0] == "#":
@@ -202,12 +202,12 @@ def _get24bitColourCode(identifier, area=FOREGROUND):
         r = int(identifier[1:3], 16)
         g = int(identifier[3:5], 16)
         b = int(identifier[5:7], 16)
-        return "%s%d;%d;%d" % (prefix, r, g, b)
+        return "%s%d;%d;%d" % (style, r, g, b)
     
     # Assume the format "r,g,b"
     try:
         (r,g,b) = identifier.split(',')
-        return "%s%d;%d;%d" % (prefix, int(r), int(g), int(b))
+        return "%s%d;%d;%d" % (style, int(r), int(g), int(b))
     except ValueError:
         pass
     
@@ -236,29 +236,29 @@ def _getColourCode(identifier, area=FOREGROUND):
     
     raise ValueError("No such colour %s" % str(identifier))
 
-def _getPrefixCode(identifier):
-    # Is it a prefix dict?
-    if identifier in PREFIXES:
+def _getStyleCode(identifier):
+    # Is it a style dict?
+    if identifier in STYLES:
         return identifier[VAL_KEY]
     
     # Is it a name key?
-    for prefix in PREFIXES:
-        if identifier == prefix[NAME_KEY]:
-            return prefix[VAL_KEY]
+    for style in STYLES:
+        if identifier == style[NAME_KEY]:
+            return style[VAL_KEY]
 
     # Is it a code key?
-    for prefix in PREFIXES:
-        if identifier == prefix[CODE_KEY]:
-            return prefix[VAL_KEY]
+    for style in STYLES:
+        if identifier == style[CODE_KEY]:
+            return style[VAL_KEY]
         
-    raise KeyError("No such prefix %s" % str(identifier))
+    raise KeyError("No such style %s" % str(identifier))
 
 
-def startColour(status, fgcolour=None, bgcolour=None, prefix=None, wrap=True):
+def startColour(status, fgcolour=None, bgcolour=None, style=None, wrap=True):
     colourCode = ""
     
-    if prefix:
-        colourCode += unicode(_getPrefixCode(prefix))
+    if style:
+        colourCode += unicode(_getStyleCode(style))
         
     if fgcolour:
         if colourCode:
@@ -277,25 +277,31 @@ def stopColour(status, wrap=True):
     return _encode(RESET_KEY, wrap=wrap)
 
 
-def colour(status, literal, fgcolour=None, bgcolour=None, prefix=None, wrap=True):
-    return startColour(status, fgcolour=fgcolour, bgcolour=bgcolour, prefix=prefix, wrap=wrap) + \
+def colour(status, literal, fgcolour=None, bgcolour=None, style=None, wrap=True):
+    return startColour(status, fgcolour=fgcolour, bgcolour=bgcolour, style=style, wrap=wrap) + \
             literal + \
             stopColour(status, wrap=wrap)
 
+
 def _colourFuncFactory(colour):
-    def fgfunc(status, literal, prefix=None):
-        return startColour(status, fgcolour=colour, prefix=prefix) + literal + stopColour(status)
-    def bgfunc(status, literal, prefix=None):
-        return startColour(status, bgcolour=colour, prefix=prefix) + literal + stopColour(status)
+    def fgfunc(status, literal, style=None):
+        return startColour(status, fgcolour=colour, style=style) + literal + stopColour(status)
+    def bgfunc(status, literal, style=None):
+        return startColour(status, bgcolour=colour, style=style) + literal + stopColour(status)
     return fgfunc, bgfunc
+
+def _styleFuncFactory(style):
+    def func(status, literal):
+        return startColour(status, style=style) + literal + stopColour(status)
+    return func
 
 
 def _populateFunctions(module):
     """
     This will define functions for all 4-bit colours.
     The function definitions are of the form:
-        red(literal, prefix)     # fg red
-        redbg(literal, prefix)   # bg red
+        red(literal, style)     # fg red
+        redbg(literal, style)   # bg red
         
     """
     for colour in COLOURS:
@@ -303,6 +309,10 @@ def _populateFunctions(module):
         fgfunc, bgfunc = _colourFuncFactory(colourName)
         setattr(module, colourName, fgfunc)
         setattr(module, colourName+"bg", bgfunc)
+    for style in STYLES:
+        styleName = style[NAME_KEY]
+        func = _styleFuncFactory(styleName)
+        setattr(module, styleName, func)
 
 
 # Populate the functions in this module

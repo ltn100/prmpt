@@ -121,15 +121,15 @@ class ColourTests(unittest.TestCase):
         self.assertEquals("48;2;1;2;3", prompty.colours._getColourCode("#010203",prompty.colours.BACKGROUND) )
         self.assertEquals("48;2;1;2;3", prompty.colours._getColourCode("1,2,3",prompty.colours.BACKGROUND) )
 
-    def test_getPrefixCode(self):
-        self.assertIs(prompty.colours._getPrefixCode(prompty.colours.NORMAL), prompty.colours.NORMAL[prompty.colours.VAL_KEY])
-        self.assertIs(prompty.colours._getPrefixCode("italic"), prompty.colours.ITALIC[prompty.colours.VAL_KEY])
-        self.assertIs(prompty.colours._getPrefixCode("b"), prompty.colours.BOLD[prompty.colours.VAL_KEY])
-        for prefix in prompty.colours.PREFIXES:
-            self.assertEquals(prompty.colours._getPrefixCode(prefix), prefix[prompty.colours.VAL_KEY])
-            self.assertEquals(prompty.colours._getPrefixCode(prefix[prompty.colours.NAME_KEY]), prefix[prompty.colours.VAL_KEY])
-            self.assertEquals(prompty.colours._getPrefixCode(prefix[prompty.colours.CODE_KEY]), prefix[prompty.colours.VAL_KEY])
-        self.assertRaises(KeyError, prompty.colours._getPrefixCode, "upsidedown")
+    def test_getStyleCode(self):
+        self.assertIs(prompty.colours._getStyleCode(prompty.colours.NORMAL), prompty.colours.NORMAL[prompty.colours.VAL_KEY])
+        self.assertIs(prompty.colours._getStyleCode("italic"), prompty.colours.ITALIC[prompty.colours.VAL_KEY])
+        self.assertIs(prompty.colours._getStyleCode("b"), prompty.colours.BOLD[prompty.colours.VAL_KEY])
+        for style in prompty.colours.STYLES:
+            self.assertEquals(prompty.colours._getStyleCode(style), style[prompty.colours.VAL_KEY])
+            self.assertEquals(prompty.colours._getStyleCode(style[prompty.colours.NAME_KEY]), style[prompty.colours.VAL_KEY])
+            self.assertEquals(prompty.colours._getStyleCode(style[prompty.colours.CODE_KEY]), style[prompty.colours.VAL_KEY])
+        self.assertRaises(KeyError, prompty.colours._getStyleCode, "upsidedown")
  
     def test_stopColour(self):
         self.assertEqual(prompty.colours.stopColour(None), "\001\033[0m\002")
@@ -138,7 +138,7 @@ class ColourTests(unittest.TestCase):
     def test_startColour(self):
         self.assertEqual(prompty.colours.startColour(None, "green"), "\001\033[32m\002")
         self.assertEqual(prompty.colours.startColour(None, "green", wrap=False), "\033[32m")
-        self.assertEqual(prompty.colours.startColour(None, "red",prefix="b"), "\001\033[1;31m\002")
+        self.assertEqual(prompty.colours.startColour(None, "red",style="b"), "\001\033[1;31m\002")
         self.assertEqual(prompty.colours.startColour(None, "1"), "\001\033[38;5;1m\002")
         self.assertEqual(prompty.colours.startColour(None, fgcolour="1", bgcolour="2"), "\001\033[38;5;1;48;5;2m\002")
  
