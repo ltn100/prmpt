@@ -147,6 +147,12 @@ class ColourTests(unittest.TestCase):
         self.assertEqual(sys.modules[__name__].green(None, "I'm green"), "\001\033[32m\002I'm green\001\033[0m\002")
         self.assertEqual(sys.modules[__name__].green(None, "I'm green and bold", "bold"), "\001\033[1;32m\002I'm green and bold\001\033[0m\002")
 
+class PaletteTests(unittest.TestCase):
+    def test_palette1(self):
+        self.assertEqual(prompty.colours.startColour(None, "pal1"), "")
+        self.assertEqual(prompty.colours.startColour(None, "pal2"), "\001\033[32m\002")
+        self.assertEqual(prompty.colours.startColour(None, "pal3"), "\001\033[1;94m\002")
+        
 
 class LexerTests(unittest.TestCase):
     def test_singleStringLiteral(self):

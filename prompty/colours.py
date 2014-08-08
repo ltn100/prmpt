@@ -15,6 +15,7 @@ BACKGROUND = 2
 
 
 # 4-bit colour names
+DEFAULT = {NAME_KEY : "default",    CODE_KEY : "d",     VAL_KEY : 39}
 BLACK   = {NAME_KEY : "black",      CODE_KEY : "k",     VAL_KEY : 30}
 RED     = {NAME_KEY : "red",        CODE_KEY : "r",     VAL_KEY : 31}
 GREEN   = {NAME_KEY : "green",      CODE_KEY : "g",     VAL_KEY : 32}
@@ -66,6 +67,9 @@ def _encode(code, wrap=True):
                  to signify non-printing characters are
                  contained
     """
+    if code == "":
+        return ""
+    
     s = ESCAPE_CHAR+\
             unicode(code)+\
             END_CODE
@@ -75,12 +79,42 @@ def _encode(code, wrap=True):
             NOCOUNT_END
     return s
 
+FG_KEY      = 3
+BG_KEY      = 4
+STYLE_KEY   = 5
+
+PAL1 = {NAME_KEY : 'pal1',  FG_KEY : None,  BG_KEY : None,  STYLE_KEY : None}
+PAL2 = {NAME_KEY : 'pal2',  FG_KEY : GREEN, BG_KEY : None,  STYLE_KEY : None}
+PAL3 = {NAME_KEY : 'pal3',  FG_KEY : LBLUE, BG_KEY : None,  STYLE_KEY : BOLD}
+PALETTE = [PAL1,PAL2,PAL3]
+
+
+def _getPaletteColourCode(identifier, area=None):
+    """
+    Palette colour codes can be any of the following:
+        pal1, pal2, etc.
+    """
+    if identifier is None:
+        return ""
+
+    for pal in PALETTE:
+        if identifier == pal[NAME_KEY]:
+            style   = unicode(_getStyleCode(pal[STYLE_KEY]))
+            fg      = unicode(_getColourCode(pal[FG_KEY], FOREGROUND))
+            bg      = unicode(_getColourCode(pal[BG_KEY], BACKGROUND))
+            return ";".join(filter(None, [style,fg,bg]))
+    
+    raise ValueError
+    
 
 def _get4bitColourCode(identifier, area=FOREGROUND):
     """
     4-bit colour codes can be any of the following:
         r, red, lr, lightred, etc.
     """
+    if identifier is None:
+        return ""
+
     if area == FOREGROUND:
         offset = 0
     else:
@@ -119,6 +153,9 @@ def _get8bitColourCode(identifier, area=FOREGROUND):
     8-bit colour codes can be any of the following:
         0, 5, 126, 255, #0f0, #fff, #a3e, etc.
     """
+    if identifier is None:
+        return ""
+    
     # Assume identifier is a sting
     identifier = str(identifier)
     if len(identifier) == 0:
@@ -184,6 +221,9 @@ def _get24bitColourCode(identifier, area=FOREGROUND):
     24-bit colours are onlt supported by Konsole at the moment:
     https://github.com/robertknight/konsole/blob/master/user-doc/README.moreColors
     """
+    if identifier is None:
+        return ""
+    
     # Assume identifier is a sting
     identifier = str(identifier)
     if len(identifier) == 0:
@@ -217,6 +257,12 @@ def _get24bitColourCode(identifier, area=FOREGROUND):
 
 def _getColourCode(identifier, area=FOREGROUND):
     try:
+        colourCode = _getPaletteColourCode(identifier,area)
+        return colourCode
+    except ValueError:
+        pass
+    
+    try:
         colourCode = _get4bitColourCode(identifier,area)
         return colourCode
     except ValueError:
@@ -237,6 +283,9 @@ def _getColourCode(identifier, area=FOREGROUND):
     raise ValueError("No such colour %s" % str(identifier))
 
 def _getStyleCode(identifier):
+    if identifier is None:
+        return ""
+    
     # Is it a style dict?
     if identifier in STYLES:
         return identifier[VAL_KEY]
