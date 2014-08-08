@@ -30,6 +30,11 @@ class Compiler(object):
                     for optarg in element['optargs']:
                         args.append(self.compile(optarg))
                 # Call the function!
-                out += unicode(self.funcs._call(*args))
+                try:
+                    out += unicode(self.funcs._call(*args))
+                except ValueError, e:
+                    return "Prompty error on line %d: %s\n$ " % (element['lineno'], str(e))
+                except KeyError, e:
+                    return "Prompty error on line %d: No such function %s\n$ " % (element['lineno'], str(e))
                 
         return out

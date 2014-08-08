@@ -15,11 +15,13 @@ class Parser(object):
     
     def _atom(self, lex, token):
         out = []
+        
         while True:
             try:
                 if token == '\\':
                     # Function
                     name = lex.next()
+                    func = {'type': 'function', 'name': name, 'lineno' : lex.lineNo()}
                     args = []
                     optargs = []
                     token = self._guardedNext(lex)
@@ -32,7 +34,6 @@ class Parser(object):
                         elif token == '[':
                             optargs.append(arg)
                         token = self._guardedNext(lex)
-                    func = {'type': 'function', 'name': name}
                     if args:
                         func['args'] = args
                     if optargs:
@@ -45,7 +46,7 @@ class Parser(object):
                     break
                 else:
                     # String literal
-                    out.append({ 'type': 'literal', 'value': token})
+                    out.append({ 'type': 'literal', 'value': token, 'lineno' : lex.lineNo()})
                     token = lex.next()
             except StopIteration:
                 break

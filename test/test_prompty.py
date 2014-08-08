@@ -85,6 +85,7 @@ class ColourTests(unittest.TestCase):
             self.assertEquals(colour[prompty.colours.VAL_KEY], prompty.colours._getColourCode(colour[prompty.colours.NAME_KEY]) )
             self.assertEquals(colour[prompty.colours.VAL_KEY], prompty.colours._getColourCode(colour[prompty.colours.CODE_KEY]) )
         self.assertRaises(ValueError, prompty.colours._getColourCode, "burple")
+        self.assertRaises(ValueError, prompty.colours._getColourCode, "")
 
     def test_getColourCodeBg4Bit(self):
         for colour in prompty.colours.COLOURS:
@@ -108,19 +109,36 @@ class ColourTests(unittest.TestCase):
         self.assertEquals("38;5;21", prompty.colours._getColourCode("#00f") )
         self.assertRaises(ValueError, prompty.colours._getColourCode, "#bat")
         self.assertEquals("38;5;231", prompty.colours._getColourCode("#gff") )
+        self.assertEquals("38;5;16", prompty.colours._getColourCode("#g00") )
         self.assertEquals("38;5;232", prompty.colours._getColourCode("#g05") )
         self.assertEquals("38;5;239", prompty.colours._getColourCode("#g4e") )
         self.assertEquals("38;5;255", prompty.colours._getColourCode("#gee") )
 
-    def test_getPrefixObj(self):
-        self.assertIs(prompty.colours._getPrefixObj(prompty.colours.NORMAL), prompty.colours.NORMAL)
-        self.assertIs(prompty.colours._getPrefixObj("italic"), prompty.colours.ITALIC)
-        self.assertIs(prompty.colours._getPrefixObj("b"), prompty.colours.BOLD)
+    def test_getColourCodeBg8Bit(self):
+        self.assertEquals("48;5;145", prompty.colours._getColourCode("145",prompty.colours.BACKGROUND) )
+
+    def test_getColourCode24Bit(self):
+        self.assertEquals("38;2;0;0;0", prompty.colours._getColourCode("#000000") )
+        self.assertEquals("38;2;1;2;3", prompty.colours._getColourCode("#010203") )
+        self.assertEquals("38;2;255;255;255", prompty.colours._getColourCode("#ffffff") )
+        self.assertEquals("38;2;0;0;0", prompty.colours._getColourCode("0,0,0") )
+        self.assertEquals("38;2;1;2;3", prompty.colours._getColourCode("1,2,3") )
+        self.assertEquals("38;2;255;255;255", prompty.colours._getColourCode("255,255,255") )
+        self.assertRaises(ValueError, prompty.colours._getColourCode, "0,0")
+
+    def test_getColourCodeBg24Bit(self):
+        self.assertEquals("48;2;1;2;3", prompty.colours._getColourCode("#010203",prompty.colours.BACKGROUND) )
+        self.assertEquals("48;2;1;2;3", prompty.colours._getColourCode("1,2,3",prompty.colours.BACKGROUND) )
+
+    def test_getPrefixCode(self):
+        self.assertIs(prompty.colours._getPrefixCode(prompty.colours.NORMAL), prompty.colours.NORMAL[prompty.colours.VAL_KEY])
+        self.assertIs(prompty.colours._getPrefixCode("italic"), prompty.colours.ITALIC[prompty.colours.VAL_KEY])
+        self.assertIs(prompty.colours._getPrefixCode("b"), prompty.colours.BOLD[prompty.colours.VAL_KEY])
         for prefix in prompty.colours.PREFIXES:
-            self.assertIs(prompty.colours._getPrefixObj(prefix), prefix)
-            self.assertIs(prompty.colours._getPrefixObj(prefix[prompty.colours.NAME_KEY]), prefix)
-            self.assertIs(prompty.colours._getPrefixObj(prefix[prompty.colours.CODE_KEY]), prefix)
-        self.assertRaises(KeyError, prompty.colours._getPrefixObj, "upsidedown")
+            self.assertEquals(prompty.colours._getPrefixCode(prefix), prefix[prompty.colours.VAL_KEY])
+            self.assertEquals(prompty.colours._getPrefixCode(prefix[prompty.colours.NAME_KEY]), prefix[prompty.colours.VAL_KEY])
+            self.assertEquals(prompty.colours._getPrefixCode(prefix[prompty.colours.CODE_KEY]), prefix[prompty.colours.VAL_KEY])
+        self.assertRaises(KeyError, prompty.colours._getPrefixCode, "upsidedown")
  
     def test_stopColour(self):
         self.assertEqual(prompty.colours.stopColour(None), "\001\033[0m\002")
@@ -131,6 +149,7 @@ class ColourTests(unittest.TestCase):
         self.assertEqual(prompty.colours.startColour(None, "green", wrap=False), "\033[32m")
         self.assertEqual(prompty.colours.startColour(None, "red",prefix="b"), "\001\033[1;31m\002")
         self.assertEqual(prompty.colours.startColour(None, "1"), "\001\033[38;5;1m\002")
+        self.assertEqual(prompty.colours.startColour(None, fgcolour="1", bgcolour="2"), "\001\033[38;5;1;48;5;2m\002")
  
     def test_dynamicColourWrappers(self):
         prompty.colours._populateFunctions(sys.modules[__name__])
@@ -224,133 +243,144 @@ class LexerTests(unittest.TestCase):
 class ParserTests(unittest.TestCase):
     def test_stringLiteral(self):
         p = prompty.parser.Parser()
-        self.assertListEqual([{'type': 'literal', 'value': r"literalvalue"}],
+        self.assertListEqual([{'lineno': 1, 'type': 'literal', 'value': r"literalvalue"}],
                              p.parse("literalvalue"))
+
+    def test_lineNumber(self):
+        p = prompty.parser.Parser()
+        self.assertListEqual([{'lineno': 3, 'type': 'literal', 'value': r"literalvalue"}],
+                             p.parse("\n\nliteralvalue"))
+        self.assertListEqual([{'lineno': 3, 'type': 'literal', 'value': r"literalvalue"},
+                              {'lineno': 4, 'type': 'function', 'name': r"space"},
+                              {'lineno': 5, 'type': 'function', 'name': r"red", 'args': 
+                                [[{'lineno': 5, 'type': 'literal', 'value': r"test"}]]
+                                }],
+                             p.parse("%%%%\n\nliteralvalue\n\space\n\\red{test}"))
 
     def test_stringLiteralComplicated(self):
         p = prompty.parser.Parser()
-        self.assertListEqual([{'type': 'literal', 
+        self.assertListEqual([{'lineno': 1, 'type': 'literal', 
                                'value':r"literal-With$omeUne*pectedC#ars.,"}],
                              p.parse(r"literal-With$omeUne*pectedC#ars.,"))
   
     def test_multipleStringLiteral(self):
         p = prompty.parser.Parser()
-        self.assertListEqual([{'type': 'literal', 'value': r"literal"},
-                              {'type': 'literal', 'value': r"strings"},
-                              {'type': 'literal', 'value': r"are"},
-                              {'type': 'literal', 'value': r"concatenated"}], 
+        self.assertListEqual([{'lineno': 1, 'type': 'literal', 'value': r"literal"},
+                              {'lineno': 1, 'type': 'literal', 'value': r"strings"},
+                              {'lineno': 1, 'type': 'literal', 'value': r"are"},
+                              {'lineno': 1, 'type': 'literal', 'value': r"concatenated"}], 
                              p.parse(r"literal strings are concatenated"))
   
     def test_functionNoArgument(self):
         p = prompty.parser.Parser()
-        self.assertListEqual([{'type': 'function', 'name': r"user"}],
+        self.assertListEqual([{'lineno': 1, 'type': 'function', 'name': r"user"}],
                              p.parse(r"\user"))
   
     def test_multipleFunctionNoArgument(self):
         p = prompty.parser.Parser()
-        self.assertEqual([{'type': 'function', 'name': r"user"},
-                          {'type': 'function', 'name': r"hostname"}],
+        self.assertEqual([{'lineno': 1, 'type': 'function', 'name': r"user"},
+                          {'lineno': 1, 'type': 'function', 'name': r"hostname"}],
                          p.parse(r"\user\hostname"))
-        self.assertEqual([{'type': 'function', 'name': r"user"},
-                          {'type': 'function', 'name': r"hostname"}],
+        self.assertEqual([{'lineno': 1, 'type': 'function', 'name': r"user"},
+                          {'lineno': 1, 'type': 'function', 'name': r"hostname"}],
                          p.parse(r"\user \hostname"))
  
     def test_functionEmptyArgument(self):
         p = prompty.parser.Parser()
-        self.assertEqual([{'type': 'function', 'name': r"user", 'args': [[]]}],
+        self.assertEqual([{'lineno': 1, 'type': 'function', 'name': r"user", 'args': [[]]}],
                          p.parse(r"\user{}"))
-        self.assertEqual([{'type': 'function', 'name': r"user", 'args': [[]]},
-                          {'type': 'function', 'name': r"user", 'args': [[]]}],
+        self.assertEqual([{'lineno': 1, 'type': 'function', 'name': r"user", 'args': [[]]},
+                          {'lineno': 1, 'type': 'function', 'name': r"user", 'args': [[]]}],
                          p.parse(r"\user{}\user{}"))
-        self.assertEqual([{'type': 'function', 'name': r"user", 'args': [[]]},
-                          {'type': 'function', 'name': r"hostname", 'args': [[]]},
-                          {'type': 'literal', 'value': r"otherstuff"}],
+        self.assertEqual([{'lineno': 1, 'type': 'function', 'name': r"user", 'args': [[]]},
+                          {'lineno': 1, 'type': 'function', 'name': r"hostname", 'args': [[]]},
+                          {'lineno': 1, 'type': 'literal', 'value': r"otherstuff"}],
                          p.parse(r"\user{}\hostname{}otherstuff"))
  
     def test_functionNoArgumentAndLiterals(self):
         p = prompty.parser.Parser()
-        self.assertEqual([{'type': 'literal', 'value': r"a"},
-                          {'type': 'function', 'name': r"user"}],
+        self.assertEqual([{'lineno': 1, 'type': 'literal', 'value': r"a"},
+                          {'lineno': 1, 'type': 'function', 'name': r"user"}],
                          p.parse(r"a\user"))
-        self.assertEqual([{'type': 'literal', 'value': r"a"},
-                          {'type': 'function', 'name': r"user"},
-                          {'type': 'literal', 'value': r"b"}],
+        self.assertEqual([{'lineno': 1, 'type': 'literal', 'value': r"a"},
+                          {'lineno': 1, 'type': 'function', 'name': r"user"},
+                          {'lineno': 1, 'type': 'literal', 'value': r"b"}],
                          p.parse(r"a\user b"))
-        self.assertEqual([{'type': 'literal', 'value': r"a"},
-                          {'type': 'function', 'name': r"user"},
-                          {'type': 'literal', 'value': r"b"},
-                          {'type': 'function', 'name': r"user"},
-                          {'type': 'literal', 'value': r"c"},
-                          {'type': 'literal', 'value': r"d"},
-                          {'type': 'function', 'name': r"user"}],
+        self.assertEqual([{'lineno': 1, 'type': 'literal', 'value': r"a"},
+                          {'lineno': 1, 'type': 'function', 'name': r"user"},
+                          {'lineno': 1, 'type': 'literal', 'value': r"b"},
+                          {'lineno': 1, 'type': 'function', 'name': r"user"},
+                          {'lineno': 1, 'type': 'literal', 'value': r"c"},
+                          {'lineno': 1, 'type': 'literal', 'value': r"d"},
+                          {'lineno': 1, 'type': 'function', 'name': r"user"}],
                          p.parse(r"a\user b\user c d    \user"))
  
     def test_functionWithArgument(self):
         p = prompty.parser.Parser()
-        self.assertEqual([{'type': 'function', 'name': r"green", 'args': 
-                                [[{'type': 'literal', 'value': r"hello"}]]
+        self.assertEqual([{'lineno': 1, 'type': 'function', 'name': r"green", 'args': 
+                                [[{'lineno': 1, 'type': 'literal', 'value': r"hello"}]]
                           }],
                          p.parse(r"\green{hello}"))
  
     def test_functionWithLiteralArgument(self):
         p = prompty.parser.Parser()
-        self.assertEqual([{'type': 'function', 'name': r"green", 'args': 
-                                [[{'type': 'function', 'name': r"user"}]]
+        self.assertEqual([{'lineno': 1, 'type': 'function', 'name': r"green", 'args': 
+                                [[{'lineno': 1, 'type': 'function', 'name': r"user"}]]
                           }],
                          p.parse(r"\green{\user}"))
  
     def test_functionWithMultipleLiteralArgument(self):
         p = prompty.parser.Parser()
-        self.assertEqual([{'type': 'function', 'name': r"green", 'args': 
-                                [[{'type': 'function', 'name': r"user"},
-                                 {'type': 'function', 'name': r"hostname"}]]
+        self.assertEqual([{'lineno': 1, 'type': 'function', 'name': r"green", 'args': 
+                                [[{'lineno': 1, 'type': 'function', 'name': r"user"},
+                                 {'lineno': 1, 'type': 'function', 'name': r"hostname"}]]
                           }],
                          p.parse(r"\green{\user\hostname}"))
-        self.assertEqual([{'type': 'function', 'name': r"green", 'args': 
-                                [[{'type': 'literal', 'value': r"a"},
-                                 {'type': 'function', 'name': r"user"},
-                                 {'type': 'literal', 'value': r"b"},
-                                 {'type': 'function', 'name': r"hostname"}]]
+        self.assertEqual([{'lineno': 1, 'type': 'function', 'name': r"green", 'args': 
+                                [[{'lineno': 1, 'type': 'literal', 'value': r"a"},
+                                 {'lineno': 1, 'type': 'function', 'name': r"user"},
+                                 {'lineno': 1, 'type': 'literal', 'value': r"b"},
+                                 {'lineno': 1, 'type': 'function', 'name': r"hostname"}]]
                           }],
                          p.parse(r"\green{a\user b\hostname}"))
 
     def test_functionWithMultipleArguments(self):
         p = prompty.parser.Parser()
-        self.assertEqual([{'type': 'function', 'name': r"range", 'args': 
-                                [[{'type': 'literal', 'value': r"1"}],
-                                 [{'type': 'literal', 'value': r"2"}]]
+        self.assertEqual([{'lineno': 1, 'type': 'function', 'name': r"range", 'args': 
+                                [[{'lineno': 1, 'type': 'literal', 'value': r"1"}],
+                                 [{'lineno': 1, 'type': 'literal', 'value': r"2"}]]
                           }],
                          p.parse(r"\range{1}{2}"))
-        self.assertEqual([{'type': 'function', 'name': r"range", 'args': 
-                                [[{'type': 'literal', 'value': r"1"}],
-                                 [{'type': 'literal', 'value': r"2"},
-                                  {'type': 'function', 'name': r"green", 'args': 
-                                   [[{'type': 'function', 'name': r"hostname"}]]}]]
+        self.assertEqual([{'lineno': 1, 'type': 'function', 'name': r"range", 'args': 
+                                [[{'lineno': 1, 'type': 'literal', 'value': r"1"}],
+                                 [{'lineno': 1, 'type': 'literal', 'value': r"2"},
+                                  {'lineno': 1, 'type': 'function', 'name': r"green", 'args': 
+                                   [[{'lineno': 1, 'type': 'function', 'name': r"hostname"}]]}]]
                           }],
                          p.parse(r"\range{1}{2\green{\hostname}}"))
 
     def test_functionWithEmptyFirstArgument(self):
         p = prompty.parser.Parser()
-        self.assertEqual([{'type': 'function', 'name': r"range", 'args': 
+        self.assertEqual([{'lineno': 1, 'type': 'function', 'name': r"range", 'args': 
                                 [[],
-                                 [{'type': 'literal', 'value': r"2"}]]
+                                 [{'lineno': 1, 'type': 'literal', 'value': r"2"}]]
                           }],
                          p.parse(r"\range{}{2}"))
 
     def test_functionWithOptionalLiteralArgument(self):
         p = prompty.parser.Parser()
-        self.assertEqual([{'type': 'function', 'name': r"green", 'args': 
-                                [[{'type': 'function', 'name': r"user"}]],
-                                'optargs': [[{'type': 'literal', 'value': r"bold"}]]
+        self.assertEqual([{'lineno': 1, 'type': 'function', 'name': r"green", 'args': 
+                                [[{'lineno': 1, 'type': 'function', 'name': r"user"}]],
+                                'optargs': [[{'lineno': 1, 'type': 'literal', 'value': r"bold"}]]
                           }],
                          p.parse(r"\green[bold]{\user}"))
 
     def test_functionWithMultipleOptionalArguments(self):
         p = prompty.parser.Parser()
-        self.assertEqual([{'type': 'function', 'name': r"green", 'args': 
-                                [[{'type': 'function', 'name': r"user"}]],
-                                'optargs': [[{'type': 'literal', 'value': r"bold"}],
-                                            [{'type': 'function', 'name': r"bg"}]]
+        self.assertEqual([{'lineno': 1, 'type': 'function', 'name': r"green", 'args': 
+                                [[{'lineno': 1, 'type': 'function', 'name': r"user"}]],
+                                'optargs': [[{'lineno': 1, 'type': 'literal', 'value': r"bold"}],
+                                            [{'lineno': 1, 'type': 'function', 'name': r"bg"}]]
                           }],
                          p.parse(r"\green[bold][\bg]{\user}"))
 

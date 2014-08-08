@@ -164,41 +164,55 @@ def _get8bitColourCode(identifier, area=FOREGROUND):
             identifier = nearest_segments[0]*36 + nearest_segments[1]*6 +nearest_segments[2] + 16
             return "%s%d" % (prefix, identifier)
 
-    else:
-        # Assume an integer value
+    try:
+        # Check for valid integer value
         identifier = int(identifier)
         if identifier < 0 or identifier > 255:
             raise ValueError
         return "%s%d" % (prefix, identifier)
+    except ValueError:
+        pass
     
     
     raise ValueError
 
 def _get24bitColourCode(identifier, area=FOREGROUND):
+    """
+    24-bit colour codes can be any of the following:
+        #000000, #aaf4d3, 0,255,0, 255,255,255 
+        
+    24-bit colours are onlt supported by Konsole at the moment:
+    https://github.com/robertknight/konsole/blob/master/user-doc/README.moreColors
+    """
+    # Assume identifier is a sting
+    identifier = str(identifier)
+    if len(identifier) == 0:
+        raise ValueError("No such colour %s" % str(identifier))
+    
+    if area == FOREGROUND:
+        prefix = "38;2;"
+    else:
+        prefix = "48;2;"
+    
+    # Check lead char
+    if identifier[0] == "#":
+        if not re.match("^#[0-9a-fA-F]{6}$",identifier):
+            raise ValueError
+        
+        r = int(identifier[1:3], 16)
+        g = int(identifier[3:5], 16)
+        b = int(identifier[5:7], 16)
+        return "%s%d;%d;%d" % (prefix, r, g, b)
+    
+    # Assume the format "r,g,b"
+    try:
+        (r,g,b) = identifier.split(',')
+        return "%s%d;%d;%d" % (prefix, int(r), int(g), int(b))
+    except ValueError:
+        pass
+    
     raise ValueError
 
-# def _getColourObj(identifier):
-#     if isinstance(identifier, dict):
-#         # Is it a colour dict?
-#         if identifier in COLOURS:
-#             return identifier
-#     else:
-#         # Assume identifier is a sting
-#         if len(identifier) == 0:
-#             raise KeyError("No such colour %s" % str(identifier))
-#         
-#         # Is it a name key?
-#         for colour in COLOURS:
-#             if identifier == colour[NAME_KEY]:
-#                 return colour
-#     
-#         # Is it a code key?
-#         for colour in COLOURS:
-#             if identifier == colour[CODE_KEY]:
-#                 return colour
-#         
-#         
-#     raise KeyError("No such colour %s" % str(identifier))
 
 
 def _getColourCode(identifier, area=FOREGROUND):
@@ -222,20 +236,20 @@ def _getColourCode(identifier, area=FOREGROUND):
     
     raise ValueError("No such colour %s" % str(identifier))
 
-def _getPrefixObj(identifier):
+def _getPrefixCode(identifier):
     # Is it a prefix dict?
     if identifier in PREFIXES:
-        return identifier
+        return identifier[VAL_KEY]
     
     # Is it a name key?
     for prefix in PREFIXES:
         if identifier == prefix[NAME_KEY]:
-            return prefix
+            return prefix[VAL_KEY]
 
     # Is it a code key?
     for prefix in PREFIXES:
         if identifier == prefix[CODE_KEY]:
-            return prefix
+            return prefix[VAL_KEY]
         
     raise KeyError("No such prefix %s" % str(identifier))
 
@@ -244,8 +258,7 @@ def startColour(status, fgcolour=None, bgcolour=None, prefix=None, wrap=True):
     colourCode = ""
     
     if prefix:
-        pre = _getPrefixObj(prefix)
-        colourCode += unicode(pre[VAL_KEY])
+        colourCode += unicode(_getPrefixCode(prefix))
         
     if fgcolour:
         if colourCode:
@@ -264,10 +277,10 @@ def stopColour(status, wrap=True):
     return _encode(RESET_KEY, wrap=wrap)
 
 
-def colour(status, literal, fgcolour=None, bgcolour=None, prefix=None):
-    return startColour(status, fgcolour=fgcolour, bgcolour=bgcolour, prefix=prefix) + \
+def colour(status, literal, fgcolour=None, bgcolour=None, prefix=None, wrap=True):
+    return startColour(status, fgcolour=fgcolour, bgcolour=bgcolour, prefix=prefix, wrap=wrap) + \
             literal + \
-            stopColour(status)
+            stopColour(status, wrap=wrap)
 
 def _colourFuncFactory(colour):
     def fgfunc(status, literal, prefix=None):
@@ -278,12 +291,19 @@ def _colourFuncFactory(colour):
 
 
 def _populateFunctions(module):
+    """
+    This will define functions for all 4-bit colours.
+    The function definitions are of the form:
+        red(literal, prefix)     # fg red
+        redbg(literal, prefix)   # bg red
+        
+    """
     for colour in COLOURS:
         colourName = colour[NAME_KEY]
         fgfunc, bgfunc = _colourFuncFactory(colourName)
         setattr(module, colourName, fgfunc)
         setattr(module, colourName+"bg", bgfunc)
-        
+
 
 # Populate the functions in this module
 _populateFunctions(sys.modules[__name__])
