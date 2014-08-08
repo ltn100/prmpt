@@ -164,6 +164,27 @@ def join(status, *args):
     args = args[1:]
     return unicode(delim).join(args)
 
+def justify(status, left, centre, right, lpad=" ", rpad=" "):
+    sleft = len(left)
+    scentre = len(centre)
+    sright = len(right)
+    padsize = status.window.column - (sleft+scentre+sright)
+    if padsize <= 1:
+        # No more space!
+        return left + centre + right
+
+    # Aim to get the centre in the centre
+    lpadsize = (status.window.column/2)-(sleft+(scentre/2))
+    if lpadsize <= 0:
+        lpadsize = 1
+    rpadsize = padsize - lpadsize
+
+    return left + lpad*lpadsize + centre + rpad*rpadsize + right
+
+def right(status, literal):
+    return justify(status, "", "", literal)
+
+
 
 # ----- Misc Functions --------
 
