@@ -18,7 +18,12 @@ class FunctionContainer(object):
     def _call(self, *args):
         if len(args) < 1:
             raise TypeError("call requires a name")
-        name = args[0]
+        name = args[0][0]
+        if len(args[0]) > 1:
+            pos = args[0][1]
+        else:
+            pos = 0
+        self.status.pos = pos
         args = [self.status] + list(args[1:])
         return self.functions[name](*args)
 

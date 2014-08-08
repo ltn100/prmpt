@@ -302,6 +302,8 @@ def _populateFunctions(module):
     The function definitions are of the form:
         red(literal, style)     # fg red
         redbg(literal, style)   # bg red
+    Also styles are defined, e.g.:
+        bold(literal)
         
     """
     for colour in COLOURS:

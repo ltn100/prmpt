@@ -6,12 +6,12 @@ import os
 import sys
 
 # Import prompty modules
-import parser
 import functionContainer
 import compiler
 import userdir
 import config
 import git
+
 
 
 def getPromptyBaseDir():
@@ -28,7 +28,12 @@ class Status(object):
         self.exitCode = int(exitCode)
         self.euid = os.geteuid()
         self.git = git.Git()
-
+        dims = os.popen('stty size', 'r').read().split()
+        if dims:
+            self.window = compiler.Coords(int(dims[1]),int(dims[0]))
+        else:
+            self.window = compiler.Coords()
+        self.pos = compiler.Coords()
 
 class Prompt(object):
 
@@ -42,9 +47,8 @@ class Prompt(object):
 
 
     def getPrompt(self):
-        return self.compiler.compile(
-                    self.config.promptString
-                )
+        self.compiler.compile(self.config.promptString)
+        return self.compiler.execute()
 
 
 
