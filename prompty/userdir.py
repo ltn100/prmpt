@@ -10,6 +10,7 @@ import prompty
 PROMPTY_USER_DIR = ".prompty"
 PROMPTY_CONFIG_FILE = "prompty.cfg"
 SKEL_DIR = "skel"
+FUNCTIONS_DIR = "functions"
 
 class UserDir(object):
     def __init__(self, homeDir=None):
@@ -19,6 +20,7 @@ class UserDir(object):
             self.homeDir = homeDir
         self.promtyUserDir = os.path.join(self.homeDir,PROMPTY_USER_DIR)
         self.promtyBaseDir = prompty.getPromptyBaseDir()
+        self.promtyUserFunctionsDir = os.path.join(self.promtyUserDir,FUNCTIONS_DIR)
         self.skelDir = os.path.join(self.promtyBaseDir,SKEL_DIR)
         
         # Initialise if promptyUserDir does not exist

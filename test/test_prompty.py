@@ -66,15 +66,6 @@ class MainTests(unittest.TestCase):
 
 
 class ColourTests(unittest.TestCase):
-#     def test_getColourObj(self):
-#         self.assertIs(prompty.colours._getColourObj(prompty.colours.RED), prompty.colours.RED)
-#         self.assertIs(prompty.colours._getColourObj("black"), prompty.colours.BLACK)
-#         self.assertIs(prompty.colours._getColourObj("m"), prompty.colours.MAGENTA)
-#         for colour in prompty.colours.COLOURS:
-#             self.assertIs(prompty.colours._getColourObj(colour), colour)
-#             self.assertIs(prompty.colours._getColourObj(colour[prompty.colours.NAME_KEY]), colour)
-#             self.assertIs(prompty.colours._getColourObj(colour[prompty.colours.CODE_KEY]), colour)
-#         self.assertRaises(KeyError, prompty.colours._getColourObj, "burple")
 
     def test_getColourCode4Bit(self):
         self.assertEquals(prompty.colours.RED[prompty.colours.VAL_KEY], prompty.colours._getColourCode(prompty.colours.RED) )
@@ -391,27 +382,27 @@ class CompilerTests(unittest.TestCase):
 
     def test_singleLiteral(self):
         c = prompty.compiler.Compiler()
-        self.assertEqual(r"literalvalue", c.compile([{'type': 'literal', 'value': r"literalvalue"}]) )
+        self.assertEqual(r"literalvalue", c._compile([{'type': 'literal', 'value': r"literalvalue"}]) )
 
     def test_multipleLiteral(self):
         c = prompty.compiler.Compiler()
-        self.assertEqual(r"literalvalue", c.compile([{'type': 'literal', 'value': r"literal"},
+        self.assertEqual(r"literalvalue", c._compile([{'type': 'literal', 'value': r"literal"},
                                                       {'type': 'literal', 'value': r"value"}]) )
 
     def test_singleFunction(self):
         c = prompty.compiler.Compiler()
-        self.assertEqual(CompilerTests.user, c.compile([{'type': 'function', 'name': r"user"}]) )
+        self.assertEqual(CompilerTests.user, c._compile([{'type': 'function', 'name': r"user"}]) )
 
     def test_nestedFunction(self):
         c = prompty.compiler.Compiler()
         self.assertEqual("\001\033[32m\002%s\001\033[0m\002" % CompilerTests.user, 
-                         c.compile([{'type': 'function', 'name': r"green", 'args': 
+                         c._compile([{'type': 'function', 'name': r"green", 'args': 
                                      [[{'type': 'function', 'name': r"user"}]]}]) )
 
     def test_functionWithMultipleLiteralArgument(self):
         c = prompty.compiler.Compiler()
         self.assertEqual("\001\033[32m\002a%sb%s\001\033[0m\002" % (CompilerTests.user,CompilerTests.host),
-                         c.compile([{'type': 'function', 'name': r"green", 'args': 
+                         c._compile([{'type': 'function', 'name': r"green", 'args': 
                                 [[{'type': 'literal', 'value': r"a"},
                                  {'type': 'function', 'name': r"user"},
                                  {'type': 'literal', 'value': r"b"},
@@ -421,7 +412,7 @@ class CompilerTests(unittest.TestCase):
     def test_nestedFunctionOptionalArg(self):
         c = prompty.compiler.Compiler()
         self.assertEqual("\001\033[1;32m\002%s\001\033[0m\002" % CompilerTests.user, 
-                         c.compile([{'type': 'function', 'name': r"green", 'args': 
+                         c._compile([{'type': 'function', 'name': r"green", 'args': 
                                 [[{'type': 'function', 'name': r"user"}]],
                                 'optargs': [[{'type': 'literal', 'value': r"bold"}]]
                           }]) )
@@ -429,18 +420,18 @@ class CompilerTests(unittest.TestCase):
 
     def test_multipleAruments(self):
         c = prompty.compiler.Compiler()
-        self.assertEqual(r"2", c.compile([{'type': 'function', 'name': r"greater", 'args': 
+        self.assertEqual(r"2", c._compile([{'type': 'function', 'name': r"greater", 'args': 
                                            [[{'type': 'literal', 'value': r"1"}],
                                             [{'type': 'literal', 'value': r"2"}]
                                             ]}]) )
 
     def test_emptyAruments(self):
         c = prompty.compiler.Compiler()
-        self.assertEqual("..", c.compile([{'type': 'function', 'name': r"join", 'args': 
+        self.assertEqual("..", c._compile([{'type': 'function', 'name': r"join", 'args': 
                                            [[{'type': 'literal', 'value': r"."}], 
                                             [], [], []]
                                            }]) )
-        self.assertEqual(".1.2", c.compile([{'type': 'function', 'name': r"join", 'args': 
+        self.assertEqual(".1.2", c._compile([{'type': 'function', 'name': r"join", 'args': 
                                            [ [{'type': 'literal', 'value': r"."}]
                                             , [], [{'type': 'literal', 'value': r"1"}],
                                             [{'type': 'literal', 'value': r"2"}]
@@ -448,7 +439,7 @@ class CompilerTests(unittest.TestCase):
 
     def test_equalFunction(self):
         c = prompty.compiler.Compiler()
-        self.assertEqual("True", c.compile([{'args': [[{'type': 'literal', 'value': '1'}], 
+        self.assertEqual("True", c._compile([{'args': [[{'type': 'literal', 'value': '1'}], 
                                                     [{'type': 'literal', 'value': '1'}]], 
                                            'type': 'function', 'name': 'equals'}]) )
 
@@ -458,11 +449,25 @@ def testFunc(status):
 def _hiddenFunc(status):
     return "This is secret"
 
-class StandardFunctionTests(unittest.TestCase):
-
+class FunctionContainerTests(unittest.TestCase):
     def test_noname(self):
         c = prompty.functionContainer.FunctionContainer()
         self.assertRaises(TypeError, c._call)
+        
+    def test_extendFunctionContainer(self):
+        c = prompty.functionContainer.FunctionContainer()
+        # Import this module
+        c.addFunctions(sys.modules[__name__])
+        self.assertEqual(r"This Is A Test", c._call("testFunc"))
+        self.assertRaises(KeyError, c._call, "_hiddenFunc")
+        
+    def test_extendFunctionContainerFromDir(self):
+        c = prompty.functionContainer.FunctionContainer()
+        # Import this directory
+        c.addFunctionsFromDir(os.path.dirname(sys.modules[__name__].__file__))
+        self.assertEqual(r"This Is A Test", c._call("testFunc"))
+
+class StandardFunctionTests(unittest.TestCase):
 
     def test_user(self):
         c = prompty.functionContainer.FunctionContainer()
@@ -527,13 +532,6 @@ class StandardFunctionTests(unittest.TestCase):
                 ]
         for char in chars:
             self.assertEqual(char[1], c._call(char[0]))
-
-    def test_extendFunctionContainer(self):
-        c = prompty.functionContainer.FunctionContainer()
-        # Import this module
-        c.addFunctions(sys.modules[__name__])
-        self.assertEqual(r"This Is A Test", c._call("testFunc"))
-        self.assertRaises(KeyError, c._call, "_hiddenFunc")
 
     def test_date(self):
         c = prompty.functionContainer.FunctionContainer()
@@ -604,6 +602,10 @@ class UserDirTests(unittest.TestCase):
     def test_userDirLocation(self):
         u = prompty.userdir.UserDir()
         self.assertEquals(os.path.join(os.path.expanduser('~'),prompty.userdir.PROMPTY_USER_DIR), u.getDir())
+
+    def test_functionsDirLocation(self):
+        u = prompty.userdir.UserDir()
+        self.assertEquals(os.path.join(os.path.expanduser('~'),prompty.userdir.PROMPTY_USER_DIR,prompty.userdir.FUNCTIONS_DIR), u.promtyUserFunctionsDir)
 
     def test_initialise(self):
         tmpDir = tempfile.mkdtemp()

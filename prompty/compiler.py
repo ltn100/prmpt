@@ -2,17 +2,21 @@
 # vim:set softtabstop=4 shiftwidth=4 tabstop=4 expandtab:
 
 import prompty
+import parser
 import functionContainer
 
 class Compiler(object):
-    def __init__(self, status=None):
-        if status is None:
-            status = prompty.Status()
-            
-        self.status = status
-        self.funcs = functionContainer.FunctionContainer(status)
+    def __init__(self, funcs=None):
+        if funcs is None:
+            funcs = functionContainer.FunctionContainer()
+        self.funcs = funcs
+        self.parser = parser.Parser()
 
-    def compile(self, parsedStruct):
+    def compile(self, promptString):
+        parsedStruct = self.parser.parse(promptString)
+        return self._compile(parsedStruct)
+        
+    def _compile(self, parsedStruct):
         out = ""
         for element in parsedStruct:
             if element['type'] == 'literal':
@@ -24,11 +28,11 @@ class Compiler(object):
                 # Then the required arguments
                 if 'args' in element:
                     for arg in element['args']:
-                        args.append(self.compile(arg))
+                        args.append(self._compile(arg))
                 # Finally any optional arguments
                 if 'optargs' in element:
                     for optarg in element['optargs']:
-                        args.append(self.compile(optarg))
+                        args.append(self._compile(optarg))
                 # Call the function!
                 try:
                     out += unicode(self.funcs._call(*args))

@@ -1,0 +1,2 @@
+def cat(status):
+    return "=^..^="
