@@ -883,4 +883,4 @@ class GitTests(UnitTestWrapper):
 #                          End of functions                                 #
 #---------------------------------------------------------------------------#
 if __name__ == "__main__":
-    sys.exit(unittest.main())
+    sys.exit(unittest.main(verbosity=2))
