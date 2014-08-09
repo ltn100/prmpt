@@ -13,7 +13,11 @@ import tempfile
 import unittest
 import distutils.spawn
 from contextlib import contextmanager
-from StringIO import StringIO
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
+
 
 TEST_DIR = os.path.dirname(__file__)
 
