@@ -83,13 +83,39 @@ FG_KEY      = 3
 BG_KEY      = 4
 STYLE_KEY   = 5
 
-PAL1 = {NAME_KEY : 'pal1',  FG_KEY : None,  BG_KEY : None,  STYLE_KEY : None}
+
+PAL1 = {NAME_KEY : 'pal1',  FG_KEY : WHITE, BG_KEY : None,  STYLE_KEY : None}
 PAL2 = {NAME_KEY : 'pal2',  FG_KEY : GREEN, BG_KEY : None,  STYLE_KEY : None}
 PAL3 = {NAME_KEY : 'pal3',  FG_KEY : LBLUE, BG_KEY : None,  STYLE_KEY : BOLD}
 PALETTE = [PAL1,PAL2,PAL3]
 
 
-def _getPaletteColourCode(identifier, area=None):
+def _setPalette(identifier, fgcolour=None, bgcolour=None, style=None):
+    if identifier is None:
+        return
+
+    found = False
+    for pal in PALETTE:
+        if identifier == pal[NAME_KEY]:
+            found = True
+            break
+
+    if not found:
+        # Create a new palette member
+        pal = {NAME_KEY : str(identifier),  FG_KEY : None, BG_KEY : None,  STYLE_KEY : None}
+        PALETTE.append(pal)
+
+    # Update the palette
+    if fgcolour:
+        pal[FG_KEY] = fgcolour
+    if bgcolour:
+        pal[BG_KEY] = bgcolour
+    if style:
+        pal[STYLE_KEY] = style
+
+
+
+def _getPaletteColourCode(identifier):
     """
     Palette colour codes can be any of the following:
         pal1, pal2, etc.
@@ -256,7 +282,7 @@ def _get24bitColourCode(identifier, area=FOREGROUND):
 
 def _getColourCode(identifier, area=FOREGROUND):
     try:
-        colourCode = _getPaletteColourCode(identifier,area)
+        colourCode = _getPaletteColourCode(identifier)
         return colourCode
     except ValueError:
         pass
@@ -351,6 +377,12 @@ def _styleFuncFactory(style):
                 stopColour(status)
     return func
 
+def _paletteFuncFactory(pal):
+    def func(status, literal):
+        return  startColour(status, fgcolour=pal) + \
+                literal + \
+                stopColour(status)
+    return func
 
 def _populateFunctions(module):
     """
@@ -371,6 +403,10 @@ def _populateFunctions(module):
         styleName = s[NAME_KEY]
         func = _styleFuncFactory(styleName)
         setattr(module, styleName, func)
+    for p in PALETTE:
+        paletteName = p[NAME_KEY]
+        func = _paletteFuncFactory(paletteName)
+        setattr(module, paletteName, func)
 
 
 # Populate the functions in this module

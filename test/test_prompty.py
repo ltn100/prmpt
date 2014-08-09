@@ -295,13 +295,22 @@ class ColourTests(UnitTestWrapper):
         prompty.colours._populateFunctions(sys.modules[__name__])
         self.assertEqual(sys.modules[__name__].green(None, "I'm green"), "\001\033[32m\002I'm green\001\033[0m\002")
         self.assertEqual(sys.modules[__name__].green(None, "I'm green and bold", "bold"), "\001\033[1;32m\002I'm green and bold\001\033[0m\002")
-        
+
+
 class PaletteTests(UnitTestWrapper):
-    def test_palette1(self):
-        self.assertEqual(prompty.colours.startColour(None, "pal1"), "")
+    def test_defaultPalette(self):
+        self.assertEqual(prompty.colours.startColour(None, "pal1"), "\001\033[97m\002")
         self.assertEqual(prompty.colours.startColour(None, "pal2"), "\001\033[32m\002")
         self.assertEqual(prompty.colours.startColour(None, "pal3"), "\001\033[1;94m\002")
-        
+    
+    def test_editPalette(self):
+        prompty.colours._setPalette("pal1", prompty.colours.RED)
+        self.assertEqual(prompty.colours.startColour(None, "pal1"), "\001\033[31m\002")
+        prompty.colours._setPalette("pal1", "123")
+        self.assertEqual(prompty.colours.startColour(None, "pal1"), "\001\033[38;5;123m\002")
+        prompty.colours._setPalette("mypal", prompty.colours.GREEN)
+        self.assertEqual(prompty.colours.startColour(None, "mypal"), "\001\033[32m\002")
+
 
 class LexerTests(UnitTestWrapper):
     def test_singleStringLiteral(self):
