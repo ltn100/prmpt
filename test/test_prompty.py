@@ -25,6 +25,39 @@ import prompty
 prompty_bin = imp.load_source("prompty_bin", os.path.join(os.path.dirname(__file__), "..", "bin", "prompty"))
 
 
+class UnitTestWrapper(unittest.TestCase):
+    """
+    A wrapper for the unittest class to enable support
+    for functions not available in python 2.6
+    """
+    pass
+
+if True or "assertIs" not in dir(UnitTestWrapper):
+    def _assertIs(self, expr1, expr2, msg=None):
+        """Just like self.assertTrue(a is b), but with a nicer default message."""
+        if expr1 is not expr2:
+            standardMsg = '%s is not %s' % (safe_repr(expr1),
+                                             safe_repr(expr2))
+            self.fail(self._formatMessage(msg, standardMsg))
+    setattr(UnitTestWrapper, "assertIs", _assertIs)
+
+if True or "assertGreater" not in dir(UnitTestWrapper):
+    def _assertGreater(self, a, b, msg=None):
+        """Just like self.assertTrue(a > b), but with a nicer default message."""
+        if not a > b:
+            standardMsg = '%s not greater than %s' % (safe_repr(a), safe_repr(b))
+            self.fail(self._formatMessage(msg, standardMsg))
+    setattr(UnitTestWrapper, "assertGreater", _assertGreater)
+
+if True or "assertIsInstance" not in dir(UnitTestWrapper):
+    def _assertIsInstance(self, obj, cls, msg=None):
+        """Same as self.assertTrue(isinstance(obj, cls)), with a nicer
+        default message."""
+        if not isinstance(obj, cls):
+            standardMsg = '%s is not an instance of %r' % (safe_repr(obj), cls)
+            self.fail(self._formatMessage(msg, standardMsg))
+    setattr(UnitTestWrapper, "assertIsInstance", _assertIsInstance)
+
 @contextmanager
 def captured_output():
     new_out, new_err = StringIO(), StringIO()
@@ -36,7 +69,7 @@ def captured_output():
         sys.stdout, sys.stderr = old_out, old_err
 
 
-class MainTests(unittest.TestCase):
+class MainTests(UnitTestWrapper):
     def test_help(self):
         argv = ["","-h"]
         with captured_output() as (out, err):
@@ -65,7 +98,7 @@ class MainTests(unittest.TestCase):
         self.assertEqual(ret, 1)
 
 
-class ColourTests(unittest.TestCase):
+class ColourTests(UnitTestWrapper):
 
     def test_getColourCode4Bit(self):
         self.assertEquals(prompty.colours.RED[prompty.colours.VAL_KEY], prompty.colours._getColourCode(prompty.colours.RED) )
@@ -147,14 +180,14 @@ class ColourTests(unittest.TestCase):
         self.assertEqual(sys.modules[__name__].green(None, "I'm green"), "\001\033[32m\002I'm green\001\033[0m\002")
         self.assertEqual(sys.modules[__name__].green(None, "I'm green and bold", "bold"), "\001\033[1;32m\002I'm green and bold\001\033[0m\002")
         
-class PaletteTests(unittest.TestCase):
+class PaletteTests(UnitTestWrapper):
     def test_palette1(self):
         self.assertEqual(prompty.colours.startColour(None, "pal1"), "")
         self.assertEqual(prompty.colours.startColour(None, "pal2"), "\001\033[32m\002")
         self.assertEqual(prompty.colours.startColour(None, "pal3"), "\001\033[1;94m\002")
         
 
-class LexerTests(unittest.TestCase):
+class LexerTests(UnitTestWrapper):
     def test_singleStringLiteral(self):
         l = prompty.lexer.Lexer(r"literal")
         self.assertEqual(r"literal", l.get_token())
@@ -237,17 +270,17 @@ class LexerTests(unittest.TestCase):
         self.assertEqual("after", l.get_token())
 
 
-class ParserTests(unittest.TestCase):
+class ParserTests(UnitTestWrapper):
     def test_stringLiteral(self):
         p = prompty.parser.Parser()
-        self.assertListEqual([{'lineno': 1, 'type': 'literal', 'value': r"literalvalue"}],
+        self.assertSequenceEqual([{'lineno': 1, 'type': 'literal', 'value': r"literalvalue"}],
                              p.parse("literalvalue"))
 
     def test_lineNumber(self):
         p = prompty.parser.Parser()
-        self.assertListEqual([{'lineno': 3, 'type': 'literal', 'value': r"literalvalue"}],
+        self.assertSequenceEqual([{'lineno': 3, 'type': 'literal', 'value': r"literalvalue"}],
                              p.parse("\n\nliteralvalue"))
-        self.assertListEqual([{'lineno': 3, 'type': 'literal', 'value': r"literalvalue"},
+        self.assertSequenceEqual([{'lineno': 3, 'type': 'literal', 'value': r"literalvalue"},
                               {'lineno': 4, 'type': 'function', 'name': r"space"},
                               {'lineno': 5, 'type': 'function', 'name': r"red", 'args': 
                                 [[{'lineno': 5, 'type': 'literal', 'value': r"test"}]]
@@ -256,13 +289,13 @@ class ParserTests(unittest.TestCase):
 
     def test_stringLiteralComplicated(self):
         p = prompty.parser.Parser()
-        self.assertListEqual([{'lineno': 1, 'type': 'literal', 
+        self.assertSequenceEqual([{'lineno': 1, 'type': 'literal', 
                                'value':r"literal-With$omeUne*pectedC#ars.,"}],
                              p.parse(r"literal-With$omeUne*pectedC#ars.,"))
   
     def test_multipleStringLiteral(self):
         p = prompty.parser.Parser()
-        self.assertListEqual([{'lineno': 1, 'type': 'literal', 'value': r"literal"},
+        self.assertSequenceEqual([{'lineno': 1, 'type': 'literal', 'value': r"literal"},
                               {'lineno': 1, 'type': 'literal', 'value': r"strings"},
                               {'lineno': 1, 'type': 'literal', 'value': r"are"},
                               {'lineno': 1, 'type': 'literal', 'value': r"concatenated"}], 
@@ -270,7 +303,7 @@ class ParserTests(unittest.TestCase):
   
     def test_functionNoArgument(self):
         p = prompty.parser.Parser()
-        self.assertListEqual([{'lineno': 1, 'type': 'function', 'name': r"user"}],
+        self.assertSequenceEqual([{'lineno': 1, 'type': 'function', 'name': r"user"}],
                              p.parse(r"\user"))
   
     def test_multipleFunctionNoArgument(self):
@@ -381,7 +414,7 @@ class ParserTests(unittest.TestCase):
                           }],
                          p.parse(r"\green[bold][\bg]{\user}"))
 
-class CoordsTests(unittest.TestCase):
+class CoordsTests(UnitTestWrapper):
     def test_init(self):
         c = prompty.status.Coords()
         self.assertEqual(0, c.column)
@@ -401,7 +434,7 @@ class CoordsTests(unittest.TestCase):
         self.assertEqual(4, c3.column)
         self.assertEqual(6, c3.row)
 
-class OutputTests(unittest.TestCase):
+class OutputTests(UnitTestWrapper):
     def test_outputString(self):
         o = prompty.compiler.Output()
         o.add("four")
@@ -421,7 +454,7 @@ class OutputTests(unittest.TestCase):
         self.assertEqual(8, o.pos.column)
 
 
-class CompilerTests(unittest.TestCase):
+class CompilerTests(UnitTestWrapper):
     user=getpass.getuser()
     host=socket.gethostname()
     
@@ -517,7 +550,7 @@ def testFunc(status):
 def _hiddenFunc(status):
     return "This is secret"
 
-class FunctionContainerTests(unittest.TestCase):
+class FunctionContainerTests(UnitTestWrapper):
     def test_noname(self):
         c = prompty.functionContainer.FunctionContainer()
         self.assertRaises(TypeError, c._call)
@@ -535,7 +568,7 @@ class FunctionContainerTests(unittest.TestCase):
         c.addFunctionsFromDir(os.path.dirname(sys.modules[__name__].__file__))
         self.assertEqual(r"This Is A Test", c._call(["testFunc"]))
 
-class StandardFunctionTests(unittest.TestCase):
+class StandardFunctionTests(UnitTestWrapper):
 
     def test_user(self):
         c = prompty.functionContainer.FunctionContainer()
@@ -627,7 +660,7 @@ class StandardFunctionTests(unittest.TestCase):
         shutil.rmtree(tmpDir)
 
 
-class ExpressionFunctionTests(unittest.TestCase):
+class ExpressionFunctionTests(UnitTestWrapper):
     def test_equal(self):
         c = prompty.functionContainer.FunctionContainer()
         self.assertEqual(True, c._call(["equals"],"1","1"))
@@ -647,14 +680,14 @@ class ExpressionFunctionTests(unittest.TestCase):
         self.assertEqual(False, c._call(["exitsuccess"]))
 
 
-class ColourFunctionTests(unittest.TestCase):
+class ColourFunctionTests(UnitTestWrapper):
     def test_colourLiteral(self):
         c = prompty.functionContainer.FunctionContainer()
         self.assertEqual("\001\033[32m\002I'm green\001\033[0m\002",  c._call(["green"],"I'm green"))
         self.assertEqual("\001\033[31m\002I'm red\001\033[0m\002",    c._call(["red"],"I'm red"))
 
 
-class PromptTests(unittest.TestCase):
+class PromptTests(UnitTestWrapper):
     def test_create(self):
         p = prompty.prompty.Prompt(prompty.status.Status())
         self.assertIsInstance(p, prompty.prompty.Prompt)
@@ -666,7 +699,7 @@ class PromptTests(unittest.TestCase):
         self.assertGreater(len(s), 0)
 
 
-class UserDirTests(unittest.TestCase):
+class UserDirTests(UnitTestWrapper):
     def test_userDirLocation(self):
         u = prompty.userdir.UserDir()
         self.assertEquals(os.path.join(os.path.expanduser('~'),prompty.userdir.PROMPTY_USER_DIR), u.getDir())
@@ -704,7 +737,7 @@ class UserDirTests(unittest.TestCase):
         shutil.rmtree(tmpDir)
 
 
-class ConfigTests(unittest.TestCase):
+class ConfigTests(UnitTestWrapper):
     def test_loadConfig(self):
         c = prompty.config.Config()
         c.load(os.path.join(os.path.dirname(TEST_DIR), 
@@ -723,7 +756,7 @@ class ConfigTests(unittest.TestCase):
         self.assertGreater(len(c.promptString), 0)
 
 
-class GitTests(unittest.TestCase):
+class GitTests(UnitTestWrapper):
     def test_commandAvailable(self):
         git_installed = bool(distutils.spawn.find_executable(prompty.git.GIT_COMMAND))
         g = prompty.git.Git()
