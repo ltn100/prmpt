@@ -13,6 +13,6 @@ class Lexer(shlex.shlex):
             asciiCharSet.discard(char)
         self.wordchars = ''.join(asciiCharSet)
         self.commenters = '%'
-        
+
     def lineNo(self):
         return (self.lineno+1)/2

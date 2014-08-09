@@ -75,7 +75,7 @@ def main(argv=None):
 
     exitStatus = int(args[0])
 
-    s = prompty.prompty.Status(exitStatus)
+    s = prompty.status.Status(exitStatus)
 
     p = prompty.prompty.Prompt(s)
 

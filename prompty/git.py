@@ -3,7 +3,7 @@
 
 import os
 import subprocess
-from sys import stderr
+
 
 GIT_COMMAND="git"
 
@@ -11,10 +11,11 @@ GIT_COMMAND="git"
 class SCM(object):
     def __init__(self):
         pass
-    
-    def runCommand(self, cmdList):
+
+    @staticmethod
+    def runCommand(cmdList):
         # Raises OSError if command doesn't exist
-        proc = subprocess.Popen(cmdList, 
+        proc = subprocess.Popen(cmdList,
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE,
                                 cwd=os.getcwd())
@@ -24,6 +25,7 @@ class SCM(object):
 
 class Git(SCM):
     def __init__(self, gitCmd=GIT_COMMAND):
+        super(Git, self).__init__()
         self.ranStatus = False
         self.command = gitCmd
         self.cwd = None
@@ -35,7 +37,8 @@ class Git(SCM):
         self.unmerged = ""
         self.ahead = ""
         self.behind = ""
-
+        self.installed = None
+        self.isRepo = None
 
     def __getattribute__(self, name):
         """
@@ -43,7 +46,8 @@ class Git(SCM):
         attempting to get the attribute. _runStatus() is also called
         again if the working directory has changed.
         """
-        if not object.__getattribute__(self, "ranStatus") or object.__getattribute__(self, "cwd") != os.getcwd():
+        if not  object.__getattribute__(self, "ranStatus") or \
+                object.__getattribute__(self, "cwd") != os.getcwd():
             self.cwd = os.getcwd()
             self.ranStatus = True
             self._runStatus()
@@ -52,24 +56,26 @@ class Git(SCM):
 
     def _runStatus(self):
         try:
-            (stdout, stderr, returncode) = self.runCommand([self.command, "status", "--porcelain", "-b"])
+            (stdout, stderr, returncode) = self.runCommand(
+                            [self.command, "status", "--porcelain", "-b"]
+            )
         except OSError:
             # Git command not found
             self.installed = False
             self.isRepo = False
             return
-        
+
         if returncode == 0:
             # Successful git status call
             self.installed = True
             self.isRepo = True
-            (self.branch, 
-            self.remoteBranch, 
+            (self.branch,
+            self.remoteBranch,
             self.staged,
-            self.changed, 
-            self.untracked, 
+            self.changed,
+            self.untracked,
             self.unmerged,
-            self.ahead, 
+            self.ahead,
             self.behind) = self._git_status(stdout)
         else:
             if "Not a git repository" in stderr:
@@ -85,7 +91,7 @@ class Git(SCM):
     def _git_status(self, result):
         """
         Originally taken from https://github.com/dreadatour/dotfiles
-        
+
         Get git status.
         """
         branch = remote_branch = ''
@@ -94,7 +100,7 @@ class Git(SCM):
             line = line.decode('utf-8')
             prefix = line[0:2]
             line = line[3:]
-    
+
             if prefix == '##':  # branch name + ahead & behind info
                 branch, remote_branch, ahead, behind = self._parse_git_branch(line)
             elif prefix == '??':  # untracked file
@@ -106,7 +112,7 @@ class Git(SCM):
                     staged += 1
                 if prefix[1] in ('M', 'D'):  # changes in work tree
                     changed += 1
-    
+
         return (branch, remote_branch, staged, changed, untracked, unmerged,
                 ahead, behind)
 
@@ -114,14 +120,14 @@ class Git(SCM):
     def _parse_git_branch(self, line):
         """
         Originally taken from https://github.com/dreadatour/dotfiles
-        
+
         Parse 'git status -b --porcelain' command branch info output.
-    
+
         Possible strings:
         - simple: "## dev"
         - detached: "## HEAD (no branch)"
         - ahead/behind: "## master...origin/master [ahead 1, behind 2]"
-    
+
         Ahead/behind format:
         - [ahead 1]
         - [behind 1]
@@ -129,7 +135,7 @@ class Git(SCM):
         """
         branch = remote_branch = ''
         ahead = behind = 0
-    
+
         if line == 'HEAD (no branch)':  # detached state
             branch = '#' + self._git_commit()
         elif '...' in line:  # ahead of or behind remote branch
@@ -138,7 +144,7 @@ class Git(SCM):
             else:
                 branches, ahead_behind = line, None
             branch, remote_branch = branches.split('...')
-    
+
             if ahead_behind and ahead_behind[0] == '[' and ahead_behind[-1] == ']':
                 ahead_behind = ahead_behind[1:-1]
                 for state in ahead_behind.split(', '):
@@ -148,14 +154,14 @@ class Git(SCM):
                         behind = state[7:]
         else:
             branch = line
-    
+
         return branch, remote_branch, ahead, behind
 
 
     def _git_commit(self):
         """
         Originally taken from https://github.com/dreadatour/dotfiles
-        
+
         Get git HEAD commit hash.
         """
         git_cmd = [self.command, 'rev-parse', '--porcelain', '--short', 'HEAD']

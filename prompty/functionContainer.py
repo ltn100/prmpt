@@ -10,7 +10,7 @@ import os
 # Import prompty modules
 import functions
 import colours
-import prompty
+import status as statusmod
 import git
 
 class FunctionContainer(object):
@@ -42,7 +42,7 @@ class FunctionContainer(object):
 
     def __init__(self, status=None, userDirs=None):
         if status is None:
-            status = prompty.Status()
+            status = statusmod.Status()
         self.status = status
         self.functions = {}
         self.addFunctions(functions)
@@ -51,4 +51,3 @@ class FunctionContainer(object):
         if userDirs:
             for directory in userDirs:
                 self.addFunctionsFromDir(directory)
-        

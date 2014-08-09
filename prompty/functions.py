@@ -11,12 +11,12 @@ import datetime
 import colours
 
 
-#            TODO:
+#            TO DO:
 #               \a     an ASCII bell character (07)
 #               \j     the number of jobs currently managed by the shell
 #               \l     the basename of the shell's terminal device name
-#               \s     the name of the shell, the basename of $0  (the  portion  following
-#                      the final slash)
+#               \s     the name of the shell, the basename of $0  (the  portion
+#                        following the final slash)
 #               \t     the current time in 24-hour HH:MM:SS format
 #               \T     the current time in 12-hour HH:MM:SS format
 #               \@     the current time in 12-hour am/pm format
@@ -30,51 +30,51 @@ import colours
 
 # ----- Special Characters --------
 # \e
-def unichar(status, code):
+def unichar(_, code):
     return unichr(int(code,0))
 
 # \\
-def backslash(status):
+def backslash(_):
     return u"\\"
 
-def percent(status):
+def percent(_):
     return u"%"
 
-def opencurly(status):
+def opencurly(_):
     return u"{"
 
-def closecurly(status):
+def closecurly(_):
     return u"}"
 
-def opensquare(status):
+def opensquare(_):
     return u"["
 
-def closesquare(status):
+def closesquare(_):
     return u"]"
 
-def space(status):
+def space(_):
     return u" "
 
 # \n
-def newline(status):
+def newline(_):
     return u"\n"
 
 # \r
-def carriagereturn(status):
+def carriagereturn(_):
     return u"\r"
 
 # \e
-def escape(status):
+def escape(_):
     return u"\033"
 
 
 # ----- Bash Prompt Functions --------
 # \D
-def datefmt(status,format=None):
+def datefmt(_,fmt=None):
     now = datetime.datetime.now()
-    if format:
-        format = format.replace('#', '%')
-        return now.strftime(format)
+    if fmt:
+        fmt = fmt.replace('#', '%')
+        return now.strftime(fmt)
     else:
         return now.strftime("%X")
 
@@ -83,25 +83,25 @@ def date(status):
     return datefmt(status, "%a %b %d")
 
 # \u
-def user(status):
+def user(_):
     return getpass.getuser()
 
 # \h
-def hostname(status):
+def hostname(_):
     return socket.gethostname().split(".")[0]
 
 # \H
-def hostnamefull(status):
+def hostnamefull(_):
     return socket.gethostname()
 
 # \w
-def workingdir(status):
+def workingdir(_):
     cwd = os.getenv('PWD')
     home = os.path.expanduser(r"~")
     return re.sub(r'^%s' % home, r"~", cwd)
 
 # \W
-def workingdirbase(status):
+def workingdirbase(_):
     return os.path.basename(os.getenv('PWD'))
 
 # \$
@@ -113,7 +113,7 @@ def dollar(status, euid=None):
     else:
         return ur"$"
 
-def isrealpath(status, path=None):
+def isrealpath(_, path=None):
     if path is None:
         path = os.getenv('PWD')
     if path == os.path.realpath(path):
@@ -130,10 +130,10 @@ def exitsuccess(status):
     else:
         return False
 
-def equals(status, a,b):
+def equals(_, a,b):
     return a == b
 
-def greater(status, a,b):
+def greater(_, a,b):
     if a > b:
         return a
     else:
@@ -142,7 +142,7 @@ def greater(status, a,b):
 
 # ----- Control Functions --------
 
-def ifexpr(status, cond,thenval,elseval=None):
+def ifexpr(_, cond,thenval,elseval=None):
     if _tobool(cond):
         return thenval
     else:
@@ -154,10 +154,10 @@ def ifexpr(status, cond,thenval,elseval=None):
 
 # ----- String Functions --------
 
-def lower(status, literal):
+def lower(_, literal):
     return unicode(literal).lower()
 
-def join(status, *args):
+def join(_, *args):
     if len(args) < 1:
         raise TypeError("join needs at least one argument")
     delim = args[0]
@@ -188,34 +188,34 @@ def right(status, literal):
 
 # ----- Misc Functions --------
 
-def tick(status):
+def tick(_):
     return unichr(0x2714)
 
-def cross(status):
+def cross(_):
     return unichr(0x2718)
 
-def highvoltage(status):
+def highvoltage(_):
     return unichr(0x26A1)
 
-def plbranch(status):
+def plbranch(_):
     return unichr(0xe0a0)
 
-def plline(status):
+def plline(_):
     return unichr(0xe0a1)
 
-def pllock(status):
+def pllock(_):
     return unichr(0xe0a2)
 
-def plrightarrowfill(status):
+def plrightarrowfill(_):
     return unichr(0xe0b0)
 
-def plrightarrow(status):
+def plrightarrow(_):
     return unichr(0xe0b1)
 
-def plleftarrowfill(status):
+def plleftarrowfill(_):
     return unichr(0xe0b2)
 
-def plleftarrow(status):
+def plleftarrow(_):
     return unichr(0xe0b3)
 
 def powerline(status,content,background="blue",foreground="white"):
@@ -232,11 +232,11 @@ def powerline(status,content,background="blue",foreground="white"):
 
 def smiley(status):
     if status.exitCode == 0:
-        out = colours.startColour(status, "green", prefix="bold")
+        out = colours.startColour(status, "green", style="bold")
         out += dollar(status)
         out += u":)"
     else:
-        out = colours.startColour(status, "red", prefix="bold")
+        out = colours.startColour(status, "red", style="bold")
         out += dollar(status)
         out += u":("
     out += colours.stopColour(status)

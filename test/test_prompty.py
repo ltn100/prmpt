@@ -146,7 +146,7 @@ class ColourTests(unittest.TestCase):
         prompty.colours._populateFunctions(sys.modules[__name__])
         self.assertEqual(sys.modules[__name__].green(None, "I'm green"), "\001\033[32m\002I'm green\001\033[0m\002")
         self.assertEqual(sys.modules[__name__].green(None, "I'm green and bold", "bold"), "\001\033[1;32m\002I'm green and bold\001\033[0m\002")
-
+        
 class PaletteTests(unittest.TestCase):
     def test_palette1(self):
         self.assertEqual(prompty.colours.startColour(None, "pal1"), "")
@@ -383,16 +383,16 @@ class ParserTests(unittest.TestCase):
 
 class CoordsTests(unittest.TestCase):
     def test_init(self):
-        c = prompty.compiler.Coords()
+        c = prompty.status.Coords()
         self.assertEqual(0, c.column)
         self.assertEqual(0, c.row)
-        c = prompty.compiler.Coords(5,4)
+        c = prompty.status.Coords(5,4)
         self.assertEqual(5, c.column)
         self.assertEqual(4, c.row)
         
     def test_add(self):
-        c1 = prompty.compiler.Coords(1,2)
-        c2 = prompty.compiler.Coords(3,4)
+        c1 = prompty.status.Coords(1,2)
+        c2 = prompty.status.Coords(3,4)
         c3 = c1 + c2
         self.assertEqual(1, c1.column)
         self.assertEqual(2, c1.row)
@@ -641,9 +641,9 @@ class ExpressionFunctionTests(unittest.TestCase):
         self.assertEqual("1", c._call(["ifexpr"],"1","1"))
 
     def test_exitSuccess(self):
-        c = prompty.functionContainer.FunctionContainer(prompty.prompty.Status(0))
+        c = prompty.functionContainer.FunctionContainer(prompty.status.Status(0))
         self.assertEqual(True, c._call(["exitsuccess"]))
-        c = prompty.functionContainer.FunctionContainer(prompty.prompty.Status(1))
+        c = prompty.functionContainer.FunctionContainer(prompty.status.Status(1))
         self.assertEqual(False, c._call(["exitsuccess"]))
 
 
@@ -656,11 +656,11 @@ class ColourFunctionTests(unittest.TestCase):
 
 class PromptTests(unittest.TestCase):
     def test_create(self):
-        p = prompty.prompty.Prompt(prompty.prompty.Status())
+        p = prompty.prompty.Prompt(prompty.status.Status())
         self.assertIsInstance(p, prompty.prompty.Prompt)
  
     def test_getPrompt(self):
-        p = prompty.prompty.Prompt(prompty.prompty.Status())
+        p = prompty.prompty.Prompt(prompty.status.Status())
         s = p.getPrompt()
         self.assertIsInstance(s, basestring)
         self.assertGreater(len(s), 0)

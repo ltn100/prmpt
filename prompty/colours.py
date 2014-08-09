@@ -61,15 +61,15 @@ END_CODE        = u"m"
 def _encode(code, wrap=True):
     """
     Add the bash escape codes for colours
-    i.e.: \e[CODEm
-    
+    i.e.: \\e[CODEm
+
     :param wrap: Wrap the code in additional characters
                  to signify non-printing characters are
                  contained
     """
     if code == "":
         return ""
-    
+
     s = ESCAPE_CHAR+\
             unicode(code)+\
             END_CODE
@@ -102,10 +102,10 @@ def _getPaletteColourCode(identifier, area=None):
             style   = unicode(_getStyleCode(pal[STYLE_KEY]))
             fg      = unicode(_getColourCode(pal[FG_KEY], FOREGROUND))
             bg      = unicode(_getColourCode(pal[BG_KEY], BACKGROUND))
-            return ";".join(filter(None, [style,fg,bg]))
-    
+            return ";".join([x for x in [style,fg,bg] if x])
+
     raise ValueError
-    
+
 
 def _get4bitColourCode(identifier, area=FOREGROUND):
     """
@@ -119,7 +119,7 @@ def _get4bitColourCode(identifier, area=FOREGROUND):
         offset = 0
     else:
         offset = BG_OFFSET
-        
+
     if isinstance(identifier, dict):
         # Is it a colour dict?
         if identifier in COLOURS:
@@ -128,23 +128,23 @@ def _get4bitColourCode(identifier, area=FOREGROUND):
         # Assume identifier is a sting
         if len(identifier) == 0:
             raise ValueError("No such colour %s" % str(identifier))
-        
+
         # Is it a name key?
-        for colour in COLOURS:
-            if identifier == colour[NAME_KEY]:
-                return colour[VAL_KEY]+offset
-            
+        for c in COLOURS:
+            if identifier == c[NAME_KEY]:
+                return c[VAL_KEY]+offset
+
         # Is it a code key?
-        for colour in COLOURS:
-            if identifier == colour[CODE_KEY]:
-                return colour[VAL_KEY]+offset
-    
+        for c in COLOURS:
+            if identifier == c[CODE_KEY]:
+                return c[VAL_KEY]+offset
+
     raise ValueError
 
 NEAREST_8BIT_CODE = [0x30, 0x73, 0x9b, 0xc3, 0x3b, 0xff]
-NEAREST_8BIT_GREY_CODE = [0x04, 0x0d, 0x17, 0x21, 0x2b, 0x35, 0x3f, 0x49,
-                          0x53, 0x5c, 0x63, 0x6e, 0x7b, 0x85, 0x8f, 0x99, 
-                          0xa3, 0xad, 0xb7, 0xc1, 0xcb, 0xd5, 0xdf, 0xe9, 0xf7, 0xff]
+NEAREST_8BIT_GREY_CODE = [0x04, 0x0d, 0x17, 0x21, 0x2b, 0x35, 0x3f, 0x49, 0x53,
+                          0x5c, 0x63, 0x6e, 0x7b, 0x85, 0x8f, 0x99, 0xa3, 0xad,
+                          0xb7, 0xc1, 0xcb, 0xd5, 0xdf, 0xe9, 0xf7, 0xff]
 
 
 
@@ -155,22 +155,22 @@ def _get8bitColourCode(identifier, area=FOREGROUND):
     """
     if identifier is None:
         return ""
-    
+
     # Assume identifier is a sting
     identifier = str(identifier)
     if len(identifier) == 0:
         raise ValueError("No such colour %s" % str(identifier))
-    
+
     if area == FOREGROUND:
         style = "38;5;"
     else:
         style = "48;5;"
-    
+
     # Check lead char
     if identifier[0] == "#":
         if not re.match("^#[0-9a-fA-Fg][0-9a-fA-F][0-9a-fA-F]$",identifier):
             raise ValueError
-        
+
         if identifier[1] == 'g':
             # Grey-scale values
             hex_val = int(identifier[2:4], 16)
@@ -187,18 +187,19 @@ def _get8bitColourCode(identifier, area=FOREGROUND):
             else:
                 identifier = nearest_segment+231
             return "%s%d" % (style, identifier)
-        
         else:
             nearest_segments = [0,0,0] # R,G,B
-            
+
             for i in xrange(3):
                 hex_val = (int(identifier[i+1], 16)*16)+7
                 for idx, v in enumerate(NEAREST_8BIT_CODE):
                     if hex_val <= v:
                         nearest_segments[i] = idx
                         break
-    
-            identifier = nearest_segments[0]*36 + nearest_segments[1]*6 +nearest_segments[2] + 16
+
+            identifier =    nearest_segments[0]*36 + \
+                            nearest_segments[1]*6 + \
+                            nearest_segments[2] + 16
             return "%s%d" % (style, identifier)
 
     try:
@@ -209,50 +210,48 @@ def _get8bitColourCode(identifier, area=FOREGROUND):
         return "%s%d" % (style, identifier)
     except ValueError:
         pass
-    
-    
+
     raise ValueError
 
 def _get24bitColourCode(identifier, area=FOREGROUND):
     """
     24-bit colour codes can be any of the following:
-        #000000, #aaf4d3, 0,255,0, 255,255,255 
-        
+        #000000, #aaf4d3, 0,255,0, 255,255,255
+
     24-bit colours are onlt supported by Konsole at the moment:
     https://github.com/robertknight/konsole/blob/master/user-doc/README.moreColors
     """
     if identifier is None:
         return ""
-    
+
     # Assume identifier is a sting
     identifier = str(identifier)
     if len(identifier) == 0:
         raise ValueError("No such colour %s" % str(identifier))
-    
+
     if area == FOREGROUND:
         style = "38;2;"
     else:
         style = "48;2;"
-    
+
     # Check lead char
     if identifier[0] == "#":
         if not re.match("^#[0-9a-fA-F]{6}$",identifier):
             raise ValueError
-        
+
         r = int(identifier[1:3], 16)
         g = int(identifier[3:5], 16)
         b = int(identifier[5:7], 16)
         return "%s%d;%d;%d" % (style, r, g, b)
-    
+
     # Assume the format "r,g,b"
     try:
         (r,g,b) = identifier.split(',')
         return "%s%d;%d;%d" % (style, int(r), int(g), int(b))
     except ValueError:
         pass
-    
-    raise ValueError
 
+    raise ValueError
 
 
 def _getColourCode(identifier, area=FOREGROUND):
@@ -261,13 +260,13 @@ def _getColourCode(identifier, area=FOREGROUND):
         return colourCode
     except ValueError:
         pass
-    
+
     try:
         colourCode = _get4bitColourCode(identifier,area)
         return colourCode
     except ValueError:
         pass
-    
+
     try:
         colourCode = _get8bitColourCode(identifier,area)
         return colourCode
@@ -279,17 +278,18 @@ def _getColourCode(identifier, area=FOREGROUND):
         return colourCode
     except ValueError:
         pass
-    
+
     raise ValueError("No such colour %s" % str(identifier))
+
 
 def _getStyleCode(identifier):
     if identifier is None:
         return ""
-    
+
     # Is it a style dict?
     if identifier in STYLES:
         return identifier[VAL_KEY]
-    
+
     # Is it a name key?
     for style in STYLES:
         if identifier == style[NAME_KEY]:
@@ -299,16 +299,16 @@ def _getStyleCode(identifier):
     for style in STYLES:
         if identifier == style[CODE_KEY]:
             return style[VAL_KEY]
-        
+
     raise KeyError("No such style %s" % str(identifier))
 
 
 def startColour(status, fgcolour=None, bgcolour=None, style=None, wrap=True):
     colourCode = ""
-    
+
     if style:
         colourCode += unicode(_getStyleCode(style))
-        
+
     if fgcolour:
         if colourCode:
             colourCode += ";"
@@ -332,16 +332,23 @@ def colour(status, literal, fgcolour=None, bgcolour=None, style=None, wrap=True)
             stopColour(status, wrap=wrap)
 
 
-def _colourFuncFactory(colour):
+def _colourFuncFactory(clr):
     def fgfunc(status, literal, style=None):
-        return startColour(status, fgcolour=colour, style=style) + literal + stopColour(status)
+        return  startColour(status, fgcolour=clr, style=style) + \
+                literal + \
+                stopColour(status)
     def bgfunc(status, literal, style=None):
-        return startColour(status, bgcolour=colour, style=style) + literal + stopColour(status)
+        return  startColour(status, bgcolour=clr, style=style) + \
+                literal + \
+                stopColour(status)
     return fgfunc, bgfunc
+
 
 def _styleFuncFactory(style):
     def func(status, literal):
-        return startColour(status, style=style) + literal + stopColour(status)
+        return  startColour(status, style=style) + \
+                literal + \
+                stopColour(status)
     return func
 
 
@@ -353,15 +360,15 @@ def _populateFunctions(module):
         redbg(literal, style)   # bg red
     Also styles are defined, e.g.:
         bold(literal)
-        
+
     """
-    for colour in COLOURS:
-        colourName = colour[NAME_KEY]
+    for c in COLOURS:
+        colourName = c[NAME_KEY]
         fgfunc, bgfunc = _colourFuncFactory(colourName)
         setattr(module, colourName, fgfunc)
         setattr(module, colourName+"bg", bgfunc)
-    for style in STYLES:
-        styleName = style[NAME_KEY]
+    for s in STYLES:
+        styleName = s[NAME_KEY]
         func = _styleFuncFactory(styleName)
         setattr(module, styleName, func)
 

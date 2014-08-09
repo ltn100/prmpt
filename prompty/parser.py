@@ -12,16 +12,17 @@ class Parser(object):
         except StopIteration:
             pass
         return token
-    
+
     def _atom(self, lex, token):
         out = []
-        
+
         while True:
             try:
                 if token == '\\':
                     # Function
                     name = lex.next()
-                    func = {'type': 'function', 'name': name, 'lineno' : lex.lineNo()}
+                    func = {'type': 'function', 'name': name,
+                            'lineno' : lex.lineNo()}
                     args = []
                     optargs = []
                     token = self._guardedNext(lex)
@@ -46,12 +47,13 @@ class Parser(object):
                     break
                 else:
                     # String literal
-                    out.append({ 'type': 'literal', 'value': token, 'lineno' : lex.lineNo()})
+                    out.append({ 'type': 'literal', 'value': token,
+                                'lineno' : lex.lineNo()})
                     token = lex.next()
             except StopIteration:
                 break
         return out
-    
+
     def parse(self, instream):
-        self.lex = lexer.Lexer(instream)
-        return self._atom(self.lex, self.lex.next())
+        lex = lexer.Lexer(instream)
+        return self._atom(lex, lex.next())

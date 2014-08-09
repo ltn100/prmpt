@@ -1,45 +1,22 @@
 #!/usr/bin/env python
 # vim:set softtabstop=4 shiftwidth=4 tabstop=4 expandtab:
 
-import prompty
 import parser
 import functionContainer
 import colours
+import status
 
-class Coords(object):
-    def __init__(self, column=0, row=0):
-        self.column = column
-        self.row = row
-        
-    def __iadd__(self, other):
-        self.column += other.column
-        self.row += other.row
-        return self
-    
-    def __add__(self, other):
-        return Coords(self.column+other.column, 
-                      self.row+other.row)
-    
-    def incRow(self, inc=1):
-        self.row += inc
 
-    def incColumn(self, inc=1):
-        self.column += inc
-        
-    def set(self,other):
-        self.column = other.column
-        self.row = other.row
-        
 
 class Output(object):
     def __init__(self):
         self.output = ""
-        self.pos = Coords()
-    
+        self.pos = status.Coords()
+
     def add(self, unicodeString):
         self.output += unicode(unicodeString)
         self._updatePos(unicodeString)
-    
+
     def _updatePos(self, unicodeString):
         non_print = False
         for char in unicodeString:
@@ -68,14 +45,14 @@ class Compiler(object):
 
     def compile(self, promptString):
         self.parsedStruct.extend(self.parser.parse(promptString))
-        
+
     def execute(self):
         return self._execute(self.parsedStruct)
-        
+
     def _execute(self, parsedStruct, pos=None):
         out = Output()
         if pos is None:
-            pos = Coords()
+            pos = status.Coords()
         for element in parsedStruct:
             if element['type'] == 'literal':
                 # Literals go to the output verbatim
@@ -100,5 +77,5 @@ class Compiler(object):
                     return "Prompty error on line %d: %s\n$ " % (element['lineno'], str(e))
                 except KeyError, e:
                     return "Prompty error on line %d: No such function %s\n$ " % (element['lineno'], str(e))
-                
+
         return out.output
