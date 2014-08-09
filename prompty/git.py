@@ -165,7 +165,7 @@ class Git(SCM):
         Get git HEAD commit hash.
         """
         git_cmd = [self.command, 'rev-parse', '--short', 'HEAD']
-        return self.runCommand(git_cmd)
+        return self.runCommand(git_cmd)[0]
 
 
 #--------------------------
