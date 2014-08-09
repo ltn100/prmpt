@@ -35,37 +35,37 @@ def unichar(_, code):
 
 # \\
 def backslash(_):
-    return u"\\"
+    return "\\"
 
 def percent(_):
-    return u"%"
+    return "%"
 
 def opencurly(_):
-    return u"{"
+    return "{"
 
 def closecurly(_):
-    return u"}"
+    return "}"
 
 def opensquare(_):
-    return u"["
+    return "["
 
 def closesquare(_):
-    return u"]"
+    return "]"
 
 def space(_):
-    return u" "
+    return " "
 
 # \n
 def newline(_):
-    return u"\n"
+    return "\n"
 
 # \r
 def carriagereturn(_):
-    return u"\r"
+    return "\r"
 
 # \e
 def escape(_):
-    return u"\033"
+    return unicode("\033")
 
 
 # ----- Bash Prompt Functions --------
@@ -109,9 +109,9 @@ def dollar(status, euid=None):
     if euid is None:
         euid = status.euid
     if int(euid) == 0:
-        return ur"#"
+        return unicode(r"#")
     else:
-        return ur"$"
+        return unicode(r"$")
 
 def isrealpath(_, path=None):
     if path is None:
@@ -149,7 +149,7 @@ def ifexpr(_, cond,thenval,elseval=None):
         if elseval:
             return elseval
         else:
-            return u""
+            return unicode("")
 
 
 # ----- String Functions --------
@@ -234,11 +234,11 @@ def smiley(status):
     if status.exitCode == 0:
         out = colours.startColour(status, "green", style="bold")
         out += dollar(status)
-        out += u":)"
+        out += unicode(":)")
     else:
         out = colours.startColour(status, "red", style="bold")
         out += dollar(status)
-        out += u":("
+        out += unicode(":(")
     out += colours.stopColour(status)
     return out
 

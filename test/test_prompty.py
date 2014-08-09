@@ -726,22 +726,22 @@ class StandardFunctionTests(UnitTestWrapper):
 
     def test_dollar(self):
         c = prompty.functionContainer.FunctionContainer()
-        self.assertEqual(ur"$", c._call(["dollar"]))
-        self.assertEqual(ur"#", c._call(["dollar"],0))
+        self.assertEqual(r"$", c._call(["dollar"]))
+        self.assertEqual(r"#", c._call(["dollar"],0))
 
     def test_specialChars(self):
         c = prompty.functionContainer.FunctionContainer()
         chars = [
-                 ("newline",            u"\n"),
-                 ("carriagereturn",     u"\r"),
-                 ("space",              u" "),
-                 ("backslash",          u"\\"),
-                 ("percent",            u"%"),
-                 ("opencurly",          u"{"),
-                 ("closecurly",         u"}"),
-                 ("opensquare",         u"["),
-                 ("closesquare",        u"]"),
-                 ("escape",             u"\033")
+                 ("newline",            "\n"),
+                 ("carriagereturn",     "\r"),
+                 ("space",              " "),
+                 ("backslash",          "\\"),
+                 ("percent",            "%"),
+                 ("opencurly",          "{"),
+                 ("closecurly",         "}"),
+                 ("opensquare",         "["),
+                 ("closesquare",        "]"),
+                 ("escape",             "\033")
                 ]
         for char in chars:
             self.assertEqual(char[1], c._call([char[0]]))
