@@ -12,9 +12,6 @@ import userdir
 import config
 
 
-
-
-
 class Prompt(object):
 
     def __init__(self, status):
