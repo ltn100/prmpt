@@ -29,7 +29,10 @@ class UserDir(object):
         self.promtyUserDir = os.path.join(self.homeDir,PROMPTY_USER_DIR)
         self.promtyBaseDir = getPromptyBaseDir()
         self.promtyUserFunctionsDir = os.path.join(self.promtyUserDir,FUNCTIONS_DIR)
+        
         self.skelDir = os.path.join(self.promtyBaseDir,SKEL_DIR)
+        if not os.path.exists(self.skelDir):
+            self.skelDir = os.path.join("/usr/local/share/prompty",SKEL_DIR)
 
         # Initialise if promptyUserDir does not exist
         self.initialise()
