@@ -299,15 +299,15 @@ class ColourTests(UnitTestWrapper):
 
 class PaletteTests(UnitTestWrapper):
     def test_defaultPalette(self):
-        self.assertEqual(prompty.colours.startColour(None, "pal1"), "\001\033[97m\002")
-        self.assertEqual(prompty.colours.startColour(None, "pal2"), "\001\033[32m\002")
-        self.assertEqual(prompty.colours.startColour(None, "pal3"), "\001\033[1;94m\002")
+        self.assertEqual(prompty.colours.startColour(None, "pal_c1"), "\001\033[97m\002")
+        self.assertEqual(prompty.colours.startColour(None, "pal_a2"), "\001\033[33m\002")
+        self.assertEqual(prompty.colours.startColour(None, "pal_a3"), "\001\033[32m\002")
     
     def test_editPalette(self):
-        prompty.colours._setPalette("pal1", prompty.colours.RED)
-        self.assertEqual(prompty.colours.startColour(None, "pal1"), "\001\033[31m\002")
-        prompty.colours._setPalette("pal1", "123")
-        self.assertEqual(prompty.colours.startColour(None, "pal1"), "\001\033[38;5;123m\002")
+        prompty.colours._setPalette("pal_a1", prompty.colours.RED)
+        self.assertEqual(prompty.colours.startColour(None, "pal_a1"), "\001\033[31m\002")
+        prompty.colours._setPalette("pal_a1", "123")
+        self.assertEqual(prompty.colours.startColour(None, "pal_a1"), "\001\033[38;5;123m\002")
         prompty.colours._setPalette("mypal", prompty.colours.GREEN)
         self.assertEqual(prompty.colours.startColour(None, "mypal"), "\001\033[32m\002")
 
