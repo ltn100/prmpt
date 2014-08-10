@@ -43,7 +43,7 @@ def main(argv=None):
 
     # Parse command line options
     try:
-        opts, args = getopt.getopt(argv[1:], "hbc", ["help", "bash", "colours"])
+        opts, args = getopt.getopt(argv[1:], "hbcp", ["help", "bash", "colours", "palette"])
     except getopt.error, msg:
         usage(msg)
         return 1
@@ -61,12 +61,24 @@ def main(argv=None):
             return 0
 
         if option in ("-c", "--colours"):
-            for prefix in prompty.colours.PREFIXES:
+            for style in prompty.colours.STYLES:
                 for colour in prompty.colours.COLOURS:
-                    print "%s%s : %s%s" % (prompty.colours.startColour(colour, prefix, False), 
-                                           prefix[prompty.colours.NAME_KEY], 
+                    print "%s%s : %s%s" % (prompty.colours.startColour(None, colour, style=style, wrap=False), 
+                                           style[prompty.colours.NAME_KEY], 
                                            colour[prompty.colours.NAME_KEY], 
-                                           prompty.colours.stopColour(False))
+                                           prompty.colours.stopColour(None, wrap=False))
+            return 0
+
+        if option in ("-p", "--palette"):
+            for colour in prompty.colours.PALETTE:
+                print "%s%s%s" % (prompty.colours.startColour(
+                                                    None,
+                                                    fgcolour=colour[prompty.colours.FG_KEY],
+                                                    bgcolour=colour[prompty.colours.BG_KEY],
+                                                    style=colour[prompty.colours.STYLE_KEY],
+                                                    wrap=False),
+                                       colour[prompty.colours.NAME_KEY],
+                                       prompty.colours.stopColour(None, wrap=False))
             return 0
 
     if len(args) < 1:

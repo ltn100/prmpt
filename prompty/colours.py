@@ -84,10 +84,17 @@ BG_KEY      = 4
 STYLE_KEY   = 5
 
 
-PAL1 = {NAME_KEY : 'pal1',  FG_KEY : WHITE, BG_KEY : None,  STYLE_KEY : None}
-PAL2 = {NAME_KEY : 'pal2',  FG_KEY : GREEN, BG_KEY : None,  STYLE_KEY : None}
-PAL3 = {NAME_KEY : 'pal3',  FG_KEY : LBLUE, BG_KEY : None,  STYLE_KEY : BOLD}
-PALETTE = [PAL1,PAL2,PAL3]
+PALC1 = {NAME_KEY : 'pal_c1',  FG_KEY : WHITE, BG_KEY : None,  STYLE_KEY : None}
+PALC2 = {NAME_KEY : 'pal_c2',  FG_KEY : LGREY, BG_KEY : None,  STYLE_KEY : None}
+PALC3 = {NAME_KEY : 'pal_c3',  FG_KEY : LGREY, BG_KEY : None,  STYLE_KEY : DIM}
+PALC4 = {NAME_KEY : 'pal_c4',  FG_KEY : DGREY, BG_KEY : None,  STYLE_KEY : BOLD}
+PALC5 = {NAME_KEY : 'pal_c5',  FG_KEY : DGREY, BG_KEY : None,  STYLE_KEY : None}
+PALA1 = {NAME_KEY : 'pal_a1',  FG_KEY : LRED,  BG_KEY : None,  STYLE_KEY : None}
+PALA2 = {NAME_KEY : 'pal_a2',  FG_KEY : YELLOW,BG_KEY : None,  STYLE_KEY : None}
+PALA3 = {NAME_KEY : 'pal_a3',  FG_KEY : GREEN, BG_KEY : None,  STYLE_KEY : None}
+PALA4 = {NAME_KEY : 'pal_a4',  FG_KEY : LBLUE, BG_KEY : None,  STYLE_KEY : None}
+PALA5 = {NAME_KEY : 'pal_a5',  FG_KEY : LMAGENTA,BG_KEY : None, STYLE_KEY : None}
+PALETTE = [PALC1,PALC2,PALC3,PALC4,PALC5,PALA1,PALA2,PALA3,PALA4,PALA5]
 
 
 def _setPalette(identifier, fgcolour=None, bgcolour=None, style=None):
