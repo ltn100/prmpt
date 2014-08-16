@@ -6,9 +6,14 @@ python:
 #  - "3.2"
 #  - "3.3"
 
-script: python test/test_prompty.py
+install:
+    - pip install coveralls
 
-install: true
+script:
+    python-coverage run --source=prompty,bin,test test/test_prompty.py
+
+after_success:
+    coveralls
 
 branches:
   only:
