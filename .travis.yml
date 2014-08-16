@@ -11,9 +11,9 @@ install:
     - pip install coveralls
 
 script:
-    - python setup.py sdist
+    - python setup.py sdist --verbose
     - cd dist
-    - pip install prompty*.tar.gz
+    - pip install -vvv prompty*.tar.gz
     - python -m coverage.__main__ run --source=prompty,../test,$(which prompty) ../test/test_prompty.py
     - python -m coverage.__main__ report
     - pip uninstall -y prompty
