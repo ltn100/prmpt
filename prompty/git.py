@@ -1,58 +1,15 @@
 #!/usr/bin/env python
 # vim:set softtabstop=4 shiftwidth=4 tabstop=4 expandtab:
 
-import os
-import subprocess
+import vcs
 
 
 GIT_COMMAND="git"
 
 
-class SCM(object):
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def runCommand(cmdList):
-        # Raises OSError if command doesn't exist
-        proc = subprocess.Popen(cmdList,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE,
-                                cwd=os.getcwd())
-        stdout, stderr = proc.communicate()
-        return stdout, stderr, proc.returncode
-
-
-class Git(SCM):
-    def __init__(self, gitCmd=GIT_COMMAND):
-        super(Git, self).__init__()
-        self.ranStatus = False
-        self.command = gitCmd
-        self.cwd = None
-        self.branch = ""
-        self.remoteBranch = ""
-        self.staged = ""
-        self.changed = ""
-        self.untracked = ""
-        self.unmerged = ""
-        self.ahead = ""
-        self.behind = ""
-        self.installed = None
-        self.isRepo = None
-
-    def __getattribute__(self, name):
-        """
-        If we have not yet run a status call then run one before
-        attempting to get the attribute. _runStatus() is also called
-        again if the working directory has changed.
-        """
-        if not  object.__getattribute__(self, "ranStatus") or \
-                object.__getattribute__(self, "cwd") != os.getcwd():
-            self.cwd = os.getcwd()
-            self.ranStatus = True
-            self._runStatus()
-        return object.__getattribute__(self, name)
-
+class Git(vcs.VCSBase):
+    def __init__(self, cmd=GIT_COMMAND):
+        super(Git, self).__init__(cmd)
 
     def _runStatus(self):
         try:
@@ -166,15 +123,5 @@ class Git(SCM):
         """
         git_cmd = [self.command, 'rev-parse', '--short', 'HEAD']
         return self.runCommand(git_cmd)[0]
-
-
-#--------------------------
-# Prompty functions
-#--------------------------
-def isgitrepo(status):
-    return status.git.isRepo
-
-def gitbranch(status):
-    return status.git.branch
 
 

@@ -4,7 +4,7 @@
 import os
 import subprocess
 
-import git
+import vcs
 
 
 class Coords(object):
@@ -36,7 +36,7 @@ class Status(object):
     def __init__(self, exitCode=0):
         self.exitCode = int(exitCode)
         self.euid = os.geteuid()
-        self.git = git.Git()
+        self.vcs = vcs.VCS()
         
         proc = subprocess.Popen(['stty', 'size'],
                                 stdout=subprocess.PIPE,
