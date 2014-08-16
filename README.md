@@ -1,7 +1,8 @@
 prompty
 =======
 
-<a href='https://travis-ci.org/ltn100/prompty'><img src='https://secure.travis-ci.org/ltn100/prompty.png?branch=master'></a>
+[![Build Status](https://travis-ci.org/ltn100/prompty.svg?branch=master)](https://travis-ci.org/ltn100/prompty)
+[![Code Health](https://landscape.io/github/ltn100/prompty/master/landscape.png)](https://landscape.io/github/ltn100/prompty/master)
 
 ### Preparing for an [0.1 release](https://github.com/ltn100/prompty/issues?q=milestone%3Av0.1)!
 
