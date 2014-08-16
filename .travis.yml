@@ -7,10 +7,12 @@ python:
 #  - "3.3"
 
 install:
+    - pip install coverage
     - pip install coveralls
 
 script:
-    coverage run --source=prompty,bin,test test/test_prompty.py
+    python -m coverage run --source=prompty,bin,test test/test_prompty.py
+    python -m coverage report
 
 after_success:
     coveralls
