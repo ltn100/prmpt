@@ -56,8 +56,6 @@ class UserDir(object):
                 raise IOError("Cannot create %s directory - file exists!" % PROMPTY_USER_DIR)
 
             # Create prompty dir from skel
-            print self.skelDir
-            print os.listdir(self.skelDir)
             self.copy(self.skelDir, self.promtyUserDir)
 
 
