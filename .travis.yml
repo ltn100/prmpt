@@ -11,8 +11,8 @@ install:
     - pip install coveralls
 
 script:
-    python -m coverage run --source=prompty,bin,test test/test_prompty.py
-    python -m coverage report
+    - python -m coverage run --source=prompty,bin,test test/test_prompty.py
+    - python -m coverage report
 
 after_success:
     coveralls
