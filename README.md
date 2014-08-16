@@ -3,6 +3,7 @@ prompty
 
 [![Build Status](https://travis-ci.org/ltn100/prompty.svg?branch=master)](https://travis-ci.org/ltn100/prompty)
 [![Code Health](https://landscape.io/github/ltn100/prompty/master/landscape.png)](https://landscape.io/github/ltn100/prompty/master)
+[![Coverage Status](https://coveralls.io/repos/ltn100/prompty/badge.png?branch=master)](https://coveralls.io/r/ltn100/prompty?branch=master)
 [![MIT license](http://img.shields.io/badge/license-MIT-blue.svg)](http://opensource.org/licenses/MIT)
 [![Badges](http://img.shields.io/badge/badges-shields.io-lightgrey.svg)](http://shields.io)
 
