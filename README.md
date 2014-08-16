@@ -4,8 +4,7 @@ prompty
 [![Build Status](https://travis-ci.org/ltn100/prompty.svg?branch=master)](https://travis-ci.org/ltn100/prompty)
 [![Code Health](https://landscape.io/github/ltn100/prompty/master/landscape.png)](https://landscape.io/github/ltn100/prompty/master)
 [![MIT license](http://img.shields.io/badge/license-MIT-blue.svg)](http://opensource.org/licenses/MIT)
-
-[[badges](http://shields.io/)]
+[![Badges](http://img.shields.io/badge/badges-shields.io-lightgrey.svg)](http://shields.io)
 
 ### Preparing for an [0.1 release](https://github.com/ltn100/prompty/issues?q=milestone%3Av0.1)!
 
