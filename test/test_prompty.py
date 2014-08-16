@@ -23,10 +23,21 @@ TEST_DIR = os.path.dirname(__file__)
 
 try:
     import prompty
+    if 'colours' not in dir(prompty):
+        # This will stop accidentally importing the module
+        # 'prompty.py' (we want the package)
+        raise ImportError
 except ImportError:
+    if 'prompty' in sys.modules:
+        del sys.modules['prompty']
     # Add base directory to path so that it can find the prompty package
     sys.path[0:0] = [os.path.dirname(TEST_DIR)]
     import prompty
+    if 'colours' not in dir(prompty):
+        # This will stop accidentally importing the module
+        # 'prompty.py' (we want the package)
+        raise ImportError
+
 
 prompty_exec = distutils.spawn.find_executable("prompty")
 if not prompty_exec:

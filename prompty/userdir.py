@@ -5,6 +5,7 @@ import os
 import sys
 import shutil
 import errno
+import pkg_resources
 
 
 PROMPTY_USER_DIR = ".prompty"
@@ -13,6 +14,9 @@ SKEL_DIR = "skel"
 FUNCTIONS_DIR = "functions"
 
 def getPromptyBaseDir():
+    """
+    Get the directory where the prompty module is located
+    """
     return os.path.dirname(
         os.path.dirname(
             # The filename of this module
@@ -32,7 +36,9 @@ class UserDir(object):
         
         self.skelDir = os.path.join(self.promtyBaseDir,SKEL_DIR)
         if not os.path.exists(self.skelDir):
-            self.skelDir = os.path.join("/usr/local/share/prompty",SKEL_DIR)
+            self.skelDir = pkg_resources.resource_filename(
+                            __name__, os.path.join('share','prompty',SKEL_DIR)
+            )
 
         # Initialise if promptyUserDir does not exist
         self.initialise()
