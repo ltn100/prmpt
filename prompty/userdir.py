@@ -5,7 +5,6 @@ import os
 import sys
 import shutil
 import errno
-import pkg_resources
 
 
 PROMPTY_USER_DIR = ".prompty"
@@ -36,9 +35,8 @@ class UserDir(object):
         
         self.skelDir = os.path.join(self.promtyBaseDir,SKEL_DIR)
         if not os.path.exists(self.skelDir):
-            self.skelDir = pkg_resources.resource_filename(
-                            __name__, os.path.join('share','prompty',SKEL_DIR)
-            )
+            # Install dir as defined in setup.py
+            self.skelDir = os.path.join(sys.prefix, "share","prompty",SKEL_DIR)
 
         # Initialise if promptyUserDir does not exist
         self.initialise()
