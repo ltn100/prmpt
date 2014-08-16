@@ -11,8 +11,9 @@ setup(name='prompty',
       author='Lee Netherton',
       author_email='lee.netherton@gmail.com',
       url='https://github.com/ltn100/prompty',
+      license='MIT licence, see LICENCE',
       packages=['prompty'],
-      scripts=['bin/prompty'],
+      scripts=['bin/prompty','bin/promptyc'],
       data_files=[
         ('share/prompty/skel',
          [f for f in glob.glob("skel/*") if os.path.isfile(f)]

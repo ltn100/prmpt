@@ -21,12 +21,19 @@ except ImportError:
 
 TEST_DIR = os.path.dirname(__file__)
 
-# Add base directory to path so that it can find the prompty package
-sys.path[0:0] = [os.path.dirname(TEST_DIR)]
+try:
+    import prompty
+except ImportError:
+    # Add base directory to path so that it can find the prompty package
+    sys.path[0:0] = [os.path.dirname(TEST_DIR)]
+    import prompty
 
-import prompty
+prompty_exec = distutils.spawn.find_executable("prompty")
+if not prompty_exec:
+    # If prompty not found in the system path get the version from the bin dir
+    prompty_exec = os.path.join(os.path.dirname(__file__), "..", "bin", "prompty")
 
-prompty_bin = imp.load_source("prompty_bin", os.path.join(os.path.dirname(__file__), "..", "bin", "prompty"))
+prompty_bin = imp.load_source("prompty_bin", prompty_exec)
 
 
 _MAX_LENGTH = 80
