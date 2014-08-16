@@ -336,7 +336,7 @@ def _getStyleCode(identifier):
     raise KeyError("No such style %s" % str(identifier))
 
 
-def startColour(status, fgcolour=None, bgcolour=None, style=None, wrap=True):
+def startColour(_, fgcolour=None, bgcolour=None, style=None, wrap=True):
     colourCode = ""
 
     if style:
@@ -355,7 +355,7 @@ def startColour(status, fgcolour=None, bgcolour=None, style=None, wrap=True):
     return _encode(colourCode, wrap=wrap)
 
 
-def stopColour(status, wrap=True):
+def stopColour(_, wrap=True):
     return _encode(RESET_KEY, wrap=wrap)
 
 

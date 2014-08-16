@@ -2,8 +2,7 @@
 # vim:set softtabstop=4 shiftwidth=4 tabstop=4 expandtab:
 
 # Import external modules
-import os
-import sys
+
 
 # Import prompty modules
 import functionContainer
@@ -18,8 +17,8 @@ class Prompt(object):
         self.status = status
         self.userDir = userdir.UserDir()
         self.funcs = functionContainer.FunctionContainer(
-                        self.status, [self.userDir.promtyUserFunctionsDir]
-                     )
+            self.status, [self.userDir.promtyUserFunctionsDir]
+        )
         self.compiler = compiler.Compiler(self.funcs)
         self.config = config.Config()
         self.config.load(self.userDir.getConfigFile())

@@ -27,13 +27,13 @@ class Git(vcs.VCSBase):
             self.installed = True
             self.isRepo = True
             (self.branch,
-            self.remoteBranch,
-            self.staged,
-            self.changed,
-            self.untracked,
-            self.unmerged,
-            self.ahead,
-            self.behind) = self._git_status(stdout)
+             self.remoteBranch,
+             self.staged,
+             self.changed,
+             self.untracked,
+             self.unmerged,
+             self.ahead,
+             self.behind) = self._git_status(stdout)
         else:
             if "Not a git repository" in stderr:
                 # The directory is not a git repo

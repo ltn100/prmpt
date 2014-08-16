@@ -47,8 +47,10 @@ class Parser(object):
                     break
                 else:
                     # String literal
-                    out.append({ 'type': 'literal', 'value': token,
-                                'lineno' : lex.lineNo()})
+                    out.append(
+                        {'type': 'literal', 'value': token,
+                         'lineno' : lex.lineNo()}
+                    )
                     token = lex.next()
             except StopIteration:
                 break
