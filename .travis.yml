@@ -10,7 +10,7 @@ install:
     - pip install coveralls
 
 script:
-    python-coverage run --source=prompty,bin,test test/test_prompty.py
+    coverage run --source=prompty,bin,test test/test_prompty.py
 
 after_success:
     coveralls
