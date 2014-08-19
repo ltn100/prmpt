@@ -104,9 +104,9 @@ class VCSBase(object):
 
 
 
-#--------------------------
+# --------------------------
 # Prompty functions
-#--------------------------
+# --------------------------
 def isrepo(status):
     return status.vcs.isRepo
 

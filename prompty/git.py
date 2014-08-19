@@ -14,7 +14,7 @@ class Git(vcs.VCSBase):
     def _runStatus(self):
         try:
             (stdout, stderr, returncode) = self.runCommand(
-                            [self.command, "status", "--porcelain", "-b"]
+                [self.command, "status", "--porcelain", "-b"]
             )
         except OSError:
             # Git command not found

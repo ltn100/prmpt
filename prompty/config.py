@@ -21,8 +21,8 @@ class Config(object):
         self.configParser.read(filename)
 
         self.promptFile = os.path.join(
-                    self.configDir,
-                    self.configParser.get('prompt', 'prompt_file')
+            self.configDir,
+            self.configParser.get('prompt', 'prompt_file')
         )
 
         self.loadPromptFile()
@@ -30,4 +30,4 @@ class Config(object):
     def loadPromptFile(self):
         with open (self.promptFile, "rb") as pFile:
             self.promptString = pFile.read()
-            
+
