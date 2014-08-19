@@ -17,7 +17,7 @@ script:
     - python -m coverage.__main__ run --source=prompty,../test,$(which prompty) ../test/test_prompty.py
     - python -m coverage.__main__ report
     - pip uninstall -y prompty
-    - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then cd..; python test/test_prompty.py; fi
+    - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then cd ..; python test/test_prompty.py; fi
 
 after_success:
     - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then coveralls; fi
