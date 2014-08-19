@@ -14,10 +14,10 @@ script:
     - python setup.py sdist --verbose
     - cd dist
     - pip install -vvv prompty*.tar.gz
-    - python -m coverage.__main__ run --source=prompty,../test,$(which prompty) ../test/test_prompty.py
-    - python -m coverage.__main__ report
+    - python  ../test/test_prompty.py
     - pip uninstall -y prompty
-    - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then cd ..; python test/test_prompty.py; fi
+    - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then cd ..; rm -f bin/promptyc; python -m coverage.__main__ run --source=prompty,test,bin/prompty test/test_prompty.py; fi
+    - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then python -m coverage.__main__ report; fi
 
 after_success:
     - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then coveralls; fi
