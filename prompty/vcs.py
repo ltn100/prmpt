@@ -112,3 +112,9 @@ def isrepo(status):
 
 def repobranch(status):
     return status.vcs.branch
+
+def isrepodirty(status):
+    if status.vcs.changed + status.vcs.staged + status.vcs.unmerged > 0:
+        return True
+    else:
+        return False

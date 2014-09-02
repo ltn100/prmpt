@@ -15,6 +15,14 @@
     \workingdir
 }
 \ifexpr{\isrealpath}{}{\space\cyan[bold]{(!)}}
+\ifexpr{\isrepo}{
+    \space
+    \ifexpr{\isrepodirty}{
+        \red{( \repobranch )}
+    }{
+        \yellow{( \repobranch )}
+    }
+}{}
 \newline
 \smiley
 \space

@@ -11,7 +11,7 @@ import os
 import functions
 import colours
 import status as statusmod
-import git
+import vcs
 
 class FunctionContainer(object):
 
@@ -47,7 +47,7 @@ class FunctionContainer(object):
         self.functions = {}
         self.addFunctions(functions)
         self.addFunctions(colours)
-        self.addFunctions(git)
+        self.addFunctions(vcs)
         if userDirs:
             for directory in userDirs:
                 self.addFunctionsFromDir(directory)
