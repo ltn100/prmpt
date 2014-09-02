@@ -3,24 +3,26 @@
 %
 % vim: set filetype=tex:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\green{
+\pal_a3{
     \user
 }
-@
-\white{
+\pal_c2{
+    @
+}
+\pal_c1{
     \hostname
 }
 \space
-\blue[bold]{
+\pal_a4{
     \workingdir
 }
-\ifexpr{\isrealpath}{}{\space\cyan[bold]{(!)}}
+\ifexpr{\isrealpath}{}{\space\pal_a1{(!)}}
 \ifexpr{\isrepo}{
     \space
     \ifexpr{\isrepodirty}{
-        \red{( \repobranch )}
+        \pal_a1{( \repobranch )}
     }{
-        \yellow{( \repobranch )}
+        \pal_a2{( \repobranch )}
     }
 }{}
 \newline
