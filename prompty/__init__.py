@@ -10,3 +10,4 @@ import lexer
 import userdir
 import config
 import git
+import svn

@@ -907,6 +907,13 @@ class GitTests(UnitTestWrapper):
         g = prompty.git.Git("bogus_command_foo")
         self.assertEquals(False, g.installed)
 
+class SvnTests(UnitTestWrapper):
+    def test_commandAvailable(self):
+        svn_installed = bool(distutils.spawn.find_executable(prompty.svn.SVN_COMMAND))
+        s = prompty.svn.Subversion()
+        self.assertEquals(svn_installed, s.installed)
+        s = prompty.svn.Subversion("bogus_command_foo")
+        self.assertEquals(False, s.installed)
 
 
 

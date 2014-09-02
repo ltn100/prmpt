@@ -25,6 +25,7 @@ class VCS(object):
         # will halt all further searching, so put them in priority
         # order.
         import git
+        import svn
         self.vcsObjs.append(git.Git())
 
     def __getattribute__(self, name):
