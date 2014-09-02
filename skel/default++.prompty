@@ -14,6 +14,7 @@
 \blue[bold]{
     \workingdir
 }
+\ifexpr{\isrealpath}{}{\space\cyan[bold]{(!)}}
 \ifexpr{\isrepo}{
     \space
     \ifexpr{\isrepodirty}{
@@ -22,10 +23,6 @@
         \yellow{( \repobranch )}
     }
 }{}
-\space
-\ifexpr{\exitsuccess}{
-    \green[bold]{\dollar}
-}{
-    \red[bold]{\dollar}
-}
+\newline
+\smiley
 \space

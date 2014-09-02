@@ -16,8 +16,8 @@ class VCS(object):
         self.vcsObjs = []
         self.ranStatus = False
         self.cwd = None
-        self.currentVcsObj = None
         self.populateVCS()
+        self.currentVcsObj = self.vcsObjs[0]
 
     def populateVCS(self):
         # The order here defines the order in which repository
