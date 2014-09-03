@@ -19,9 +19,16 @@ except ImportError:
     from io import StringIO
 
 
-TEST_DIR = os.path.dirname(__file__)
+TEST_DIR = os.path.dirname(os.path.abspath(__file__))
+
 
 try:
+    # If we are running this from the source prompty dir then use
+    # the source prompty module. Otherwise try to import the system
+    # installed package
+    if os.path.isdir("prompty") and os.path.isdir("test"):
+        sys.path[0:0] = [os.getcwd()]
+    
     import prompty
     if 'colours' not in dir(prompty):
         # This will stop accidentally importing the module
@@ -31,6 +38,8 @@ except ImportError:
     if 'prompty' in sys.modules:
         del sys.modules['prompty']
     # Add base directory to path so that it can find the prompty package
+    print __file__
+    print os.path.dirname(TEST_DIR)
     sys.path[0:0] = [os.path.dirname(TEST_DIR)]
     import prompty
     if 'colours' not in dir(prompty):
