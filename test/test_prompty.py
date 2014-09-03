@@ -51,7 +51,7 @@ except ImportError:
 prompty_exec = distutils.spawn.find_executable("prompty")
 if not prompty_exec:
     # If prompty not found in the system path get the version from the bin dir
-    prompty_exec = os.path.join(os.path.dirname(__file__), "..", "bin", "prompty")
+    prompty_exec = os.path.join(TEST_DIR, "..", "bin", "prompty")
 
 prompty_bin = imp.load_source("prompty_bin", prompty_exec)
 
@@ -930,4 +930,5 @@ class SvnTests(UnitTestWrapper):
 #                          End of functions                                 #
 #---------------------------------------------------------------------------#
 if __name__ == "__main__":
+    print "Prompty module path: %s" % prompty.__path__[0]
     sys.exit(unittest.main())
