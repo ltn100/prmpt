@@ -2,7 +2,8 @@
 # vim:set softtabstop=4 shiftwidth=4 tabstop=4 expandtab:
 
 import vcs
-
+import re
+import xml.dom.minidom
 
 SVN_COMMAND="svn"
 
@@ -14,7 +15,7 @@ class Subversion(vcs.VCSBase):
     def _runStatus(self):
         try:
             (stdout, stderr, returncode) = self.runCommand(
-                [self.command, "status", "--xml"]
+                [self.command, "info", "--xml"]
             )
         except OSError:
             # SVN command not found
@@ -23,17 +24,25 @@ class Subversion(vcs.VCSBase):
             return
 
         if not stderr:
+            info = xml.dom.minidom.parseString(stdout)
+            entry = info.documentElement.getElementsByTagName("entry")[0]
             # Successful svn status call
             self.installed = True
             self.isRepo = True
-            (self.branch,
-             self.remoteBranch,
-             self.staged,
-             self.changed,
-             self.untracked,
-             self.unmerged,
-             self.ahead,
-             self.behind) = self._svn_status(stdout)
+            branch = entry.getElementsByTagName("relative-url")[0].childNodes[0].data
+            b = re.search('[\^]?/([^/]*)/?([^/]*)?', branch)
+            if b:
+                self.branch = b.group(1)
+                if self.branch in ["branches", "tags"]:
+                    self.branch += "/" + b.group(2)
+                    
+            self.remotebranch = self.branch
+            (self.staged,
+            self.changed,
+            self.untracked,
+            self.unmerged,
+            self.ahead,
+            self.behind) = self._svn_status()
         else:
             if "is not a working copy" in stderr:
                 # The directory is not a svn repo
@@ -45,5 +54,5 @@ class Subversion(vcs.VCSBase):
                 self.isRepo = False
 
 
-    def _svn_status(self, result):
-        pass
+    def _svn_status(self):
+        return (0,0,0,0,0,0)
