@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # vim:set softtabstop=4 shiftwidth=4 tabstop=4 expandtab:
+import datetime
+START = datetime.datetime.now()
 
 # Import external modules
 import sys
@@ -36,6 +38,7 @@ def main(argv=None):
     @return: Error status
     @rtype: int
     """
+
     # Use the command line (system) arguments if none were passed to main
     if argv is None:
         argv = sys.argv
@@ -43,12 +46,13 @@ def main(argv=None):
 
     # Parse command line options
     try:
-        opts, args = getopt.getopt(argv[1:], "hbcp", ["help", "bash", "colours", "palette"])
+        opts, args = getopt.getopt(argv[1:], "hbcdp", ["help", "bash", "colours", "debug", "palette"])
     except getopt.error, msg:
         usage(msg)
         return 1
 
     # Defaults
+    debug = False
 
     # Act upon options
     for option, arg in opts:
@@ -68,6 +72,9 @@ def main(argv=None):
                                            colour[prompty.colours.NAME_KEY], 
                                            prompty.colours.stopColour(None, wrap=False))
             return 0
+
+        if option in ("-d", "--debug"):
+            debug = True
 
         if option in ("-p", "--palette"):
             for colour in prompty.colours.PALETTE:
@@ -92,7 +99,13 @@ def main(argv=None):
     p = prompty.prompty.Prompt(s)
 
     # Encode unicode to UTF-8 for terminal printing
-    sys.stdout.write(p.getPrompt().encode("utf8"))
+    prompt = p.getPrompt().encode("utf8")
+
+    if debug:
+        elapsed = datetime.datetime.now() - START
+        sys.stdout.write("%d\n"% (elapsed.total_seconds()*1000))
+
+    sys.stdout.write(prompt)
 
     return exitStatus
 
