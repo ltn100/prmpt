@@ -33,10 +33,11 @@ class Coords(object):
 
 
 class Status(object):
-    def __init__(self, exitCode=0):
+    def __init__(self, exitCode=0, workingDir=None):
         self.exitCode = int(exitCode)
+        self.workingDir = workingDir
         self.euid = os.geteuid()
-        self.vcs = vcs.VCS()
+        self.vcs = vcs.VCS(self)
         
         proc = subprocess.Popen(['stty', 'size'],
                                 stdout=subprocess.PIPE,
@@ -48,3 +49,9 @@ class Status(object):
         else:
             self.window = Coords()
         self.pos = Coords()
+
+    def getWorkingDir(self):
+        if self.workingDir:
+            return os.path.normpath(self.workingDir)
+        else:
+            return os.path.normpath(os.getenv('PWD'))

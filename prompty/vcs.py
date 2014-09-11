@@ -5,14 +5,15 @@ import os
 import abc
 import subprocess
 
-
+import status
 
 class VCS(object):
     """
     A container class for Version Control System
     sub classes.
     """
-    def __init__(self):
+    def __init__(self, status):
+        self.status = status
         self.vcsObjs = []
         self.ranStatus = False
         self.cwd = None
@@ -25,9 +26,9 @@ class VCS(object):
         # will halt all further searching, so put them in priority
         # order.
         import git
-        self.vcsObjs.append(git.Git())
+        self.vcsObjs.append(git.Git(self.status))
         import svn
-        self.vcsObjs.append(svn.Subversion())
+        self.vcsObjs.append(svn.Subversion(self.status))
 
     def __getattribute__(self, name):
         """
@@ -35,7 +36,7 @@ class VCS(object):
         attempting to get the attribute. _runStatus() is also called
         again if the working directory has changed.
         """
-        if name in ["populateVCS", "vcsObjs", "ranStatus", "cwd", "currentVcsObj"]:
+        if name in ["populateVCS", "vcsObjs", "ranStatus", "cwd", "currentVcsObj", "status"]:
             return object.__getattribute__(self, name)
         
         if not  self.ranStatus or self.cwd != os.getcwd():
@@ -57,7 +58,8 @@ class VCSBase(object):
     __metaclass__ = abc.ABCMeta
     
     @abc.abstractmethod
-    def __init__(self, cmd):
+    def __init__(self, status, cmd):
+        self.status = status
         self.ranStatus = False
         self.command = cmd
         self.cwd = None
@@ -87,20 +89,21 @@ class VCSBase(object):
         attempting to get the attribute. _runStatus() is also called
         again if the working directory has changed.
         """
-        if not  object.__getattribute__(self, "ranStatus") or \
-                object.__getattribute__(self, "cwd") != os.getcwd():
-            self.cwd = os.getcwd()
+        if name in ["ranStatus", "cwd", "status"]:
+            return object.__getattribute__(self, name)
+
+        if not self.ranStatus or self.cwd != self.status.getWorkingDir():
+            self.cwd = self.status.getWorkingDir()
             self.ranStatus = True
             self._runStatus()
         return object.__getattribute__(self, name)
 
-    @staticmethod
-    def runCommand(cmdList):
+    def runCommand(self, cmdList, workingDir=None):
         # Raises OSError if command doesn't exist
         proc = subprocess.Popen(cmdList,
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE,
-                                cwd=os.getcwd())
+                                cwd=self.status.getWorkingDir())
         stdout, stderr = proc.communicate()
         return stdout, stderr, proc.returncode
 

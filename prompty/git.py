@@ -8,8 +8,8 @@ GIT_COMMAND="git"
 
 
 class Git(vcs.VCSBase):
-    def __init__(self, cmd=GIT_COMMAND):
-        super(Git, self).__init__(cmd)
+    def __init__(self, status, cmd=GIT_COMMAND):
+        super(Git, self).__init__(status, cmd)
 
     def _runStatus(self):
         try:

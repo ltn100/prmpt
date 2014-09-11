@@ -95,14 +95,14 @@ def hostnamefull(_):
     return socket.gethostname()
 
 # \w
-def workingdir(_):
-    cwd = os.getenv('PWD')
+def workingdir(status):
+    cwd = status.getWorkingDir()
     home = os.path.expanduser(r"~")
     return re.sub(r'^%s' % home, r"~", cwd)
 
 # \W
-def workingdirbase(_):
-    return os.path.basename(os.getenv('PWD'))
+def workingdirbase(status):
+    return os.path.basename(status.getWorkingDir())
 
 # \$
 def dollar(status, euid=None):
@@ -113,9 +113,9 @@ def dollar(status, euid=None):
     else:
         return unicode(r"$")
 
-def isrealpath(_, path=None):
+def isrealpath(status, path=None):
     if path is None:
-        path = os.getenv('PWD')
+        path = status.getWorkingDir()
     if path == os.path.realpath(path):
         return True
     else:

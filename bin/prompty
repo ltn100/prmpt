@@ -46,13 +46,14 @@ def main(argv=None):
 
     # Parse command line options
     try:
-        opts, args = getopt.getopt(argv[1:], "hbcdp", ["help", "bash", "colours", "debug", "palette"])
+        opts, args = getopt.getopt(argv[1:], "hbcdpw:", ["help", "bash", "colours", "debug", "palette", "working-dir="])
     except getopt.error, msg:
         usage(msg)
         return 1
 
     # Defaults
     debug = False
+    workingDir = None
 
     # Act upon options
     for option, arg in opts:
@@ -88,13 +89,16 @@ def main(argv=None):
                                        prompty.colours.stopColour(None, wrap=False))
             return 0
 
+        if option in ("-w", "--working-dir"):
+            workingDir = arg
+
     if len(args) < 1:
         usage("Not enough arguments")
         return 1
 
     exitStatus = int(args[0])
 
-    s = prompty.status.Status(exitStatus)
+    s = prompty.status.Status(exitStatus, workingDir)
 
     p = prompty.prompty.Prompt(s)
 

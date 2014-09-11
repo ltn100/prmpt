@@ -911,17 +911,17 @@ class ConfigTests(UnitTestWrapper):
 class GitTests(UnitTestWrapper):
     def test_commandAvailable(self):
         git_installed = bool(distutils.spawn.find_executable(prompty.git.GIT_COMMAND))
-        g = prompty.git.Git()
+        g = prompty.git.Git(prompty.status.Status(0))
         self.assertEquals(git_installed, g.installed)
-        g = prompty.git.Git("bogus_command_foo")
+        g = prompty.git.Git(prompty.status.Status(0), "bogus_command_foo")
         self.assertEquals(False, g.installed)
 
 class SvnTests(UnitTestWrapper):
     def test_commandAvailable(self):
         svn_installed = bool(distutils.spawn.find_executable(prompty.svn.SVN_COMMAND))
-        s = prompty.svn.Subversion()
+        s = prompty.svn.Subversion(prompty.status.Status(0))
         self.assertEquals(svn_installed, s.installed)
-        s = prompty.svn.Subversion("bogus_command_foo")
+        s = prompty.svn.Subversion(prompty.status.Status(0), "bogus_command_foo")
         self.assertEquals(False, s.installed)
 
 

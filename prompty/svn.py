@@ -9,8 +9,8 @@ SVN_COMMAND="svn"
 
 
 class Subversion(vcs.VCSBase):
-    def __init__(self, cmd=SVN_COMMAND):
-        super(Subversion, self).__init__(cmd)
+    def __init__(self, status, cmd=SVN_COMMAND):
+        super(Subversion, self).__init__(status, cmd)
 
     def _runStatus(self):
         try:
