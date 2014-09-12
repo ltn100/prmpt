@@ -7,6 +7,7 @@ import re
 import getpass
 import socket
 import datetime
+import random
 
 import colours
 
@@ -242,7 +243,18 @@ def smiley(status):
     out += colours.stopColour(status)
     return out
 
+def randomcolour(status, literal, seed=None):
+    if seed:
+        random.seed(seed)
+    colour = str(random.randrange(1,255))
+    out = colours.startColour(status, colour)
+    out += literal
+    out += colours.stopColour(status)
+    return out
 
+
+def hashedcolour(status, literal):
+    return randomcolour(status, literal, seed=literal)
 
 # ============================================
 # Internal Functions
