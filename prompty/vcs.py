@@ -65,12 +65,12 @@ class VCSBase(object):
         self.cwd = None
         self.branch = ""
         self.remoteBranch = ""
-        self.staged = ""
-        self.changed = ""
-        self.untracked = ""
-        self.unmerged = ""
-        self.ahead = ""
-        self.behind = ""
+        self.staged = 0
+        self.changed = 0
+        self.untracked = 0
+        self.unmerged = 0
+        self.ahead = 0
+        self.behind = 0
         self.installed = None
         self.isRepo = None
 
