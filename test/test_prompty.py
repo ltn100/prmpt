@@ -26,8 +26,11 @@ try:
     # If we are running this from the source prompty dir then use
     # the source prompty module. Otherwise try to import the system
     # installed package
-    if os.path.isdir("prompty") and os.path.isdir("test"):
+    if os.path.isdir("prompty") and os.path.isdir("test") and os.path.isdir("bin"):
         sys.path[0:0] = [os.getcwd()]
+        prompty_exec = os.path.join("bin", "prompty")
+    else:
+        prompty_exec = distutils.spawn.find_executable("prompty")
     
     import prompty
     if 'colours' not in dir(prompty):
@@ -47,8 +50,6 @@ except ImportError:
         # 'prompty.py' (we want the package)
         raise ImportError
 
-
-prompty_exec = distutils.spawn.find_executable("prompty")
 if not prompty_exec:
     # If prompty not found in the system path get the version from the bin dir
     prompty_exec = os.path.join(TEST_DIR, "..", "bin", "prompty")
@@ -841,11 +842,11 @@ class ColourFunctionTests(UnitTestWrapper):
 
 class PromptTests(UnitTestWrapper):
     def test_create(self):
-        p = prompty.prompty.Prompt(prompty.status.Status())
-        self.assertIsInstance(p, prompty.prompty.Prompt)
+        p = prompty.prompt.Prompt(prompty.status.Status())
+        self.assertIsInstance(p, prompty.prompt.Prompt)
  
     def test_getPrompt(self):
-        p = prompty.prompty.Prompt(prompty.status.Status())
+        p = prompty.prompt.Prompt(prompty.status.Status())
         s = p.getPrompt()
         self.assertIsInstance(s, basestring)
         self.assertGreater(len(s), 0)

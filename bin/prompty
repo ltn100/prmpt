@@ -100,7 +100,7 @@ def main(argv=None):
 
     s = prompty.status.Status(exitStatus, workingDir)
 
-    p = prompty.prompty.Prompt(s)
+    p = prompty.prompt.Prompt(s)
 
     # Encode unicode to UTF-8 for terminal printing
     prompt = p.getPrompt().encode("utf8")
