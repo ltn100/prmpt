@@ -8,8 +8,9 @@ import getpass
 import socket
 import datetime
 import random
+import types
 
-import colours
+import functionBase
 
 
 #            TO DO:
@@ -29,232 +30,239 @@ import colours
 
 
 
-# ----- Special Characters --------
-# \e
-def unichar(_, code):
-    return unichr(int(code,0))
-
-# \\
-def backslash(_):
-    return "\\"
-
-def percent(_):
-    return "%"
-
-def opencurly(_):
-    return "{"
-
-def closecurly(_):
-    return "}"
-
-def opensquare(_):
-    return "["
-
-def closesquare(_):
-    return "]"
-
-def space(_):
-    return " "
-
-# \n
-def newline(_):
-    return "\n"
-
-# \r
-def carriagereturn(_):
-    return "\r"
-
-# \e
-def escape(_):
-    return unicode("\033")
+import colours
 
 
-# ----- Bash Prompt Functions --------
-# \D
-def datefmt(_,fmt=None):
-    now = datetime.datetime.now()
-    if fmt:
-        fmt = fmt.replace('#', '%')
-        return now.strftime(fmt)
-    else:
-        return now.strftime("%X")
+class BaseFunctions(functionBase.PromptyFunctions):
+    # ----- Special Characters --------
+    # \e
+    def unichar(self, code):
+        return unichr(int(code,0))
 
-# \d
-def date(status):
-    return datefmt(status, "%a %b %d")
+    # \\
+    def backslash(self):
+        return "\\"
 
-# \u
-def user(_):
-    return getpass.getuser()
+    def percent(self):
+        return "%"
 
-# \h
-def hostname(_):
-    return socket.gethostname().split(".")[0]
+    def opencurly(self):
+        return "{"
 
-# \H
-def hostnamefull(_):
-    return socket.gethostname()
+    def closecurly(self):
+        return "}"
 
-# \w
-def workingdir(status):
-    cwd = status.getWorkingDir()
-    home = os.path.expanduser(r"~")
-    return re.sub(r'^%s' % home, r"~", cwd)
+    def opensquare(self):
+        return "["
 
-# \W
-def workingdirbase(status):
-    return os.path.basename(status.getWorkingDir())
+    def closesquare(self):
+        return "]"
 
-# \$
-def dollar(status, euid=None):
-    if euid is None:
-        euid = status.euid
-    if int(euid) == 0:
-        return unicode(r"#")
-    else:
-        return unicode(r"$")
+    def space(self):
+        return " "
 
-def isrealpath(status, path=None):
-    if path is None:
-        path = status.getWorkingDir()
-    if path == os.path.realpath(path):
-        return True
-    else:
-        return False
+    # \n
+    def newline(self):
+        return "\n"
+
+    # \r
+    def carriagereturn(self):
+        return "\r"
+
+    # \e
+    def escape(self):
+        return unicode("\033")
 
 
-# ----- Expression Functions --------
-
-def exitsuccess(status):
-    if status.exitCode == 0:
-        return True
-    else:
-        return False
-
-def equals(_, a,b):
-    return a == b
-
-def greater(_, a,b):
-    if a > b:
-        return a
-    else:
-        return b
-
-
-# ----- Control Functions --------
-
-def ifexpr(_, cond,thenval,elseval=None):
-    if _tobool(cond):
-        return thenval
-    else:
-        if elseval:
-            return elseval
+    # ----- Bash Prompt Functions --------
+    # \D
+    def datefmt(self,fmt=None):
+        now = datetime.datetime.now()
+        if fmt:
+            fmt = fmt.replace('#', '%')
+            return now.strftime(fmt)
         else:
-            return unicode("")
+            return now.strftime("%X")
+
+    # \d
+    def date(self):
+        return self.datefmt("%a %b %d")
+
+    # \u
+    def user(self):
+        return getpass.getuser()
+
+    # \h
+    def hostname(self):
+        return socket.gethostname().split(".")[0]
+
+    # \H
+    def hostnamefull(self):
+        return socket.gethostname()
+
+    # \w
+    def workingdir(self):
+        cwd = self.status.getWorkingDir()
+        home = os.path.expanduser(r"~")
+        return re.sub(r'^%s' % home, r"~", cwd)
+
+    # \W
+    def workingdirbase(self):
+        return os.path.basename(self.status.getWorkingDir())
+
+    # \$
+    def dollar(self, euid=None):
+        if euid is None:
+            euid = self.status.euid
+        if int(euid) == 0:
+            return unicode(r"#")
+        else:
+            return unicode(r"$")
+
+    def isrealpath(self, path=None):
+        if path is None:
+            path = self.status.getWorkingDir()
+        if path == os.path.realpath(path):
+            return True
+        else:
+            return False
 
 
-# ----- String Functions --------
+    # ----- Expression Functions --------
 
-def lower(_, literal):
-    return unicode(literal).lower()
+    def exitsuccess(self):
+        if self.status.exitCode == 0:
+            return True
+        else:
+            return False
 
-def join(_, *args):
-    if len(args) < 1:
-        raise TypeError("join needs at least one argument")
-    delim = args[0]
-    args = args[1:]
-    return unicode(delim).join(args)
+    def equals(self, a,b):
+        return a == b
 
-def justify(status, left, centre, right, lpad=" ", rpad=" "):
-    sleft = len(left)
-    scentre = len(centre)
-    sright = len(right)
-    padsize = status.window.column - (sleft+scentre+sright)
-    if padsize <= 1:
-        # No more space!
-        return left + centre + right
-
-    # Aim to get the centre in the centre
-    lpadsize = (status.window.column/2)-(sleft+(scentre/2))
-    if lpadsize <= 0:
-        lpadsize = 1
-    rpadsize = padsize - lpadsize
-
-    return left + lpad*lpadsize + centre + rpad*rpadsize + right
-
-def right(status, literal):
-    return justify(status, "", "", literal)
+    def greater(self, a,b):
+        if a > b:
+            return a
+        else:
+            return b
 
 
+    # ----- Control Functions --------
 
-# ----- Misc Functions --------
-
-def tick(_):
-    return unichr(0x2714)
-
-def cross(_):
-    return unichr(0x2718)
-
-def highvoltage(_):
-    return unichr(0x26A1)
-
-def plbranch(_):
-    return unichr(0xe0a0)
-
-def plline(_):
-    return unichr(0xe0a1)
-
-def pllock(_):
-    return unichr(0xe0a2)
-
-def plrightarrowfill(_):
-    return unichr(0xe0b0)
-
-def plrightarrow(_):
-    return unichr(0xe0b1)
-
-def plleftarrowfill(_):
-    return unichr(0xe0b2)
-
-def plleftarrow(_):
-    return unichr(0xe0b3)
-
-def powerline(status,content,background="blue",foreground="white"):
-    out =  colours.startColour(status, fgcolour=foreground)
-    out += colours.startColour(status, bgcolour=background)
-    out += " "
-    out += content
-    out += " "
-    out += colours.startColour(status, bgcolour=foreground)
-    out += colours.startColour(status, fgcolour=background)
-    out += plrightarrowfill(status)
-    out += colours.stopColour(status)
-    return out
-
-def smiley(status):
-    if status.exitCode == 0:
-        out = colours.startColour(status, "green", style="bold")
-        out += dollar(status)
-        out += unicode(":)")
-    else:
-        out = colours.startColour(status, "red", style="bold")
-        out += dollar(status)
-        out += unicode(":(")
-    out += colours.stopColour(status)
-    return out
-
-def randomcolour(status, literal, seed=None):
-    if seed:
-        random.seed(seed)
-    colour = str(random.randrange(1,255))
-    out = colours.startColour(status, colour)
-    out += literal
-    out += colours.stopColour(status)
-    return out
+    def ifexpr(self, cond,thenval,elseval=None):
+        if _tobool(cond):
+            return thenval
+        else:
+            if elseval:
+                return elseval
+            else:
+                return unicode("")
 
 
-def hashedcolour(status, literal):
-    return randomcolour(status, literal, seed=literal)
+    # ----- String Functions --------
+
+    def lower(self, literal):
+        return unicode(literal).lower()
+
+    def join(self, *args):
+        if len(args) < 1:
+            raise TypeError("join needs at least one argument")
+        delim = args[0]
+        args = args[1:]
+        return unicode(delim).join(args)
+
+    def justify(self, left, centre, right, lpad=" ", rpad=" "):
+        sleft = len(left)
+        scentre = len(centre)
+        sright = len(right)
+        padsize = self.status.window.column - (sleft+scentre+sright)
+        if padsize <= 1:
+            # No more space!
+            return left + centre + right
+
+        # Aim to get the centre in the centre
+        lpadsize = (self.status.window.column/2)-(sleft+(scentre/2))
+        if lpadsize <= 0:
+            lpadsize = 1
+        rpadsize = padsize - lpadsize
+
+        return left + lpad*lpadsize + centre + rpad*rpadsize + right
+
+    def right(self, literal):
+        return self.justify("", "", literal)
+
+
+
+    # ----- Misc Functions --------
+
+    def tick(self):
+        return unichr(0x2714)
+
+    def cross(self):
+        return unichr(0x2718)
+
+    def highvoltage(self):
+        return unichr(0x26A1)
+
+    def plbranch(self):
+        return unichr(0xe0a0)
+
+    def plline(self):
+        return unichr(0xe0a1)
+
+    def pllock(self):
+        return unichr(0xe0a2)
+
+    def plrightarrowfill(self):
+        return unichr(0xe0b0)
+
+    def plrightarrow(self):
+        return unichr(0xe0b1)
+
+    def plleftarrowfill(self):
+        return unichr(0xe0b2)
+
+    def plleftarrow(self):
+        return unichr(0xe0b3)
+
+    def powerline(self,content,background="blue",foreground="white"):
+        c = colours.Colours(self.functions)
+        out =  c.startColour(fgcolour=foreground)
+        out += c.startColour(bgcolour=background)
+        out += " "
+        out += content
+        out += " "
+        out += c.startColour(bgcolour=foreground)
+        out += c.startColour(fgcolour=background)
+        out += self.plrightarrowfill()
+        out += c.stopColour()
+        return out
+
+    def smiley(self):
+        c = colours.Colours(self.functions)
+        if self.status.exitCode == 0:
+            out = c.startColour("green", style="bold")
+            out += self.dollar()
+            out += unicode(":)")
+        else:
+            out = c.startColour("red", style="bold")
+            out += self.dollar()
+            out += unicode(":(")
+        out += c.stopColour()
+        return out
+
+    def randomcolour(self, literal, seed=None):
+        if seed:
+            random.seed(seed)
+        c = colours.Colours(self.functions)
+        colour = str(random.randrange(1,255))
+        out = c.startColour(colour)
+        out += literal
+        out += c.stopColour()
+        return out
+
+
+    def hashedcolour(self, literal):
+        return self.randomcolour(literal, seed=literal)
 
 # ============================================
 # Internal Functions

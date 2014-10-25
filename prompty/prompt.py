@@ -8,7 +8,9 @@
 import functionContainer
 import compiler
 import config
-
+import functions
+import colours
+import vcs
 
 class Prompt(object):
 
@@ -17,6 +19,11 @@ class Prompt(object):
         self.funcs = functionContainer.FunctionContainer(
             self.status
         )
+        self.funcs.addFunctionsFromModule(functions)
+        self.funcs.addFunctionsFromModule(colours)
+        self.funcs.addFunctionsFromModule(vcs)
+        self.funcs.addFunctionsFromDir(self.status.userDir.promtyUserFunctionsDir)
+
         self.compiler = compiler.Compiler(self.funcs)
         self.config = config.Config()
         self.config.load(self.status.userDir.getConfigFile())

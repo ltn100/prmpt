@@ -9,42 +9,11 @@ import glob
 import os
 
 # Import prompty modules
-import functions
-import colours
+import functionBase
+
 import status as statusmod
-import vcs
 
 
-def getmembers(obj, predicate=None):
-    """ ** Extracted from inspect module for optimisation purposes **
-    Return all members of an object as (name, value) pairs sorted by name.
-    Optionally, only return members that satisfy a given predicate."""
-    results = []
-    for key in dir(obj):
-        try:
-            value = getattr(obj, key)
-        except AttributeError:
-            continue
-        if not predicate or predicate(value):
-            results.append((key, value))
-    
-    results.sort()
-    return results
-
-def isfunction(obj):
-    """ ** Extracted from inspect module for optimisation purposes **
-    
-    Return true if the object is a user-defined function.
-    
-    Function objects provide these attributes:
-    __doc__         documentation string
-    __name__        name with which this function was defined
-    func_code       code object containing compiled function bytecode
-    func_defaults   tuple of any default values for arguments
-    func_doc        (same as __doc__)
-    func_globals    global namespace in which this function was defined
-    func_name       (same as __name__)"""
-    return isinstance(obj, types.FunctionType)
 
 
 class FunctionContainer(object):
@@ -58,28 +27,35 @@ class FunctionContainer(object):
         else:
             pos = 0
         self.status.pos = pos
-        args = [self.status] + list(args[1:])
-        return self.functions[name](*args)
+        return self.functions[name](*args[1:])
 
+    def addFunction(self, name, func):
+        self.functions[name] = func
 
-    def addFunctions(self, module):
-        for name, func in getmembers(module, isfunction):
-            if name[0] != "_":
-                self.functions[name] = func
+    def addFunctionsFromModule(self, module):
+        for _, cls in functionBase.getmembers(
+                module,
+                functionBase.PromptyFunctions._isPromptyFunctionsSubClass
+            ):
+            # Instantiate class
+            obj = cls(self)
+            # Store object so that it is not garbage collected
+            self.instances.append(obj)
+            # Register prompty functions
+            obj.register()
+
 
     def addFunctionsFromDir(self, directory):
         for filename in glob.glob(os.path.join(directory,"*.py")):
             module = imp.load_source('user', filename)
-            for name, func in getmembers(module, isfunction):
-                if name[0] != "_":
-                    self.functions[name] = func
+            self.addFunctionsFromModule(module)
 
     def __init__(self, status=None):
         if status is None:
             status = statusmod.Status()
         self.status = status
         self.functions = {}
-        self.addFunctions(functions)
-        self.addFunctions(colours)
-        self.addFunctions(vcs)
-        self.addFunctionsFromDir(status.userDir.promtyUserFunctionsDir)
+        self.instances = []
+
+
+

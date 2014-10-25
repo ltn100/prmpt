@@ -20,10 +20,10 @@ class Output(object):
     def _updatePos(self, unicodeString):
         non_print = False
         for char in unicodeString:
-            if char == colours.NOCOUNT_START:
+            if char == colours.Colours.NOCOUNT_START:
                 non_print = True
                 continue
-            if char == colours.NOCOUNT_END:
+            if char == colours.Colours.NOCOUNT_END:
                 non_print = False
                 continue
             if not non_print:

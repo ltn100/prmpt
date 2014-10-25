@@ -3,6 +3,8 @@
 
 import prompt
 import functions
+import functionBase
+import functionContainer
 import colours
 import compiler
 import parser
