@@ -54,4 +54,4 @@ class Status(object):
         if self.workingDir:
             return os.path.normpath(self.workingDir)
         else:
-            return os.path.normpath(os.getenv('PWD'))
+            return os.path.normpath(os.path.realpath('/proc/self/cwd'))

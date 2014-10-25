@@ -39,8 +39,8 @@ class VCS(object):
         if name in ["populateVCS", "vcsObjs", "ranStatus", "cwd", "currentVcsObj", "status"]:
             return object.__getattribute__(self, name)
         
-        if not  self.ranStatus or self.cwd != os.getcwd():
-            self.cwd = os.getcwd()
+        if not  self.ranStatus or self.cwd != self.status.getWorkingDir():
+            self.cwd = self.status.getWorkingDir()
             self.ranStatus = True
             for vcs in self.vcsObjs:
                 if vcs.isRepo:
