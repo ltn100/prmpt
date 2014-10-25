@@ -74,7 +74,7 @@ class FunctionContainer(object):
                 if name[0] != "_":
                     self.functions[name] = func
 
-    def __init__(self, status=None, userDirs=None):
+    def __init__(self, status=None):
         if status is None:
             status = statusmod.Status()
         self.status = status
@@ -82,6 +82,4 @@ class FunctionContainer(object):
         self.addFunctions(functions)
         self.addFunctions(colours)
         self.addFunctions(vcs)
-        if userDirs:
-            for directory in userDirs:
-                self.addFunctionsFromDir(directory)
+        self.addFunctionsFromDir(status.userDir.promtyUserFunctionsDir)

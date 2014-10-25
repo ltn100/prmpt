@@ -7,7 +7,6 @@
 # Import prompty modules
 import functionContainer
 import compiler
-import userdir
 import config
 
 
@@ -15,13 +14,12 @@ class Prompt(object):
 
     def __init__(self, status):
         self.status = status
-        self.userDir = userdir.UserDir()
         self.funcs = functionContainer.FunctionContainer(
-            self.status, [self.userDir.promtyUserFunctionsDir]
+            self.status
         )
         self.compiler = compiler.Compiler(self.funcs)
         self.config = config.Config()
-        self.config.load(self.userDir.getConfigFile())
+        self.config.load(self.status.userDir.getConfigFile())
 
 
     def getPrompt(self):

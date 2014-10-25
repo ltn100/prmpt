@@ -4,6 +4,7 @@
 import os
 import subprocess
 
+import userdir
 import vcs
 
 
@@ -36,6 +37,7 @@ class Status(object):
     def __init__(self, exitCode=0, workingDir=None):
         self.exitCode = int(exitCode)
         self.workingDir = workingDir
+        self.userDir = userdir.UserDir()
         self.euid = os.geteuid()
         self.vcs = vcs.VCS(self)
         
