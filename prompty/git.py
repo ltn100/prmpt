@@ -122,6 +122,6 @@ class Git(vcs.VCSBase):
         Get git HEAD commit hash.
         """
         git_cmd = [self.command, 'rev-parse', '--short', 'HEAD']
-        return self.runCommand(git_cmd)[0]
+        return self.runCommand(git_cmd)[0].strip()
 
 
