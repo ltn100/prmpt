@@ -94,7 +94,10 @@ class Git(vcs.VCSBase):
         ahead = behind = 0
 
         if line == 'HEAD (no branch)':  # detached state
-            branch = '#' + self._git_commit()
+            # Get tag
+            branch = self._git_tags()
+            if not branch:
+                branch = '#' + self._git_commit()
         elif '...' in line:  # ahead of or behind remote branch
             if ' ' in line:
                 branches, ahead_behind = line.split(' ', 1)
@@ -125,3 +128,9 @@ class Git(vcs.VCSBase):
         return self.runCommand(git_cmd)[0].strip()
 
 
+    def _git_tags(self):
+        """
+        Gets any tags associated with the current HEAD
+        """
+        git_cmd = [self.command, 'tag', '--points-at', 'HEAD']
+        return ", ".join(line.strip() for line in self.runCommand(git_cmd)[0].strip().splitlines())
