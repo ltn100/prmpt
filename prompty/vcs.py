@@ -7,6 +7,8 @@ import subprocess
 
 import status
 
+import functionBase
+
 class VCS(object):
     """
     A container class for Version Control System
@@ -108,18 +110,19 @@ class VCSBase(object):
         return stdout, stderr, proc.returncode
 
 
-
 # --------------------------
 # Prompty functions
 # --------------------------
-def isrepo(status):
-    return status.vcs.isRepo
+class VCSFunctions(functionBase.PromptyFunctions):
 
-def repobranch(status):
-    return status.vcs.branch
+    def isrepo(self):
+        return self.status.vcs.isRepo
 
-def isrepodirty(status):
-    if status.vcs.changed + status.vcs.staged + status.vcs.unmerged > 0:
-        return True
-    else:
-        return False
+    def repobranch(self):
+        return self.status.vcs.branch
+
+    def isrepodirty(self):
+        if self.status.vcs.changed + self.status.vcs.staged + self.status.vcs.unmerged > 0:
+            return True
+        else:
+            return False
