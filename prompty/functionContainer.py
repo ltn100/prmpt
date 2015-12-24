@@ -18,11 +18,11 @@ import status as statusmod
 
 class FunctionContainer(object):
 
-    def _call(self, *args):
+    def _call(self, *args, **kwargs):
         if len(args) < 1:
             raise TypeError("call requires a name")
         name = args[0]
-        return self.functions[name](*args[1:])
+        return self.functions[name](*args[1:], **kwargs)
 
     def addFunction(self, name, func):
         self.functions[name] = func

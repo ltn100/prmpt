@@ -76,4 +76,4 @@ class PromptyFunctions(object):
                 self.functions.addFunction(name, func)
 
     def call(self, func, *args, **kwargs):
-        self.functions._call(func, *args, **kwargs)
+        return self.functions._call(func, *args, **kwargs)
