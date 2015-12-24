@@ -83,7 +83,7 @@ class Subversion(vcs.VCSBase):
         entry = info.documentElement.getElementsByTagName("entry")[0]
 
         branch = entry.getElementsByTagName("relative-url")[0].childNodes[0].data
-        b = re.search('[\^]?/([^/]*)/?([^/]*)?', branch)
+        b = re.search(r'[\^]?/([^/]*)/?([^/]*)?', branch)
         if b:
             self.branch = b.group(1)
             if self.branch in ["branches", "tags"]:
