@@ -109,9 +109,9 @@ class Git(vcs.VCSBase):
                 ahead_behind = ahead_behind[1:-1]
                 for state in ahead_behind.split(', '):
                     if state.startswith('ahead '):
-                        ahead = state[6:]
+                        ahead = int(state[6:])
                     elif state.startswith('behind '):
-                        behind = state[7:]
+                        behind = int(state[7:])
         else:
             branch = line
 

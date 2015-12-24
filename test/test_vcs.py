@@ -79,7 +79,7 @@ class GitTests(UnitTestWrapper):
     def test_dirtyRepo(self, mock_sp):
         # Set up mock
         output = (
-            "## master...origin/master\n" +
+            "## master...origin/master [ahead 14, behind 58]\n" +
             "M  bin/prompty\n" +
             " M prompty/prompt.py\n" +
             "A  test/test_prompty.py\n" +
@@ -99,6 +99,8 @@ class GitTests(UnitTestWrapper):
         self.assertEquals(2, g.staged)
         self.assertEquals(1, g.unmerged)
         self.assertEquals(1, g.untracked)
+        self.assertEquals(14, g.ahead)
+        self.assertEquals(58, g.behind)
 
     @mock.patch('prompty.vcs.subprocess')
     def test_notARepo(self, mock_sp):
