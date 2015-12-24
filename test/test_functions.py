@@ -18,17 +18,17 @@ class StandardFunctionTests(UnitTestWrapper):
     def test_user(self):
         c = prompty.functionContainer.FunctionContainer()
         c.addFunctionsFromModule(prompty.functions)
-        self.assertEqual(getpass.getuser(), c._call(["user"]))
+        self.assertEqual(getpass.getuser(), c._call("user"))
 
     def test_hostname(self):
         c = prompty.functionContainer.FunctionContainer()
         c.addFunctionsFromModule(prompty.functions)
-        self.assertEqual(socket.gethostname().split(".")[0], c._call(["hostname"]))
+        self.assertEqual(socket.gethostname().split(".")[0], c._call("hostname"))
 
     def test_hostnamefull(self):
         c = prompty.functionContainer.FunctionContainer()
         c.addFunctionsFromModule(prompty.functions)
-        self.assertEqual(socket.gethostname(), c._call(["hostnamefull"]))
+        self.assertEqual(socket.gethostname(), c._call("hostnamefull"))
 
     def test_workingdir(self):
         origcwd = os.getcwd()
@@ -36,11 +36,11 @@ class StandardFunctionTests(UnitTestWrapper):
         c.addFunctionsFromModule(prompty.functions)
         os.chdir(os.path.expanduser("~"))
         os.environ["PWD"] = os.getcwd()
-        self.assertEqual(r"~", c._call(["workingdir"]))
+        self.assertEqual(r"~", c._call("workingdir"))
         tmpDir = tempfile.mkdtemp()
         os.chdir(tmpDir)
         os.environ["PWD"] = os.getcwd()
-        self.assertEqual(tmpDir, c._call(["workingdir"]))
+        self.assertEqual(tmpDir, c._call("workingdir"))
         # Cleanup
         os.chdir(origcwd)
         os.environ["PWD"] = os.getcwd()
@@ -53,10 +53,10 @@ class StandardFunctionTests(UnitTestWrapper):
         tmpDir = tempfile.mkdtemp()
         os.chdir(tmpDir)
         os.environ["PWD"] = os.getcwd()
-        self.assertEqual(os.path.basename(tmpDir), c._call(["workingdirbase"]))
+        self.assertEqual(os.path.basename(tmpDir), c._call("workingdirbase"))
         os.chdir("/usr/local")
         os.environ["PWD"] = os.getcwd()
-        self.assertEqual(r"local", c._call(["workingdirbase"]))
+        self.assertEqual(r"local", c._call("workingdirbase"))
         # Cleanup
         os.chdir(origcwd)
         os.environ["PWD"] = os.getcwd()
@@ -65,8 +65,8 @@ class StandardFunctionTests(UnitTestWrapper):
     def test_dollar(self):
         c = prompty.functionContainer.FunctionContainer()
         c.addFunctionsFromModule(prompty.functions)
-        self.assertEqual(r"$", c._call(["dollar"]))
-        self.assertEqual(r"#", c._call(["dollar"],0))
+        self.assertEqual(r"$", c._call("dollar"))
+        self.assertEqual(r"#", c._call("dollar",0))
 
     def test_specialChars(self):
         c = prompty.functionContainer.FunctionContainer()
@@ -84,31 +84,31 @@ class StandardFunctionTests(UnitTestWrapper):
                  ("escape",             "\033")
                 ]
         for char in chars:
-            self.assertEqual(char[1], c._call([char[0]]))
+            self.assertEqual(char[1], c._call(char[0]))
 
     def test_date(self):
         c = prompty.functionContainer.FunctionContainer()
         c.addFunctionsFromModule(prompty.functions)
-        self.assertTrue(bool(re.match(r"^[a-zA-z]+ [a-zA-z]+ [0-9]+$",c._call(["date"]))))
+        self.assertTrue(bool(re.match(r"^[a-zA-z]+ [a-zA-z]+ [0-9]+$",c._call("date"))))
 
     def test_datefmt(self):
         c = prompty.functionContainer.FunctionContainer()
         c.addFunctionsFromModule(prompty.functions)
-        self.assertTrue(bool(re.match(r"^[0-9:]+$",c._call(["datefmt"]))))
-        self.assertTrue(bool(re.match(r"^hello$",c._call(["datefmt"],"hello"))))
-        self.assertTrue(bool(re.match(r"^[0-9]{2}$",c._call(["datefmt"],"#d"))))
+        self.assertTrue(bool(re.match(r"^[0-9:]+$",c._call("datefmt"))))
+        self.assertTrue(bool(re.match(r"^hello$",c._call("datefmt","hello"))))
+        self.assertTrue(bool(re.match(r"^[0-9]{2}$",c._call("datefmt","#d"))))
 
     def test_isRealPath(self):
         origcwd = os.getcwd()
         c = prompty.functionContainer.FunctionContainer()
         c.addFunctionsFromModule(prompty.functions)
-        self.assertTrue(c._call(["isrealpath"]))
+        self.assertTrue(c._call("isrealpath"))
         tmpDir = tempfile.mkdtemp()
         link = os.path.join(tmpDir, "link")
         os.symlink(tmpDir, link)
         os.chdir(link)
         os.environ["PWD"] = link
-        self.assertFalse(c._call(["isrealpath"]))
+        self.assertFalse(c._call("isrealpath"))
         # Cleanup
         os.chdir(origcwd)
         os.environ["PWD"] = os.getcwd()
@@ -119,21 +119,21 @@ class ExpressionFunctionTests(UnitTestWrapper):
     def test_equal(self):
         c = prompty.functionContainer.FunctionContainer()
         c.addFunctionsFromModule(prompty.functions)
-        self.assertEqual(True, c._call(["equals"],"1","1"))
+        self.assertEqual(True, c._call("equals","1","1"))
 
     def test_if(self):
         c = prompty.functionContainer.FunctionContainer()
         c.addFunctionsFromModule(prompty.functions)
-        self.assertEqual("1", c._call(["ifexpr"],"True","1","2"))
-        self.assertEqual("2", c._call(["ifexpr"],"False","1","2"))
-        self.assertEqual("1", c._call(["ifexpr"],"True","1"))
-        self.assertEqual("", c._call(["ifexpr"],"0","1"))
-        self.assertEqual("1", c._call(["ifexpr"],"1","1"))
+        self.assertEqual("1", c._call("ifexpr","True","1","2"))
+        self.assertEqual("2", c._call("ifexpr","False","1","2"))
+        self.assertEqual("1", c._call("ifexpr","True","1"))
+        self.assertEqual("", c._call("ifexpr","0","1"))
+        self.assertEqual("1", c._call("ifexpr","1","1"))
 
     def test_exitSuccess(self):
         c = prompty.functionContainer.FunctionContainer(prompty.status.Status(0))
         c.addFunctionsFromModule(prompty.functions)
-        self.assertEqual(True, c._call(["exitsuccess"]))
+        self.assertEqual(True, c._call("exitsuccess"))
         c = prompty.functionContainer.FunctionContainer(prompty.status.Status(1))
         c.addFunctionsFromModule(prompty.functions)
-        self.assertEqual(False, c._call(["exitsuccess"]))
+        self.assertEqual(False, c._call("exitsuccess"))

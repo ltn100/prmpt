@@ -46,15 +46,15 @@ class Compiler(object):
                 out += self._move(element['value'])
             elif element['type'] == 'function':
                 # First arg is the function name and current char position
-                args = [(element['name'], pos+out.pos)]
+                args = [element['name']]
                 # Then the required arguments
                 if 'args' in element:
                     for arg in element['args']:
-                        args.append(self._execute(arg,pos+out.pos))
+                        args.append(self._execute(arg))
                 # Finally any optional arguments
                 if 'optargs' in element:
                     for optarg in element['optargs']:
-                        args.append(self._execute(optarg,pos+out.pos))
+                        args.append(self._execute(optarg))
                 # Call the function!
                 try:
                     out += self._move(unicode(self.funcs._call(*args)))

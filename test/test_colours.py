@@ -101,8 +101,8 @@ class ColourFunctionTests(UnitTestWrapper):
     def test_colourLiteral(self):
         c = prompty.functionContainer.FunctionContainer()
         c.addFunctionsFromModule(prompty.colours)
-        self.assertEqual("\001\033[32m\002I'm green\001\033[0m\002",  c._call(["green"],"I'm green"))
-        self.assertEqual("\001\033[31m\002I'm red\001\033[0m\002",    c._call(["red"],"I'm red"))
+        self.assertEqual("\001\033[32m\002I'm green\001\033[0m\002",  c._call("green","I'm green"))
+        self.assertEqual("\001\033[31m\002I'm red\001\033[0m\002",    c._call("red","I'm red"))
 
 
 class PaletteTests(UnitTestWrapper):

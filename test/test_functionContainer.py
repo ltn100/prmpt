@@ -24,11 +24,11 @@ class FunctionContainerTests(UnitTestWrapper):
         c = prompty.functionContainer.FunctionContainer()
         # Import this module
         c.addFunctionsFromModule(sys.modules[__name__])
-        self.assertEqual(r"This Is A Test", c._call(["testFunc"]))
-        self.assertRaises(KeyError, c._call, ["_hiddenFunc"])
+        self.assertEqual(r"This Is A Test", c._call("testFunc"))
+        self.assertRaises(KeyError, c._call, "_hiddenFunc")
         
     def test_extendFunctionContainerFromDir(self):
         c = prompty.functionContainer.FunctionContainer()
         # Import this directory
         c.addFunctionsFromDir(os.path.dirname(sys.modules[__name__].__file__))
-        self.assertEqual(r"This Is A Test", c._call(["testFunc"]))
+        self.assertEqual(r"This Is A Test", c._call("testFunc"))

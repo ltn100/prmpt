@@ -426,24 +426,24 @@ class CompilerTests(UnitTestWrapper):
                                                     [{'lineno': 1, 'type': 'literal', 'value': '1'}]], 
                                            'lineno': 1, 'type': 'function', 'name': 'equals'}]) )
 
-    def test_position
+#    def test_position
 
 
-class OutputTests(UnitTestWrapper):
-    def test_outputString(self):
-        o = prompty.compiler.Output()
-        o.add("four")
-        self.assertEqual("four", o.output)
-
-    def test_outputStringLenSimple(self):
-        o = prompty.compiler.Output()
-        o.add("four")
-        self.assertEqual(4, o.pos.column)
-
-    def test_outputStringLenNonPrinting(self):
-        o = prompty.compiler.Output()
-        o.add("\001\033[31m\002red4\001\033[0m\002")
-        self.assertEqual(4, o.pos.column)
-        o = prompty.compiler.Output()
-        o.add("\001\033[31m\002red4\001\033[0m\002four")
-        self.assertEqual(8, o.pos.column)
+# class OutputTests(UnitTestWrapper):
+#     def test_outputString(self):
+#         o = prompty.compiler.Output()
+#         o.add("four")
+#         self.assertEqual("four", o.output)
+#
+#     def test_outputStringLenSimple(self):
+#         o = prompty.compiler.Output()
+#         o.add("four")
+#         self.assertEqual(4, o.pos.column)
+#
+#     def test_outputStringLenNonPrinting(self):
+#         o = prompty.compiler.Output()
+#         o.add("\001\033[31m\002red4\001\033[0m\002")
+#         self.assertEqual(4, o.pos.column)
+#         o = prompty.compiler.Output()
+#         o.add("\001\033[31m\002red4\001\033[0m\002four")
+#         self.assertEqual(8, o.pos.column)
