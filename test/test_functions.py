@@ -86,6 +86,44 @@ class StandardFunctionTests(UnitTestWrapper):
         for char in chars:
             self.assertEqual(char[1], c._call(char[0]))
 
+    def test_uniChar(self):
+        c = prompty.functionContainer.FunctionContainer()
+        c.addFunctionsFromModule(prompty.functions)
+        self.assertEqual('a', c._call("unichar", "97"))
+        self.assertEqual('b', c._call("unichar", "0x62"))
+        self.assertEqual('c', c._call("unichar", "0143"))
+
+    def test_lower(self):
+        c = prompty.functionContainer.FunctionContainer()
+        c.addFunctionsFromModule(prompty.functions)
+        self.assertEqual('lower', c._call("lower", "lower"))
+        self.assertEqual('mixed', c._call("lower", "MiXEd"))
+        self.assertEqual('all_upper with spaces', c._call("lower", "ALL_UPPER WITH SPACES"))
+
+    def test_join(self):
+        c = prompty.functionContainer.FunctionContainer()
+        c.addFunctionsFromModule(prompty.functions)
+        self.assertEqual('one:fish', c._call("join", ":", "one", "fish"))
+        self.assertEqual('one/fish/cheese', c._call("join", "/", "one", "fish", "cheese"))
+        self.assertEqual('', c._call("join", "/"))
+        self.assertRaises(TypeError, c._call, "join")
+
+    def test_smiley(self):
+        c = prompty.functionContainer.FunctionContainer()
+        c.addFunctionsFromModule(prompty.functions)
+        c.addFunctionsFromModule(prompty.colours)
+        c.status.exitCode = 0
+        self.assertIn(":)", c._call("smiley"))
+        c.status.exitCode = 1
+        self.assertIn(":(", c._call("smiley"))
+
+    def test_powerline(self):
+        c = prompty.functionContainer.FunctionContainer()
+        c.addFunctionsFromModule(prompty.functions)
+        c.addFunctionsFromModule(prompty.colours)
+        self.assertIn("test", c._call("powerline", "test"))
+        self.assertIn(unichr(0xe0b0), c._call("powerline", "test"))
+
     def test_date(self):
         c = prompty.functionContainer.FunctionContainer()
         c.addFunctionsFromModule(prompty.functions)
@@ -120,6 +158,13 @@ class ExpressionFunctionTests(UnitTestWrapper):
         c = prompty.functionContainer.FunctionContainer()
         c.addFunctionsFromModule(prompty.functions)
         self.assertEqual(True, c._call("equals","1","1"))
+
+    def test_max(self):
+        c = prompty.functionContainer.FunctionContainer()
+        c.addFunctionsFromModule(prompty.functions)
+        self.assertEqual("2", c._call("max","2","1"))
+        self.assertEqual("1", c._call("max","1","1"))
+        self.assertEqual("2", c._call("max","1","2"))
 
     def test_if(self):
         c = prompty.functionContainer.FunctionContainer()

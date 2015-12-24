@@ -135,7 +135,7 @@ class BaseFunctions(functionBase.PromptyFunctions):
     def equals(self, a,b):
         return a == b
 
-    def greater(self, a,b):
+    def max(self, a,b):
         if a > b:
             return a
         else:

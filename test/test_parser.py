@@ -398,7 +398,7 @@ class CompilerTests(UnitTestWrapper):
         funcs = prompty.functionContainer.FunctionContainer()
         funcs.addFunctionsFromModule(prompty.functions)
         c = prompty.compiler.Compiler(funcs)
-        self.assertEqual(r"2", c._execute([{'lineno': 1, 'type': 'function', 'name': r"greater", 'args': 
+        self.assertEqual(r"2", c._execute([{'lineno': 1, 'type': 'function', 'name': r"max", 'args':
                                            [[{'lineno': 1, 'type': 'literal', 'value': r"1"}],
                                             [{'lineno': 1, 'type': 'literal', 'value': r"2"}]
                                             ]}]) )
