@@ -8,8 +8,10 @@ import socket
 import tempfile
 import shutil
 import getpass
+import mock
 
 from test_prompty import UnitTestWrapper
+from test_prompty import MockProc
 from test_prompty import prompty
 
 
@@ -107,6 +109,24 @@ class StandardFunctionTests(UnitTestWrapper):
         self.assertEqual('one/fish/cheese', c._call("join", "/", "one", "fish", "cheese"))
         self.assertEqual('', c._call("join", "/"))
         self.assertRaises(TypeError, c._call, "join")
+
+    @mock.patch('prompty.status.subprocess')
+    def test_justify(self, mock_sp):
+        # Set up mock
+        output = (
+            "54 13",
+            "",
+            0,
+            None
+        )
+        mock_sp.Popen.return_value = MockProc(output)
+
+        c = prompty.functionContainer.FunctionContainer()
+        c.addFunctionsFromModule(prompty.functions)
+        self.assertEqual('|     |     |', c._call("justify", "|", "|", "|"))
+        self.assertEqual('|-----|=====|', c._call("justify", "|", "|", "|", "-", "="))
+        self.assertEqual('            |', c._call("right", "|"))
+        self.assertEqual('lt@@@cen   rt', c._call("justify", "lt", "cen", "rt", "@"))
 
     def test_smiley(self):
         c = prompty.functionContainer.FunctionContainer()

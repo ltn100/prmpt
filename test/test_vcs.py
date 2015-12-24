@@ -7,25 +7,8 @@ import distutils
 import mock
 
 from test_prompty import UnitTestWrapper
+from test_prompty import MockProc
 from test_prompty import prompty
-
-
-class MockProc(object):
-
-    def __init__(self, output):
-        (self.stdout, self.stderr, self.returncode, self.exception) = output
-
-    def __getattr__(self, key):
-        if key == 'returncode':
-            return self.returncode
-        else:
-            raise AttributeError(key)
-
-    def communicate(self):
-        if self.exception:
-            raise self.exception
-        else:
-            return (self.stdout, self.stderr)
 
 
 class GitTests(UnitTestWrapper):

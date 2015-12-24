@@ -73,6 +73,32 @@ class UnitTestWrapper(unittest.TestCase):
     """
     pass
 
+class MockProc(object):
+
+    def __init__(self, output):
+        (self.stdout, self.stderr, self.returncode, self.exception) = output
+
+    def __getattr__(self, key):
+        if key == 'returncode':
+            return self.returncode
+        else:
+            raise AttributeError(key)
+
+    def communicate(self):
+        if self.exception:
+            raise self.exception
+        else:
+            return (self.stdout, self.stderr)
+
+if True or "assertIn" not in dir(UnitTestWrapper):
+    def _assertIn(self, expr1, expr2, msg=None):
+        """Just like self.assertTrue(a is b), but with a nicer default message."""
+        if expr1 not in expr2:
+            standardMsg = '%s not in %s' % (safe_repr(expr1),
+                                             safe_repr(expr2))
+            self.fail(self._formatMessage(msg, standardMsg))
+    setattr(UnitTestWrapper, "assertIn", _assertIn)
+
 if True or "assertIs" not in dir(UnitTestWrapper):
     def _assertIs(self, expr1, expr2, msg=None):
         """Just like self.assertTrue(a is b), but with a nicer default message."""
