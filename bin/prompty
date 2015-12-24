@@ -66,27 +66,28 @@ def main(argv=None):
             return 0
 
         if option in ("-c", "--colours"):
-            for style in prompty.colours.STYLES:
-                for colour in prompty.colours.COLOURS:
-                    print "%s%s : %s%s" % (prompty.colours.startColour(None, colour, style=style, wrap=False), 
-                                           style[prompty.colours.NAME_KEY], 
-                                           colour[prompty.colours.NAME_KEY], 
-                                           prompty.colours.stopColour(None, wrap=False))
+            c = prompty.colours.Colours(prompty.functionContainer.FunctionContainer())
+            for style in c.STYLES:
+                for colour in c.COLOURS:
+                    print "%s%s : %s%s" % (c.startColour(colour, style=style, wrap=False),
+                                           style[c.NAME_KEY],
+                                           colour[c.NAME_KEY],
+                                           c.stopColour(wrap=False))
             return 0
 
         if option in ("-d", "--debug"):
             debug = True
 
         if option in ("-p", "--palette"):
-            for colour in prompty.colours.PALETTE:
-                print "%s%s%s" % (prompty.colours.startColour(
-                                                    None,
-                                                    fgcolour=colour[prompty.colours.FG_KEY],
-                                                    bgcolour=colour[prompty.colours.BG_KEY],
-                                                    style=colour[prompty.colours.STYLE_KEY],
+            c = prompty.colours.Colours(prompty.functionContainer.FunctionContainer())
+            for colour in c.PALETTE:
+                print "%s%s%s" % (c.startColour(
+                                                    fgcolour=colour[c.FG_KEY],
+                                                    bgcolour=colour[c.BG_KEY],
+                                                    style=colour[c.STYLE_KEY],
                                                     wrap=False),
-                                       colour[prompty.colours.NAME_KEY],
-                                       prompty.colours.stopColour(None, wrap=False))
+                                       colour[c.NAME_KEY],
+                                       c.stopColour(wrap=False))
             return 0
 
         if option in ("-w", "--working-dir"):

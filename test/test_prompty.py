@@ -211,11 +211,12 @@ def captured_output():
     finally:
         sys.stdout, sys.stderr = old_out, old_err
 
-
 from test_parser import *
 from test_colours import *
 from test_functionContainer import *
 from test_functions import *
+from test_vcs import *
+
 
 
 class MainTests(UnitTestWrapper):
@@ -246,6 +247,32 @@ class MainTests(UnitTestWrapper):
         self.assertEqual(len(err.getvalue()), 0)
         self.assertEqual(ret, 1)
 
+    def test_invalid(self):
+        argv = ["","-@"]
+        with captured_output() as (out, err):
+            ret = prompty_bin.main(argv)
+
+        self.assertEqual(out.getvalue(), "")
+        self.assertGreater(len(err.getvalue()), 0)
+        self.assertEqual(ret, 1)
+
+    def test_colours(self):
+        argv = ["","-c"]
+        with captured_output() as (out, err):
+            ret = prompty_bin.main(argv)
+
+        self.assertGreater(out.getvalue().split(":"),1)
+        self.assertEqual(err.getvalue(), "")
+        self.assertEqual(ret, 0)
+
+    def test_pallete(self):
+        argv = ["","-p"]
+        with captured_output() as (out, err):
+            ret = prompty_bin.main(argv)
+
+        self.assertGreater(out.getvalue().split("_"),1)
+        self.assertEqual(err.getvalue(), "")
+        self.assertEqual(ret, 0)
 
 class CoordsTests(UnitTestWrapper):
     def test_init(self):
@@ -337,21 +364,7 @@ class ConfigTests(UnitTestWrapper):
         self.assertGreater(len(c.promptString), 0)
 
 
-class GitTests(UnitTestWrapper):
-    def test_commandAvailable(self):
-        git_installed = bool(distutils.spawn.find_executable(prompty.git.GIT_COMMAND))
-        g = prompty.git.Git(prompty.status.Status(0))
-        self.assertEquals(git_installed, g.installed)
-        g = prompty.git.Git(prompty.status.Status(0), "bogus_command_foo")
-        self.assertEquals(False, g.installed)
 
-class SvnTests(UnitTestWrapper):
-    def test_commandAvailable(self):
-        svn_installed = bool(distutils.spawn.find_executable(prompty.svn.SVN_COMMAND))
-        s = prompty.svn.Subversion(prompty.status.Status(0))
-        self.assertEquals(svn_installed, s.installed)
-        s = prompty.svn.Subversion(prompty.status.Status(0), "bogus_command_foo")
-        self.assertEquals(False, s.installed)
 
 
 
