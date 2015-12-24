@@ -74,3 +74,6 @@ class PromptyFunctions(object):
         for name, func in getmembers(self, ismethod):
             if name[0] != "_":
                 self.functions.addFunction(name, func)
+
+    def call(self, func, *args, **kwargs):
+        self.functions._call(func, *args, **kwargs)

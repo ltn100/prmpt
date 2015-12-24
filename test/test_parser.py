@@ -90,6 +90,82 @@ class LexerTests(UnitTestWrapper):
         self.assertEqual("before", l.get_token())
         self.assertEqual("after", l.get_token())
 
+    def test_fixComments(self):
+        i = "% comment"
+        o = " % comment"
+        self.assertEqual(o, prompty.lexer.Lexer.fixComments(i))
+        i = "A% comment\nB"
+        o = "A % comment\nB"
+        self.assertEqual(o, prompty.lexer.Lexer.fixComments(i))
+        i = "% comment\nB %comment\n%comment"
+        o = " % comment\nB  %comment\n %comment"
+        self.assertEqual(o, prompty.lexer.Lexer.fixComments(i))
+        i = "\\myfunc{% comment\n\targ% comment\n}% comment"
+        o = "\\myfunc{ % comment\n\targ % comment\n} % comment"
+        self.assertEqual(o, prompty.lexer.Lexer.fixComments(i))
+
+    def test_fixLineNumbers(self):
+        i = "% comment"
+        o = i
+        self.assertEqual(o, prompty.lexer.Lexer.fixLineNumbers(i))
+        i = "% comment\n"
+        o = "% comment \n"
+        self.assertEqual(o, prompty.lexer.Lexer.fixLineNumbers(i))
+        i = "\nA\nB"
+        o = " \nA \nB"
+        self.assertEqual(o, prompty.lexer.Lexer.fixLineNumbers(i))
+        i = "\r\nA\r\nB"
+        o = " \r\nA \r\nB"
+        self.assertEqual(o, prompty.lexer.Lexer.fixLineNumbers(i))
+        i = " \nA \nB"
+        o = "  \nA  \nB"
+        self.assertEqual(o, prompty.lexer.Lexer.fixLineNumbers(i))
+
+    def test_lineNumbers(self):
+        s = r"""% Comment (line 1)
+            line2 
+            
+            line4%comment immediately following
+            \myfunction{} %comment on line 5
+            
+            % Blank line 7 comment
+            \function{% comment following {
+                \green{line}
+            }
+            % end of file comment"""
+        l = prompty.lexer.Lexer(s)
+        self.assertEqual("line2", l.get_token())
+        self.assertEqual(2, l.lineno)
+        self.assertEqual("line4", l.get_token())
+        self.assertEqual(4, l.lineno)
+        self.assertEqual("\\", l.get_token())
+        self.assertEqual(5, l.lineno)
+        self.assertEqual("myfunction", l.get_token())
+        self.assertEqual(5, l.lineno)
+        self.assertEqual("{", l.get_token())
+        self.assertEqual(5, l.lineno)
+        self.assertEqual("}", l.get_token())
+        self.assertEqual(5, l.lineno)
+        self.assertEqual("\\", l.get_token())
+        self.assertEqual(8, l.lineno)
+        self.assertEqual("function", l.get_token())
+        self.assertEqual(8, l.lineno)
+        self.assertEqual("{", l.get_token())
+        self.assertEqual(8, l.lineno)
+        self.assertEqual("\\", l.get_token())
+        self.assertEqual(9, l.lineno)
+        self.assertEqual("green", l.get_token())
+        self.assertEqual(9, l.lineno)
+        self.assertEqual("{", l.get_token())
+        self.assertEqual(9, l.lineno)
+        self.assertEqual("line", l.get_token())
+        self.assertEqual(9, l.lineno)
+        self.assertEqual("}", l.get_token())
+        self.assertEqual(9, l.lineno)
+        self.assertEqual("}", l.get_token())
+        self.assertEqual(10, l.lineno)
+        self.assertFalse(l.get_token())
+
 
 class ParserTests(UnitTestWrapper):
     def test_stringLiteral(self):
@@ -236,32 +312,13 @@ class ParserTests(UnitTestWrapper):
                          p.parse(r"\green[bold][\bg]{\user}"))
 
 
-class OutputTests(UnitTestWrapper):
-    def test_outputString(self):
-        o = prompty.compiler.Output()
-        o.add("four")
-        self.assertEqual("four", o.output)
-
-    def test_outputStringLenSimple(self):
-        o = prompty.compiler.Output()
-        o.add("four")
-        self.assertEqual(4, o.pos.column)
-
-    def test_outputStringLenNonPrinting(self):
-        o = prompty.compiler.Output()
-        o.add("\001\033[31m\002red4\001\033[0m\002")
-        self.assertEqual(4, o.pos.column)
-        o = prompty.compiler.Output()
-        o.add("\001\033[31m\002red4\001\033[0m\002four")
-        self.assertEqual(8, o.pos.column)
-
-
 class CompilerTests(UnitTestWrapper):
     user=getpass.getuser()
     host=socket.gethostname()
     
     def test_external(self):
-        c = prompty.compiler.Compiler()
+        funcs = prompty.functionContainer.FunctionContainer()
+        c = prompty.compiler.Compiler(funcs)
         c.compile("literal1")
         self.assertEqual(r"literal1", c.execute() )
         c.compile("literal2")
@@ -288,20 +345,20 @@ class CompilerTests(UnitTestWrapper):
         funcs = prompty.functionContainer.FunctionContainer()
         funcs.addFunctionsFromModule(prompty.functions)
         c = prompty.compiler.Compiler(funcs)
-        self.assertEqual(r"literalvalue", c._execute([{'type': 'literal', 'value': r"literalvalue"}]) )
+        self.assertEqual(r"literalvalue", c._execute([{'lineno': 1, 'type': 'literal', 'value': r"literalvalue"}]) )
 
     def test_multipleLiteral(self):
         funcs = prompty.functionContainer.FunctionContainer()
         funcs.addFunctionsFromModule(prompty.functions)
         c = prompty.compiler.Compiler(funcs)
-        self.assertEqual(r"literalvalue", c._execute([{'type': 'literal', 'value': r"literal"},
-                                                      {'type': 'literal', 'value': r"value"}]) )
+        self.assertEqual(r"literalvalue", c._execute([{'lineno': 1, 'type': 'literal', 'value': r"literal"},
+                                                      {'lineno': 1, 'type': 'literal', 'value': r"value"}]) )
 
     def test_singleFunction(self):
         funcs = prompty.functionContainer.FunctionContainer()
         funcs.addFunctionsFromModule(prompty.functions)
         c = prompty.compiler.Compiler(funcs)
-        self.assertEqual(CompilerTests.user, c._execute([{'type': 'function', 'name': r"user"}]) )
+        self.assertEqual(CompilerTests.user, c._execute([{'lineno': 1, 'type': 'function', 'name': r"user"}]) )
 
     def test_nestedFunction(self):
         funcs = prompty.functionContainer.FunctionContainer()
@@ -309,8 +366,8 @@ class CompilerTests(UnitTestWrapper):
         funcs.addFunctionsFromModule(prompty.colours)
         c = prompty.compiler.Compiler(funcs)
         self.assertEqual("\001\033[32m\002%s\001\033[0m\002" % CompilerTests.user, 
-                         c._execute([{'type': 'function', 'name': r"green", 'args': 
-                                     [[{'type': 'function', 'name': r"user"}]]}]) )
+                         c._execute([{'lineno': 1, 'type': 'function', 'name': r"green", 'args': 
+                                     [[{'lineno': 1, 'type': 'function', 'name': r"user"}]]}]) )
 
     def test_functionWithMultipleLiteralArgument(self):
         funcs = prompty.functionContainer.FunctionContainer()
@@ -318,11 +375,11 @@ class CompilerTests(UnitTestWrapper):
         funcs.addFunctionsFromModule(prompty.colours)
         c = prompty.compiler.Compiler(funcs)
         self.assertEqual("\001\033[32m\002a%sb%s\001\033[0m\002" % (CompilerTests.user,CompilerTests.host),
-                         c._execute([{'type': 'function', 'name': r"green", 'args': 
-                                [[{'type': 'literal', 'value': r"a"},
-                                 {'type': 'function', 'name': r"user"},
-                                 {'type': 'literal', 'value': r"b"},
-                                 {'type': 'function', 'name': r"hostnamefull"}]]
+                         c._execute([{'lineno': 1, 'type': 'function', 'name': r"green", 'args': 
+                                [[{'lineno': 1, 'type': 'literal', 'value': r"a"},
+                                 {'lineno': 1, 'type': 'function', 'name': r"user"},
+                                 {'lineno': 1, 'type': 'literal', 'value': r"b"},
+                                 {'lineno': 1, 'type': 'function', 'name': r"hostnamefull"}]]
                           }]) )
 
     def test_nestedFunctionOptionalArg(self):
@@ -331,9 +388,9 @@ class CompilerTests(UnitTestWrapper):
         funcs.addFunctionsFromModule(prompty.colours)
         c = prompty.compiler.Compiler(funcs)
         self.assertEqual("\001\033[1;32m\002%s\001\033[0m\002" % CompilerTests.user, 
-                         c._execute([{'type': 'function', 'name': r"green", 'args': 
-                                [[{'type': 'function', 'name': r"user"}]],
-                                'optargs': [[{'type': 'literal', 'value': r"bold"}]]
+                         c._execute([{'lineno': 1, 'type': 'function', 'name': r"green", 'args': 
+                                [[{'lineno': 1, 'type': 'function', 'name': r"user"}]],
+                                'optargs': [[{'lineno': 1, 'type': 'literal', 'value': r"bold"}]]
                           }]) )
 
 
@@ -341,23 +398,23 @@ class CompilerTests(UnitTestWrapper):
         funcs = prompty.functionContainer.FunctionContainer()
         funcs.addFunctionsFromModule(prompty.functions)
         c = prompty.compiler.Compiler(funcs)
-        self.assertEqual(r"2", c._execute([{'type': 'function', 'name': r"greater", 'args': 
-                                           [[{'type': 'literal', 'value': r"1"}],
-                                            [{'type': 'literal', 'value': r"2"}]
+        self.assertEqual(r"2", c._execute([{'lineno': 1, 'type': 'function', 'name': r"greater", 'args': 
+                                           [[{'lineno': 1, 'type': 'literal', 'value': r"1"}],
+                                            [{'lineno': 1, 'type': 'literal', 'value': r"2"}]
                                             ]}]) )
 
     def test_emptyAruments(self):
         funcs = prompty.functionContainer.FunctionContainer()
         funcs.addFunctionsFromModule(prompty.functions)
         c = prompty.compiler.Compiler(funcs)
-        self.assertEqual("..", c._execute([{'type': 'function', 'name': r"join", 'args': 
-                                           [[{'type': 'literal', 'value': r"."}], 
+        self.assertEqual("..", c._execute([{'lineno': 1, 'type': 'function', 'name': r"join", 'args': 
+                                           [[{'lineno': 1, 'type': 'literal', 'value': r"."}], 
                                             [], [], []]
                                            }]) )
-        self.assertEqual(".1.2", c._execute([{'type': 'function', 'name': r"join", 'args': 
-                                           [ [{'type': 'literal', 'value': r"."}]
-                                            , [], [{'type': 'literal', 'value': r"1"}],
-                                            [{'type': 'literal', 'value': r"2"}]
+        self.assertEqual(".1.2", c._execute([{'lineno': 1, 'type': 'function', 'name': r"join", 'args': 
+                                           [ [{'lineno': 1, 'type': 'literal', 'value': r"."}]
+                                            , [], [{'lineno': 1, 'type': 'literal', 'value': r"1"}],
+                                            [{'lineno': 1, 'type': 'literal', 'value': r"2"}]
                                             ]}]) )
 
     def test_equalFunction(self):
@@ -365,6 +422,28 @@ class CompilerTests(UnitTestWrapper):
         funcs.addFunctionsFromModule(prompty.functions)
         funcs.addFunctionsFromModule(prompty.colours)
         c = prompty.compiler.Compiler(funcs)
-        self.assertEqual("True", c._execute([{'args': [[{'type': 'literal', 'value': '1'}], 
-                                                    [{'type': 'literal', 'value': '1'}]], 
-                                           'type': 'function', 'name': 'equals'}]) )
+        self.assertEqual("True", c._execute([{'args': [[{'lineno': 1, 'type': 'literal', 'value': '1'}], 
+                                                    [{'lineno': 1, 'type': 'literal', 'value': '1'}]], 
+                                           'lineno': 1, 'type': 'function', 'name': 'equals'}]) )
+
+    def test_position
+
+
+class OutputTests(UnitTestWrapper):
+    def test_outputString(self):
+        o = prompty.compiler.Output()
+        o.add("four")
+        self.assertEqual("four", o.output)
+
+    def test_outputStringLenSimple(self):
+        o = prompty.compiler.Output()
+        o.add("four")
+        self.assertEqual(4, o.pos.column)
+
+    def test_outputStringLenNonPrinting(self):
+        o = prompty.compiler.Output()
+        o.add("\001\033[31m\002red4\001\033[0m\002")
+        self.assertEqual(4, o.pos.column)
+        o = prompty.compiler.Output()
+        o.add("\001\033[31m\002red4\001\033[0m\002four")
+        self.assertEqual(8, o.pos.column)

@@ -8,7 +8,6 @@ import getpass
 import socket
 import datetime
 import random
-import types
 
 import functionBase
 
@@ -28,9 +27,6 @@ import functionBase
 #               \!     the history number of this command
 #               \#     the command number of this command
 
-
-
-import colours
 
 
 class BaseFunctions(functionBase.PromptyFunctions):
@@ -225,39 +221,36 @@ class BaseFunctions(functionBase.PromptyFunctions):
         return unichr(0xe0b3)
 
     def powerline(self,content,background="blue",foreground="white"):
-        c = colours.Colours(self.functions)
-        out =  c.startColour(fgcolour=foreground)
-        out += c.startColour(bgcolour=background)
+        out =  self.call("startColour",fgcolour=foreground)
+        out += self.call("startColour",bgcolour=background)
         out += " "
         out += content
         out += " "
-        out += c.startColour(bgcolour=foreground)
-        out += c.startColour(fgcolour=background)
+        out += self.call("startColour",bgcolour=foreground)
+        out += self.call("startColour",fgcolour=background)
         out += self.plrightarrowfill()
-        out += c.stopColour()
+        out += self.call("stopColour")
         return out
 
     def smiley(self):
-        c = colours.Colours(self.functions)
         if self.status.exitCode == 0:
-            out = c.startColour("green", style="bold")
-            out += self.dollar()
+            out =  self.call("startColour", "green", style="bold")
+            out += self.call("dollar")
             out += unicode(":)")
         else:
-            out = c.startColour("red", style="bold")
-            out += self.dollar()
+            out = self.call("startColour", "red", style="bold")
+            out += self.call("dollar")
             out += unicode(":(")
-        out += c.stopColour()
+        out += self.call("stopColour")
         return out
 
     def randomcolour(self, literal, seed=None):
         if seed:
             random.seed(seed)
-        c = colours.Colours(self.functions)
         colour = str(random.randrange(1,255))
-        out = c.startColour(colour)
+        out = self.call("startColour", colour)
         out += literal
-        out += c.stopColour()
+        out += self.call("stopColour")
         return out
 
 
