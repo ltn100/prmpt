@@ -13,7 +13,7 @@ from test_prompty import prompty
 class MockProc(object):
 
     def __init__(self, output):
-        (self.stdout, self.stderr, self.returncode) = output
+        (self.stdout, self.stderr, self.returncode, self.exception) = output
 
     def __getattr__(self, key):
         if key == 'returncode':
@@ -22,7 +22,10 @@ class MockProc(object):
             raise AttributeError(key)
 
     def communicate(self):
-        return (self.stdout, self.stderr)
+        if self.exception:
+            raise self.exception
+        else:
+            return (self.stdout, self.stderr)
 
 
 class GitTests(UnitTestWrapper):
@@ -38,12 +41,14 @@ class GitTests(UnitTestWrapper):
         output = (
             "",
             "git: command not found",
-            127
+            127,
+            OSError
         )
         mock_sp.Popen.return_value = MockProc(output)
 
         g = prompty.git.Git(prompty.status.Status(0))
         self.assertEquals(False, g.installed)
+        self.assertEquals(False, g.isRepo)
         self.assertEquals("", g.branch)
         self.assertEquals(0, g.changed)
         self.assertEquals(0, g.staged)
@@ -56,12 +61,14 @@ class GitTests(UnitTestWrapper):
         output = (
             "## develop...origin/develop\n",
             "",
-            0
+            0,
+            None
         )
         mock_sp.Popen.return_value = MockProc(output)
 
         g = prompty.git.Git(prompty.status.Status(0))
         self.assertEquals(True, g.installed)
+        self.assertEquals(True, g.isRepo)
         self.assertEquals("develop", g.branch)
         self.assertEquals(0, g.changed)
         self.assertEquals(0, g.staged)
@@ -79,17 +86,39 @@ class GitTests(UnitTestWrapper):
             "AU test.py\n" +
             "?? test/test_git.py",
             "",
-            0
+            0,
+            None
         )
         mock_sp.Popen.return_value = MockProc(output)
 
         g = prompty.git.Git(prompty.status.Status(0))
         self.assertEquals(True, g.installed)
+        self.assertEquals(True, g.isRepo)
         self.assertEquals("master", g.branch)
         self.assertEquals(1, g.changed)
         self.assertEquals(2, g.staged)
         self.assertEquals(1, g.unmerged)
         self.assertEquals(1, g.untracked)
+
+    @mock.patch('prompty.vcs.subprocess')
+    def test_notARepo(self, mock_sp):
+        # Set up mock
+        output = (
+            "",
+            "fatal: Not a git repository (or any of the parent directories): .git\n",
+            128,
+            None
+        )
+        mock_sp.Popen.return_value = MockProc(output)
+
+        g = prompty.git.Git(prompty.status.Status(0))
+        self.assertEquals(True, g.installed)
+        self.assertEquals(False, g.isRepo)
+        self.assertEquals("", g.branch)
+        self.assertEquals(0, g.changed)
+        self.assertEquals(0, g.staged)
+        self.assertEquals(0, g.unmerged)
+        self.assertEquals(0, g.untracked)
 
 
 class SvnTests(UnitTestWrapper):
