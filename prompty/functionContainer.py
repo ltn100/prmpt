@@ -3,7 +3,7 @@
 
 # Import external modules
 #import inspect    # Removed for being slow to import
-import types
+#import types      # Not used
 import imp
 import glob
 import os

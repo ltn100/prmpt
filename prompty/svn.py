@@ -4,6 +4,7 @@
 import vcs
 import re
 import xml.dom.minidom
+from xml.parsers.expat import ExpatError
 
 SVN_COMMAND="svn"
 
@@ -15,10 +16,10 @@ class Subversion(vcs.VCSBase):
 
     def _runStatus(self):
         try:
-            (istdout, istderr, ireturncode) = self.runCommand(
+            (istdout, istderr, _) = self.runCommand(
                 [self.command, "info", "--xml"]
             )
-            (sstdout, sstderr, sreturncode) = self.runCommand(
+            (sstdout, sstderr, _) = self.runCommand(
                 [self.command, "status"]
             )
         except OSError:
@@ -40,7 +41,7 @@ class Subversion(vcs.VCSBase):
                 # Some other error?
                 self.installed = False
                 self.isRepo = False
-        
+
         if not sstderr:
             # Successful svn status call
             self._parse_status(sstdout)
@@ -49,7 +50,7 @@ class Subversion(vcs.VCSBase):
     def _parse_info_xml(self, xml_string):
         """Parse the return string from a 'svn info --xml' command
         Example string
-        
+
         <?xml version="1.0" encoding="UTF-8"?>
         <info>
             <entry
@@ -74,12 +75,12 @@ class Subversion(vcs.VCSBase):
         """
         try:
             info = xml.dom.minidom.parseString(xml_string.strip())
-        except:
+        except ExpatError:
             # Error parsing xml
             return
-        
+
         self.isRepo = True
-        
+
         entry = info.documentElement.getElementsByTagName("entry")[0]
 
         branch = entry.getElementsByTagName("relative-url")[0].childNodes[0].data

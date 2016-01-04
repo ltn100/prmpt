@@ -2,7 +2,6 @@
 # vim:set softtabstop=4 shiftwidth=4 tabstop=4 expandtab:
 
 # Import external modules
-import sys
 import re
 import types
 
@@ -376,28 +375,28 @@ class Colours(functionBase.PromptyFunctions):
 
     def _colourFuncFactory(self, clr):
         def fgfunc(slf, literal, style=None):
-            return  self.startColour(fgcolour=clr, style=style) + \
+            return  slf.startColour(fgcolour=clr, style=style) + \
                     literal + \
-                    self.stopColour()
+                    slf.stopColour()
         def bgfunc(slf, literal, style=None):
-            return  self.startColour(bgcolour=clr, style=style) + \
+            return  slf.startColour(bgcolour=clr, style=style) + \
                     literal + \
-                    self.stopColour()
+                    slf.stopColour()
         return fgfunc, bgfunc
 
 
     def _styleFuncFactory(self, style):
         def func(slf, literal):
-            return  self.startColour(style=style) + \
+            return  slf.startColour(style=style) + \
                     literal + \
-                    self.stopColour()
+                    slf.stopColour()
         return func
 
     def _paletteFuncFactory(self, pal):
         def func(slf, literal):
-            return  self.startColour(fgcolour=pal) + \
+            return  slf.startColour(fgcolour=pal) + \
                     literal + \
-                    self.stopColour()
+                    slf.stopColour()
         return func
 
     def _populateFunctions(self):

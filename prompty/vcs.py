@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # vim:set softtabstop=4 shiftwidth=4 tabstop=4 expandtab:
 
-import os
 import abc
 import subprocess
-
-import status
 
 import functionBase
 
@@ -58,7 +55,7 @@ class VCSBase(object):
     An abstract base class for VCS sub classes
     """
     __metaclass__ = abc.ABCMeta
-    
+
     @abc.abstractmethod
     def __init__(self, status, cmd):
         self.status = status
@@ -100,7 +97,7 @@ class VCSBase(object):
             self._runStatus()
         return object.__getattribute__(self, name)
 
-    def runCommand(self, cmdList, workingDir=None):
+    def runCommand(self, cmdList):
         # Raises OSError if command doesn't exist
         proc = subprocess.Popen(cmdList,
                                 stdout=subprocess.PIPE,
