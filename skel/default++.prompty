@@ -20,9 +20,9 @@
 \ifexpr{\isrepo}{
     \space
     \ifexpr{\isrepodirty}{
-        \pal_a1{( \repobranch \space \ahead \space \behind )}
+        \pal_a1{( \repobranch \space \unichar{0x25b4}\ahead \space \unichar{0x25be}\behind )}
     }{
-        \pal_a2{( \repobranch \space \ahead \space \behind )}
+        \pal_a2{( \repobranch \space \unichar{0x25b4}\ahead \space \unichar{0x25be}\behind )}
     }
 }{}
 \newline
