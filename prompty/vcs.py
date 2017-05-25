@@ -123,3 +123,9 @@ class VCSFunctions(functionBase.PromptyFunctions):
             return True
         else:
             return False
+
+    def ahead(self):
+        return self.status.vcs.ahead
+
+    def behind(self):
+        return self.status.vcs.behind
