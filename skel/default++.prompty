@@ -19,22 +19,39 @@
 \ifexpr{\isrealpath}{}{\space\pal_a1{(!)}}
 \ifexpr{\isrepo}{
     \space
-    \ifexpr{\isrepodirty}{
-        \pal_a1{( \repobranch )}
-    }{
-        \pal_a2{( \repobranch )}
-    }
+    \ifexpr{\isrepodirty}{\startColour{pal_a1}} {\startColour{pal_a2}}
+        ( \repobranch )
+    \stopColour
+
     \space
-    \pal_a5{
-        \opensquare
-            # \commit \space
-            \unichar{0x25be}\behind \space
-            \unichar{0x25b4}\ahead \space
-            \unichar{0x2714}\space\staged \space
-            \unichar{0x270e}\space\changed \space
+    \pal_c5{\opensquare}
+        \ifexpr{\behind}{\startColour{pal_a2}} {\startColour{pal_c5}}
+            \unichar{0x25be}\behind
+        \stopColour
+        \space
+
+        \pal_c5{# \commit}
+        \space
+
+        \ifexpr{\ahead}{\startColour{pal_a2}} {\startColour{pal_c5}}
+            \unichar{0x25b4}\ahead
+        \stopColour
+        \space
+
+        \ifexpr{\staged}{\startColour{pal_a2}} {\startColour{pal_c5}}
+            \unichar{0x2714}\space\staged
+        \stopColour
+        \space
+
+        \ifexpr{\changed}{\startColour{pal_a2}} {\startColour{pal_c5}}
+            \unichar{0x270e}\space\changed
+        \stopColour
+        \space
+
+        \ifexpr{\untracked}{\startColour{pal_a2}} {\startColour{pal_c5}}
             ?\untracked
-        \closesquare
-    }
+        \stopColour
+    \pal_c5{\closesquare}
 }{}
 \newline
 \smiley

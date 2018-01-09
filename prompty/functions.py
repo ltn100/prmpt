@@ -141,6 +141,11 @@ class BaseFunctions(functionBase.PromptyFunctions):
         else:
             return b
 
+    def gt(self, a,b):
+        return a > b
+
+    def lt(self, a,b):
+        return a < b
 
     # ----- Control Functions --------
 
@@ -262,7 +267,13 @@ class BaseFunctions(functionBase.PromptyFunctions):
 # ============================================
 
 def _tobool(expr):
-    if str(expr).lower() in ['true', '1', 't', 'y', 'yes']:
+    # First try integer cast
+    try:
+        return bool(int(expr))
+    except ValueError:
+        pass
+
+    if str(expr).lower() in ['true', 't', 'y', 'yes']:
         return True
     else:
         return False
