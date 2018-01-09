@@ -16,6 +16,9 @@ class Git(vcs.VCSBase):
             (stdout, stderr, returncode) = self.runCommand(
                 [self.command, "status", "--porcelain", "-b"]
             )
+            (rstdout, rstderr, rreturncode) = self.runCommand(
+                [self.command, "rev-parse", "--verify", "--short", "HEAD"]
+            )
         except OSError:
             # Git command not found
             self.installed = False
@@ -43,6 +46,10 @@ class Git(vcs.VCSBase):
                 # Some other error?
                 self.installed = False
                 self.isRepo = False
+
+        if rreturncode == 0:
+            # Successful git status call
+            self.commit = rstdout.strip()
 
 
     def _git_status(self, result):

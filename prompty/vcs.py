@@ -72,6 +72,7 @@ class VCSBase(object):
         self.behind = 0
         self.installed = None
         self.isRepo = None
+        self.commit = ""
 
     @abc.abstractmethod
     def _runStatus(self):
@@ -129,3 +130,15 @@ class VCSFunctions(functionBase.PromptyFunctions):
 
     def behind(self):
         return self.status.vcs.behind
+
+    def commit(self):
+        return self.status.vcs.commit
+
+    def staged(self):
+        return self.status.vcs.staged
+
+    def changed(self):
+        return self.status.vcs.changed
+
+    def untracked(self):
+        return self.status.vcs.untracked

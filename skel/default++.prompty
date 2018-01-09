@@ -20,9 +20,20 @@
 \ifexpr{\isrepo}{
     \space
     \ifexpr{\isrepodirty}{
-        \pal_a1{( \repobranch \space \unichar{0x25b4}\ahead \space \unichar{0x25be}\behind )}
+        \pal_a1{( \repobranch )}
     }{
-        \pal_a2{( \repobranch \space \unichar{0x25b4}\ahead \space \unichar{0x25be}\behind )}
+        \pal_a2{( \repobranch )}
+    }
+    \space
+    \pal_a5{
+        \opensquare
+            # \commit \space
+            \unichar{0x25be}\behind \space
+            \unichar{0x25b4}\ahead \space
+            \unichar{0x2714}\space\staged \space
+            \unichar{0x270e}\space\changed \space
+            ?\untracked
+        \closesquare
     }
 }{}
 \newline
