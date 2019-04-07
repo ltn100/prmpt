@@ -91,18 +91,17 @@ class Colours(functionBase.PromptyFunctions):
     BG_KEY      = 4
     STYLE_KEY   = 5
 
-
-    PALC1 = {NAME_KEY : 'pal_c1',  FG_KEY : WHITE, BG_KEY : None,  STYLE_KEY : None}
-    PALC2 = {NAME_KEY : 'pal_c2',  FG_KEY : LGREY, BG_KEY : None,  STYLE_KEY : None}
-    PALC3 = {NAME_KEY : 'pal_c3',  FG_KEY : LGREY, BG_KEY : None,  STYLE_KEY : DIM}
-    PALC4 = {NAME_KEY : 'pal_c4',  FG_KEY : DGREY, BG_KEY : None,  STYLE_KEY : BOLD}
-    PALC5 = {NAME_KEY : 'pal_c5',  FG_KEY : DGREY, BG_KEY : None,  STYLE_KEY : None}
-    PALA1 = {NAME_KEY : 'pal_a1',  FG_KEY : LRED,  BG_KEY : None,  STYLE_KEY : None}
-    PALA2 = {NAME_KEY : 'pal_a2',  FG_KEY : YELLOW,BG_KEY : None,  STYLE_KEY : None}
-    PALA3 = {NAME_KEY : 'pal_a3',  FG_KEY : GREEN, BG_KEY : None,  STYLE_KEY : None}
-    PALA4 = {NAME_KEY : 'pal_a4',  FG_KEY : LBLUE, BG_KEY : None,  STYLE_KEY : None}
-    PALA5 = {NAME_KEY : 'pal_a5',  FG_KEY : LMAGENTA,BG_KEY : None, STYLE_KEY : None}
-    PALETTE = [PALC1,PALC2,PALC3,PALC4,PALC5,PALA1,PALA2,PALA3,PALA4,PALA5]
+    DEFAULT = {NAME_KEY : 'default', FG_KEY : LGREY, BG_KEY : None,  STYLE_KEY : None}
+    DIM1    = {NAME_KEY : 'dim1',    FG_KEY : LGREY, BG_KEY : None,  STYLE_KEY : DIM}
+    DIM2    = {NAME_KEY : 'dim2',    FG_KEY : DGREY, BG_KEY : None,  STYLE_KEY : BOLD}
+    DIM3    = {NAME_KEY : 'dim3',    FG_KEY : DGREY, BG_KEY : None,  STYLE_KEY : None}
+    BRIGHT  = {NAME_KEY : 'bright',  FG_KEY : WHITE, BG_KEY : None,  STYLE_KEY : None}
+    ERROR   = {NAME_KEY : 'error',   FG_KEY : LRED,  BG_KEY : None,  STYLE_KEY : None}
+    WARNING = {NAME_KEY : 'warning', FG_KEY : YELLOW,BG_KEY : None,  STYLE_KEY : None}
+    INFO1   = {NAME_KEY : 'info1',   FG_KEY : GREEN, BG_KEY : None,  STYLE_KEY : None}
+    INFO2   = {NAME_KEY : 'info2',   FG_KEY : LBLUE, BG_KEY : None,  STYLE_KEY : None}
+    INFO3   = {NAME_KEY : 'info3',   FG_KEY : LMAGENTA,BG_KEY : None, STYLE_KEY : None}
+    PALETTE = [DEFAULT, DIM1, DIM2, DIM3, BRIGHT, ERROR, WARNING, INFO1, INFO2, INFO3]
 
 
     def _setPalette(self, identifier, fgcolour=None, bgcolour=None, style=None):

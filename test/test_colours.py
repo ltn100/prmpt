@@ -108,15 +108,15 @@ class ColourFunctionTests(UnitTestWrapper):
 class PaletteTests(UnitTestWrapper):
     def test_defaultPalette(self):
         c = prompty.colours.Colours(None)
-        self.assertEqual(c.startColour("pal_c1"), "\001\033[97m\002")
-        self.assertEqual(c.startColour("pal_a2"), "\001\033[33m\002")
-        self.assertEqual(c.startColour("pal_a3"), "\001\033[32m\002")
+        self.assertEqual(c.startColour("info1"), "\001\033[32m\002")
+        self.assertEqual(c.startColour("info2"), "\001\033[94m\002")
+        self.assertEqual(c.startColour("warning"), "\001\033[33m\002")
     
     def test_editPalette(self):
         c = prompty.colours.Colours(None)
-        c._setPalette("pal_a1", c.RED)
-        self.assertEqual(c.startColour("pal_a1"), "\001\033[31m\002")
-        c._setPalette("pal_a1", "123")
-        self.assertEqual(c.startColour("pal_a1"), "\001\033[38;5;123m\002")
+        c._setPalette("info1", c.RED)
+        self.assertEqual(c.startColour("info1"), "\001\033[31m\002")
+        c._setPalette("info1", "123")
+        self.assertEqual(c.startColour("info1"), "\001\033[38;5;123m\002")
         c._setPalette("mypal", c.GREEN)
         self.assertEqual(c.startColour("mypal"), "\001\033[32m\002")

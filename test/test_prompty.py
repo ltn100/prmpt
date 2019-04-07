@@ -242,6 +242,7 @@ from test_colours import *
 from test_functionContainer import *
 from test_functions import *
 from test_vcs import *
+from test_skel import *
 
 
 
