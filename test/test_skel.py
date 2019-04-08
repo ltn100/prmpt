@@ -11,7 +11,8 @@ class SkelTests(UnitTestWrapper):
 
     def test_skelFiles(self):
         print
-        files = [os.path.join("..", "skel", f) for f in os.listdir("../skel") if f.endswith(".prompty")]
+        test_dir = os.path.dirname(os.path.abspath(__file__))
+        files = [os.path.join(test_dir, "..", "skel", f) for f in os.listdir(os.path.join(test_dir, "..", "skel")) if f.endswith(".prompty")]
         for file in files:
             p = prompty.prompt.Prompt(prompty.status.Status())
             p.config.promptFile = file
