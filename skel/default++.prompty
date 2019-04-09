@@ -19,7 +19,13 @@
 \ifexpr{\isrealpath}{}{\space\warning{(!)}}
 \ifexpr{\isrepo}{
     \space
-    \ifexpr{\isrepodirty}{\startColour{error}} {\startColour{info1}}
+    \ifexpr{\isrepodirty}{\startColour{error}} {
+        \ifexpr{\behind}{\startColour{warning}}{
+            \ifexpr{\ahead}{\startColour{warning}}{
+                \startColour{info1}
+            }
+        }
+    }
         ( \repobranch )
     \stopColour
 
