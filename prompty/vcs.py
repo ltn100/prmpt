@@ -73,6 +73,8 @@ class VCSBase(object):
         self.installed = None
         self.isRepo = None
         self.commit = ""
+        self.last_fetched = 0
+        self.relative_root = ""
 
     @abc.abstractmethod
     def _runStatus(self):
@@ -142,3 +144,9 @@ class VCSFunctions(functionBase.PromptyFunctions):
 
     def untracked(self):
         return self.status.vcs.untracked
+
+    def last_fetched(self):
+        return self.status.vcs.last_fetched
+
+    def last_fetched_min(self):
+        return self.status.vcs.last_fetched / 60

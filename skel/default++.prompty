@@ -19,18 +19,17 @@
 \ifexpr{\isrealpath}{}{\space\warning{(!)}}
 \ifexpr{\isrepo}{
     \space
-    \ifexpr{\isrepodirty}{\startColour{error}} {
-        \ifexpr{\behind}{\startColour{warning}}{
-            \ifexpr{\ahead}{\startColour{warning}}{
-                \startColour{info1}
-            }
-        }
-    }
+    \ifexpr{\isrepodirty}{\startColour{error}} {\startColour{info1}}
         ( \repobranch )
     \stopColour
 
     \space
     \dim3{\opensquare}
+        \ifexpr{\gt{\last_fetched_min}{60}}{\startColour{warning}} {\startColour{dim3}}
+            \unichar{0x29D7}\last_fetched_min
+        \stopColour
+        \space
+
         \ifexpr{\behind}{\startColour{warning}} {\startColour{dim3}}
             \unichar{0x25be}\behind
         \stopColour
