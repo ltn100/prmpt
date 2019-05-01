@@ -136,16 +136,16 @@ class BaseFunctions(functionBase.PromptyFunctions):
         return a == b
 
     def max(self, a,b):
-        if a > b:
+        if float(a) > float(b):
             return a
         else:
             return b
 
     def gt(self, a,b):
-        return a > b
+        return float(a) > float(b)
 
     def lt(self, a,b):
-        return a < b
+        return float(a) < float(b)
 
     # ----- Control Functions --------
 
