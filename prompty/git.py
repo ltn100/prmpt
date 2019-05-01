@@ -2,6 +2,8 @@
 # vim:set softtabstop=4 shiftwidth=4 tabstop=4 expandtab:
 
 import vcs
+import os
+import time
 
 
 GIT_COMMAND="git"
@@ -17,7 +19,7 @@ class Git(vcs.VCSBase):
                 [self.command, "status", "--porcelain", "-b"]
             )
             (rstdout, rstderr, rreturncode) = self.runCommand(
-                [self.command, "rev-parse", "--verify", "--short", "HEAD"]
+                [self.command, "rev-parse", "--show-cdup", "--verify", "--short", "HEAD"]
             )
         except OSError:
             # Git command not found
@@ -49,7 +51,14 @@ class Git(vcs.VCSBase):
 
         if rreturncode == 0:
             # Successful git status call
-            self.commit = rstdout.strip()
+            self.relative_root, self.commit = rstdout.split('\n')[:-1]
+
+            if self.installed and self.isRepo:
+                self._run_get_last_fetch()
+
+    def _run_get_last_fetch(self):
+        self.last_fetched = int(time.time() - os.path.getmtime(os.path.join(self.relative_root, '.git/FETCH_HEAD')))
+
 
 
     def _git_status(self, result):

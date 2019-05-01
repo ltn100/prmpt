@@ -12,8 +12,23 @@ from test_prompty import prompty
 
 
 class GitTests(UnitTestWrapper):
+    @mock.patch('prompty.vcs.subprocess')
+    def test_init(self, mock_sp):
+        # Set up mock
+        status_output = (
+            "",
+            "git: command not found",
+            127,
+            OSError
+        )
+        revparse_output = (
+            "",
+            "git: command not found",
+            0,
+            None
+        )
+        mock_sp.Popen.side_effect = [MockProc(status_output), MockProc(revparse_output)]
 
-    def test_init(self):
         g = prompty.git.Git(prompty.status.Status(0))
         self.assertIsInstance(g, prompty.vcs.VCSBase)
         self.assertEquals(g.command, prompty.git.GIT_COMMAND)
@@ -21,13 +36,19 @@ class GitTests(UnitTestWrapper):
     @mock.patch('prompty.vcs.subprocess')
     def test_gitUnavailable(self, mock_sp):
         # Set up mock
-        output = (
+        status_output = (
             "",
             "git: command not found",
             127,
             OSError
         )
-        mock_sp.Popen.return_value = MockProc(output)
+        revparse_output = (
+            "",
+            "git: command not found",
+            0,
+            None
+        )
+        mock_sp.Popen.side_effect = [MockProc(status_output), MockProc(revparse_output)]
 
         g = prompty.git.Git(prompty.status.Status(0))
         self.assertEquals(False, g.installed)
@@ -41,13 +62,19 @@ class GitTests(UnitTestWrapper):
     @mock.patch('prompty.vcs.subprocess')
     def test_cleanRepo(self, mock_sp):
         # Set up mock
-        output = (
+        status_output = (
             "## develop...origin/develop\n",
             "",
             0,
             None
         )
-        mock_sp.Popen.return_value = MockProc(output)
+        revparse_output = (
+            "../\n1234567\n",
+            "",
+            0,
+            None
+        )
+        mock_sp.Popen.side_effect = [MockProc(status_output), MockProc(revparse_output)]
 
         g = prompty.git.Git(prompty.status.Status(0))
         self.assertEquals(True, g.installed)
@@ -57,11 +84,12 @@ class GitTests(UnitTestWrapper):
         self.assertEquals(0, g.staged)
         self.assertEquals(0, g.unmerged)
         self.assertEquals(0, g.untracked)
+        self.assertEquals("1234567", g.commit)
 
     @mock.patch('prompty.vcs.subprocess')
     def test_dirtyRepo(self, mock_sp):
         # Set up mock
-        output = (
+        status_output = (
             "## master...origin/master [ahead 14, behind 58]\n" +
             "M  bin/prompty\n" +
             " M prompty/prompt.py\n" +
@@ -72,7 +100,13 @@ class GitTests(UnitTestWrapper):
             0,
             None
         )
-        mock_sp.Popen.return_value = MockProc(output)
+        revparse_output = (
+            "../\n1234567\n",
+            "",
+            0,
+            None
+        )
+        mock_sp.Popen.side_effect = [MockProc(status_output), MockProc(revparse_output)]
 
         g = prompty.git.Git(prompty.status.Status(0))
         self.assertEquals(True, g.installed)
@@ -84,17 +118,24 @@ class GitTests(UnitTestWrapper):
         self.assertEquals(1, g.untracked)
         self.assertEquals(14, g.ahead)
         self.assertEquals(58, g.behind)
+        self.assertEquals("1234567", g.commit)
 
     @mock.patch('prompty.vcs.subprocess')
     def test_notARepo(self, mock_sp):
         # Set up mock
-        output = (
+        status_output = (
             "",
             "fatal: Not a git repository (or any of the parent directories): .git\n",
             128,
             None
         )
-        mock_sp.Popen.return_value = MockProc(output)
+        revparse_output = (
+            "../\n1234567\n",
+            "",
+            0,
+            None
+        )
+        mock_sp.Popen.side_effect = [MockProc(status_output), MockProc(revparse_output)]
 
         g = prompty.git.Git(prompty.status.Status(0))
         self.assertEquals(True, g.installed)
@@ -104,6 +145,27 @@ class GitTests(UnitTestWrapper):
         self.assertEquals(0, g.staged)
         self.assertEquals(0, g.unmerged)
         self.assertEquals(0, g.untracked)
+        self.assertEquals("1234567", g.commit)
+
+    @mock.patch('prompty.vcs.subprocess')
+    def test_last_fetched(self, mock_sp):
+        # Set up mock
+        status_output = (
+            "## develop...origin/develop\n",
+            "",
+            0,
+            None
+        )
+        revparse_output = (
+            "../\n1234567\n",
+            "",
+            0,
+            None
+        )
+        mock_sp.Popen.side_effect = [MockProc(status_output), MockProc(revparse_output)]
+        g = prompty.git.Git(prompty.status.Status(0))
+        self.assertGreaterEqual(g.last_fetched, 0)
+        self.assertEquals('1234567', g.commit)
 
 
 class SvnTests(UnitTestWrapper):
