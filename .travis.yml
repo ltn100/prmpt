@@ -13,6 +13,7 @@ script:
     - python setup.py sdist --verbose
     - cd dist
     - pip install -vvv prompty*.tar.gz
+    - git fetch
     - python  ../test/test_prompty.py
     - pip uninstall -y prompty
     - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then rm -f ../bin/promptyc; python -m coverage.__main__ run --source=../prompty,../test,../bin/prompty ../test/test_prompty.py; fi
