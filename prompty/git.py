@@ -57,7 +57,13 @@ class Git(vcs.VCSBase):
                 self._run_get_last_fetch()
 
     def _run_get_last_fetch(self):
-        self.last_fetched = int(time.time() - os.path.getmtime(os.path.join(self.relative_root, '.git/FETCH_HEAD')))
+        fetch_file = os.path.join(self.relative_root, '.git/FETCH_HEAD')
+        if not os.path.exists(fetch_file):
+            fetch_file = os.path.join(self.relative_root, '.git/HEAD')
+        if not os.path.exists(fetch_file):
+            self.last_fetched = 0
+        else:
+            self.last_fetched = int(time.time() - os.path.getmtime(fetch_file))
 
 
 
