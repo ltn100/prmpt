@@ -1,17 +1,21 @@
 #!/usr/bin/env python
 # vim:set softtabstop=4 shiftwidth=4 tabstop=4 expandtab:
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import os
-import ConfigParser
+from configparser import ConfigParser
+
 
 class Config(object):
     def __init__(self):
         self.promptString = ""
         self.configFile = None
         self.configDir = None
-        self.configParser = ConfigParser.SafeConfigParser()
+        self.configParser = ConfigParser()
         self.promptFile = None
-
 
     def load(self, filename):
         self.configFile = filename
@@ -28,6 +32,5 @@ class Config(object):
         self.loadPromptFile()
 
     def loadPromptFile(self):
-        with open (self.promptFile, "rb") as pFile:
+        with open(self.promptFile, "r") as pFile:
             self.promptString = pFile.read()
-
