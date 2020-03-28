@@ -1,15 +1,20 @@
 #!/usr/bin/env python
 # vim:set softtabstop=4 shiftwidth=4 tabstop=4 expandtab:
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import str
 
-import parser
-import colours
-import status
+from prompty import parser
+from prompty import colours
+from prompty import status
 
 
 class Compiler(object):
     """ Compiles and executes the parsed dictionary list output
     from the Parser.
-    
+
     Literals are output verbatim, or passed into functions for
     processing.
     """
@@ -57,10 +62,10 @@ class Compiler(object):
                         args.append(self._execute(optarg))
                 # Call the function!
                 try:
-                    out += self._move(unicode(self.funcs._call(*args)))
-                except ValueError, e:
+                    out += self._move(str(self.funcs._call(*args)))
+                except ValueError as e:
                     return "Prompty error on line %d: %s\n$ " % (element['lineno'], str(e))
-                except KeyError, e:
+                except KeyError as e:
                     return "Prompty error on line %d: No such function %s\n$ " % (element['lineno'], str(e))
 
         return out

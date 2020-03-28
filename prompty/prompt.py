@@ -1,16 +1,21 @@
 #!/usr/bin/env python
 # vim:set softtabstop=4 shiftwidth=4 tabstop=4 expandtab:
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
 # Import external modules
 
 
 # Import prompty modules
-import functionContainer
-import compiler
-import config
-import functions
-import colours
-import vcs
+from prompty import functionContainer
+from prompty import compiler
+from prompty import config
+from prompty import functions
+from prompty import colours
+from prompty import vcs
+
 
 class Prompt(object):
 
@@ -27,7 +32,6 @@ class Prompt(object):
         self.compiler = compiler.Compiler(self.funcs)
         self.config = config.Config()
         self.config.load(self.status.userDir.getConfigFile())
-
 
     def getPrompt(self):
         self.compiler.compile(self.config.promptString)

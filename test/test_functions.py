@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 # vim:set softtabstop=4 shiftwidth=4 tabstop=4 expandtab:
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import chr
 
 import sys
 import os
@@ -10,9 +15,9 @@ import shutil
 import getpass
 import mock
 
-from test_prompty import UnitTestWrapper
-from test_prompty import MockProc
-from test_prompty import prompty
+from test import prompty
+from test import MockProc
+from test import UnitTestWrapper
 
 
 class StandardFunctionTests(UnitTestWrapper):
@@ -68,7 +73,7 @@ class StandardFunctionTests(UnitTestWrapper):
         c = prompty.functionContainer.FunctionContainer()
         c.addFunctionsFromModule(prompty.functions)
         self.assertEqual(r"$", c._call("dollar"))
-        self.assertEqual(r"#", c._call("dollar",0))
+        self.assertEqual(r"#", c._call("dollar", 0))
 
     def test_specialChars(self):
         c = prompty.functionContainer.FunctionContainer()
@@ -93,7 +98,7 @@ class StandardFunctionTests(UnitTestWrapper):
         c.addFunctionsFromModule(prompty.functions)
         self.assertEqual('a', c._call("unichar", "97"))
         self.assertEqual('b', c._call("unichar", "0x62"))
-        self.assertEqual('c', c._call("unichar", "0143"))
+        self.assertEqual('c', c._call("unichar", "0o143"))
 
     def test_lower(self):
         c = prompty.functionContainer.FunctionContainer()
@@ -142,19 +147,19 @@ class StandardFunctionTests(UnitTestWrapper):
         c.addFunctionsFromModule(prompty.functions)
         c.addFunctionsFromModule(prompty.colours)
         self.assertIn("test", c._call("powerline", "test"))
-        self.assertIn(unichr(0xe0b0), c._call("powerline", "test"))
+        self.assertIn(chr(0xe0b0), c._call("powerline", "test"))
 
     def test_date(self):
         c = prompty.functionContainer.FunctionContainer()
         c.addFunctionsFromModule(prompty.functions)
-        self.assertTrue(bool(re.match(r"^[a-zA-z]+ [a-zA-z]+ [0-9]+$",c._call("date"))))
+        self.assertTrue(bool(re.match(r"^[a-zA-z]+ [a-zA-z]+ [0-9]+$", c._call("date"))))
 
     def test_datefmt(self):
         c = prompty.functionContainer.FunctionContainer()
         c.addFunctionsFromModule(prompty.functions)
-        self.assertTrue(bool(re.match(r"^[0-9:]+$",c._call("datefmt"))))
-        self.assertTrue(bool(re.match(r"^hello$",c._call("datefmt","hello"))))
-        self.assertTrue(bool(re.match(r"^[0-9]{2}$",c._call("datefmt","#d"))))
+        self.assertTrue(bool(re.match(r"^[0-9:]+$", c._call("datefmt"))))
+        self.assertTrue(bool(re.match(r"^hello$", c._call("datefmt", "hello"))))
+        self.assertTrue(bool(re.match(r"^[0-9]{2}$", c._call("datefmt", "#d"))))
 
     def test_isRealPath(self):
         origcwd = os.getcwd()
@@ -177,23 +182,23 @@ class ExpressionFunctionTests(UnitTestWrapper):
     def test_equal(self):
         c = prompty.functionContainer.FunctionContainer()
         c.addFunctionsFromModule(prompty.functions)
-        self.assertEqual(True, c._call("equals","1","1"))
+        self.assertEqual(True, c._call("equals", "1", "1"))
 
     def test_max(self):
         c = prompty.functionContainer.FunctionContainer()
         c.addFunctionsFromModule(prompty.functions)
-        self.assertEqual("2", c._call("max","2","1"))
-        self.assertEqual("1", c._call("max","1","1"))
-        self.assertEqual("2", c._call("max","1","2"))
+        self.assertEqual("2", c._call("max", "2", "1"))
+        self.assertEqual("1", c._call("max", "1", "1"))
+        self.assertEqual("2", c._call("max", "1", "2"))
 
     def test_if(self):
         c = prompty.functionContainer.FunctionContainer()
         c.addFunctionsFromModule(prompty.functions)
-        self.assertEqual("1", c._call("ifexpr","True","1","2"))
-        self.assertEqual("2", c._call("ifexpr","False","1","2"))
-        self.assertEqual("1", c._call("ifexpr","True","1"))
-        self.assertEqual("", c._call("ifexpr","0","1"))
-        self.assertEqual("1", c._call("ifexpr","1","1"))
+        self.assertEqual("1", c._call("ifexpr", "True", "1", "2"))
+        self.assertEqual("2", c._call("ifexpr", "False", "1", "2"))
+        self.assertEqual("1", c._call("ifexpr", "True", "1"))
+        self.assertEqual("", c._call("ifexpr", "0", "1"))
+        self.assertEqual("1", c._call("ifexpr", "1", "1"))
 
     def test_exitSuccess(self):
         c = prompty.functionContainer.FunctionContainer(prompty.status.Status(0))

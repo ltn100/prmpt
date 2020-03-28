@@ -1,12 +1,16 @@
 #!/usr/bin/env python
 # vim:set softtabstop=4 shiftwidth=4 tabstop=4 expandtab:
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
-import vcs
 import os
 import time
 
+from prompty import vcs
 
-GIT_COMMAND="git"
+GIT_COMMAND = "git"
 
 
 class Git(vcs.VCSBase):
@@ -65,8 +69,6 @@ class Git(vcs.VCSBase):
         else:
             self.last_fetched = int(time.time() - os.path.getmtime(fetch_file))
 
-
-
     def _git_status(self, result):
         """
         Originally taken from https://github.com/dreadatour/dotfiles
@@ -76,7 +78,7 @@ class Git(vcs.VCSBase):
         branch = remote_branch = ''
         staged = changed = untracked = unmerged = ahead = behind = 0
         for line in result.splitlines():
-            line = line.decode('utf-8')
+            line = line
             prefix = line[0:2]
             line = line[3:]
 
@@ -94,7 +96,6 @@ class Git(vcs.VCSBase):
 
         return (branch, remote_branch, staged, changed, untracked, unmerged,
                 ahead, behind)
-
 
     def _parse_git_branch(self, line):
         """
@@ -139,7 +140,6 @@ class Git(vcs.VCSBase):
 
         return branch, remote_branch, ahead, behind
 
-
     def _git_commit(self):
         """
         Originally taken from https://github.com/dreadatour/dotfiles
@@ -148,7 +148,6 @@ class Git(vcs.VCSBase):
         """
         git_cmd = [self.command, 'rev-parse', '--short', 'HEAD']
         return self.runCommand(git_cmd)[0].strip()
-
 
     def _git_tags(self):
         """

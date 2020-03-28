@@ -12,13 +12,14 @@ import os
 class PostBuild(build_py):
     def run(self):
         build_py.run(self)
-        print "compiling promptyc"
+        print("compiling promptyc")
         py_compile.compile('bin/prompty')
 
 
-setup(name='prompty',
-    # Must comply with http://legacy.python.org/dev/peps/pep-0440/#version-scheme
-    version='0.1rc1',
+setup(
+    name='prompty',
+    #  Must comply with http://legacy.python.org/dev/peps/pep-0440/#version-scheme
+    version='0.1rc2',
 
     description='A command line prompt markup language',
 
@@ -29,13 +30,15 @@ setup(name='prompty',
 
     packages=['prompty'],
 
-    scripts=['bin/prompty','bin/promptyc'],
+    scripts=['bin/prompty'],
 
     data_files=[
-        ('share/prompty/skel',
+        (
+            'share/prompty/skel',
             [f for f in glob.glob("skel/*") if os.path.isfile(f)]
         ),
-        ('share/prompty/skel/functions',
+        (
+            'share/prompty/skel/functions',
             [f for f in glob.glob("skel/functions/*") if os.path.isfile(f)]
         ),
     ],
@@ -44,5 +47,8 @@ setup(name='prompty',
         # Post build step
         'build_py': PostBuild,
     },
-)
 
+    install_requires=[
+        'future',
+    ],
+)

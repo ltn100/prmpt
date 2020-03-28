@@ -1,12 +1,16 @@
 #!/usr/bin/env python
 # vim:set softtabstop=4 shiftwidth=4 tabstop=4 expandtab:
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import os
 import subprocess
 
-import userdir
-import vcs
-import colours
+from prompty import userdir
+from prompty import vcs
+from prompty import colours
 
 
 class Coords(object):
@@ -37,7 +41,7 @@ class Coords(object):
     def resetColumn(self):
         self.column = 0
 
-    def set(self,other):
+    def set(self, other):
         self.column = other.column
         self.row = other.row
 
@@ -72,14 +76,14 @@ class Status(object):
         self.userDir = userdir.UserDir()
         self.euid = os.geteuid()
         self.vcs = vcs.VCS(self)
-        
+
         proc = subprocess.Popen(['stty', 'size'],
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE)
         stdout, _ = proc.communicate()
         if proc.returncode == 0:
             dims = stdout.split()
-            self.window = Coords(int(dims[1]),int(dims[0]))
+            self.window = Coords(int(dims[1]), int(dims[0]))
         else:
             self.window = Coords()
         self.pos = Coords()

@@ -1,10 +1,18 @@
 #!/usr/bin/env python
 # vim:set softtabstop=4 shiftwidth=4 tabstop=4 expandtab:
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import abc
+ABC = abc.ABCMeta(str('ABC'), (object,), {'__slots__': ()})  # noqa, compatible with Python 2 *and* 3
+
+from builtins import str
 import subprocess
 
-import functionBase
+from prompty import functionBase
+
 
 class VCS(object):
     """
@@ -24,9 +32,9 @@ class VCS(object):
         # types are tested. The first one found to be a valid repo
         # will halt all further searching, so put them in priority
         # order.
-        import git
+        from . import git
         self.vcsObjs.append(git.Git(self.status))
-        import svn
+        from . import svn
         self.vcsObjs.append(svn.Subversion(self.status))
 
     def __getattribute__(self, name):
@@ -37,8 +45,8 @@ class VCS(object):
         """
         if name in ["populateVCS", "vcsObjs", "ranStatus", "cwd", "currentVcsObj", "status"]:
             return object.__getattribute__(self, name)
-        
-        if not  self.ranStatus or self.cwd != self.status.getWorkingDir():
+
+        if not self.ranStatus or self.cwd != self.status.getWorkingDir():
             self.cwd = self.status.getWorkingDir()
             self.ranStatus = True
             for vcs in self.vcsObjs:
@@ -49,12 +57,10 @@ class VCS(object):
         return getattr(object.__getattribute__(self, "currentVcsObj"), name)
 
 
-
-class VCSBase(object):
+class VCSBase(ABC):
     """
     An abstract base class for VCS sub classes
     """
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def __init__(self, status, cmd):
@@ -107,7 +113,7 @@ class VCSBase(object):
                                 stderr=subprocess.PIPE,
                                 cwd=self.status.getWorkingDir())
         stdout, stderr = proc.communicate()
-        return stdout, stderr, proc.returncode
+        return stdout.decode('utf-8'), stderr.decode('utf-8'), proc.returncode
 
 
 # --------------------------
@@ -149,4 +155,4 @@ class VCSFunctions(functionBase.PromptyFunctions):
         return self.status.vcs.last_fetched
 
     def last_fetched_min(self):
-        return self.status.vcs.last_fetched / 60
+        return self.status.vcs.last_fetched // 60

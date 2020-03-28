@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 # vim:set softtabstop=4 shiftwidth=4 tabstop=4 expandtab:
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import datetime
-START = datetime.datetime.now()
+START = datetime.datetime.now()  # noqa
 
 # Import external modules
 import sys
@@ -9,7 +14,7 @@ import os
 import getopt
 
 # Add base directory to path so that it can find the prompty package
-sys.path[0:0] = [os.path.join(os.path.dirname(__file__), "..")]
+sys.path[0:0] = [os.path.join(os.path.dirname(__file__), "..")]  # noqa
 
 import prompty
 
@@ -18,6 +23,7 @@ USAGE = "Usage: %s [options]" % sys.argv[0] + """
 Options:     -h, --help      Display this help message and exit
 """
 
+
 def usage(msg=''):
     """Print usage information to stderr.
 
@@ -25,9 +31,8 @@ def usage(msg=''):
     @return: None
     """
     if msg:
-        print >> sys.stderr, msg
-    print >> sys.stderr, USAGE
-
+        print(msg, file=sys.stderr)
+    print(USAGE, file=sys.stderr)
 
 
 def main(argv=None):
@@ -43,12 +48,11 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-
     # Parse command line options
     try:
         opts, args = getopt.getopt(argv[1:], "hbcdpw:", ["help", "bash", "colours", "debug", "palette", "working-dir="])
-    except getopt.error, msg:
-        usage(msg)
+    except getopt.error as msg:
+        usage(msg.msg)
         return 1
 
     # Defaults
@@ -57,22 +61,22 @@ def main(argv=None):
 
     # Act upon options
     for option, arg in opts:
-        if option in ("-h","--help"):
+        if option in ("-h", "--help"):
             usage()
             return 0
 
         if option in ("-b", "--bash"):
-            print "export PS1=\"\\$(%s \\$?)\"" % sys.argv[0]
+            print("export PS1=\"\\$(%s \\$?)\"" % sys.argv[0])
             return 0
 
         if option in ("-c", "--colours"):
             c = prompty.colours.Colours(prompty.functionContainer.FunctionContainer())
             for style in c.STYLES:
                 for colour in c.COLOURS:
-                    print "%s%s : %s%s" % (c.startColour(colour, style=style, wrap=False),
+                    print("%s%s : %s%s" % (c.startColour(colour, style=style, wrap=False),
                                            style[c.NAME_KEY],
                                            colour[c.NAME_KEY],
-                                           c.stopColour(wrap=False))
+                                           c.stopColour(wrap=False)))
             return 0
 
         if option in ("-d", "--debug"):
@@ -81,13 +85,16 @@ def main(argv=None):
         if option in ("-p", "--palette"):
             c = prompty.colours.Colours(prompty.functionContainer.FunctionContainer())
             for colour in c.PALETTE:
-                print "%s%s%s" % (c.startColour(
-                                                    fgcolour=colour[c.FG_KEY],
-                                                    bgcolour=colour[c.BG_KEY],
-                                                    style=colour[c.STYLE_KEY],
-                                                    wrap=False),
-                                       colour[c.NAME_KEY],
-                                       c.stopColour(wrap=False))
+                print("%s%s%s" % (
+                    c.startColour(
+                        fgcolour=colour[c.FG_KEY],
+                        bgcolour=colour[c.BG_KEY],
+                        style=colour[c.STYLE_KEY],
+                        wrap=False
+                    ),
+                    colour[c.NAME_KEY],
+                    c.stopColour(wrap=False))
+                )
             return 0
 
         if option in ("-w", "--working-dir"):
@@ -104,22 +111,20 @@ def main(argv=None):
     p = prompty.prompt.Prompt(s)
 
     # Encode unicode to UTF-8 for terminal printing
-    prompt = p.getPrompt().encode("utf8")
+    prompt = p.getPrompt()
 
     if debug:
         elapsed = datetime.datetime.now() - START
-        sys.stdout.write("%d\n"% (elapsed.total_seconds()*1000))
+        sys.stdout.write("%d\n" % (elapsed.total_seconds()*1000))
 
     sys.stdout.write(prompt)
 
     return exitStatus
 
 
-
-
-#---------------------------------------------------------------------------#
-#                          End of functions                                 #
-#---------------------------------------------------------------------------#
+# ---------------------------------------------------------------------------#
+#                           End of functions                                 #
+# ---------------------------------------------------------------------------#
 # Run main if this file is not imported as a module
 if __name__ == "__main__":
     sys.exit(main())
