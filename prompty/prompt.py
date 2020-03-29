@@ -35,4 +35,6 @@ class Prompt(object):
 
     def getPrompt(self):
         self.compiler.compile(self.config.promptString)
-        return self.compiler.execute()
+        output = self.compiler.execute()
+        output.encode("utf-8")
+        return output

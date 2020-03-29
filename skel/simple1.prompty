@@ -1,0 +1,33 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% A simple 1-line prompt script
+%
+% vim: set filetype=tex:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\info1{
+    \user
+}
+\default{
+    @
+}
+\bright{
+    \hostname
+}
+\space
+\info2{
+    \workingdir
+}
+\ifexpr{\isrepo}{
+    \space
+    \ifexpr{\isrepodirty}{
+        \error{( \repobranch )}
+    }{
+        \info1{( \repobranch )}
+    }
+}{}
+\space
+\ifexpr{\exitsuccess}{
+    \green[bold]{\dollar}
+}{
+    \red[bold]{\dollar}
+}
+\space

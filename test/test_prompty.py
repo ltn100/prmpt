@@ -69,9 +69,6 @@ class MainTests(UnitTestWrapper):
         with captured_output() as (out, err):
             ret = prompty_bin.main(argv)
 
-        val = err.getvalue()
-        print(val)
-
         self.assertGreater(len(out.getvalue()), 0)
         self.assertEqual(len(err.getvalue()), 0)
         self.assertEqual(ret, 1)
@@ -162,6 +159,7 @@ class UserDirTests(UnitTestWrapper):
 
     def test_initialiseExitst(self):
         tmpDir = tempfile.mkdtemp()
+        os.makedirs(os.path.dirname(os.path.join(tmpDir, prompty.userdir.PROMPTY_USER_DIR)))
         # Create .prompty file in the way
         open(os.path.join(tmpDir, prompty.userdir.PROMPTY_USER_DIR), 'a').close()
         self.assertRaises(IOError, prompty.userdir.UserDir, tmpDir)
