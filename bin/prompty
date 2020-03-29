@@ -50,7 +50,9 @@ def main(argv=None):
 
     # Parse command line options
     try:
-        opts, args = getopt.getopt(argv[1:], "hbcdpw:", ["help", "bash", "colours", "debug", "palette", "working-dir="])
+        opts, args = getopt.getopt(argv[1:], "hbcdpw:v", [
+            "help", "bash", "colours", "debug", "palette", "working-dir=", "version"
+        ])
     except getopt.error as msg:
         usage(msg.msg)
         return 1
@@ -65,8 +67,9 @@ def main(argv=None):
             usage()
             return 0
 
-        if option in ("-b", "--bash"):
-            print("export PS1=\"\\$(%s \\$?)\"" % sys.argv[0])
+        if option in ("-b", "--bashrc"):
+            abs_path = os.path.abspath(sys.argv[0])
+            print("export PS1=\"\\$(%s \\$?)\"" % abs_path)
             return 0
 
         if option in ("-c", "--colours"):
@@ -100,6 +103,10 @@ def main(argv=None):
         if option in ("-w", "--working-dir"):
             workingDir = arg
 
+        if option in ("-v", "--version"):
+            print(prompty.__version__)
+            return 0
+
     if len(args) < 1:
         usage("Not enough arguments")
         return 1
@@ -110,7 +117,6 @@ def main(argv=None):
 
     p = prompty.prompt.Prompt(s)
 
-    # Encode unicode to UTF-8 for terminal printing
     prompt = p.getPrompt()
 
     if debug:
