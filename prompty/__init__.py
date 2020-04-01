@@ -2,7 +2,7 @@
 # vim:set softtabstop=4 shiftwidth=4 tabstop=4 expandtab:
 
 #  Must comply with http://legacy.python.org/dev/peps/pep-0440/#version-scheme
-__version__ = "0.2rc8"
+__version__ = "0.2.1"
 
 from . import prompt
 from . import functions
