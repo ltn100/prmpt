@@ -4,11 +4,12 @@ Prompty [![Build Status](https://travis-ci.org/ltn100/prompty.svg?branch=develop
 
 Prompty is a [command prompt](https://en.wikipedia.org/wiki/Command-line_interface#Command_prompt) [markup language](https://en.wikipedia.org/wiki/Markup_language).
 
-The language is loosely modelled on the [LaTeX](https://en.wikipedia.org/wiki/LaTeX) markup language for typesetting.
+The language is loosely modelled on the [LaTeX](https://en.wikipedia.org/wiki/LaTeX) markup language, used for typesetting.
 
-Here is an example of the sort of interative command prompt that can be built with prompty:
+Here is an example of the sort of interactive command prompt that can be built using prompty:
 
 ![prompty demonstration](./img/demo.gif)
+
 
 # Installation
 
@@ -29,8 +30,10 @@ Now re-source your updated `.bashrc` file:
 ```bash
 source ~/.bashrc
 ```
+(alternatively you can restart your shell session)
 
-> Note: If you get an error like "`bash: prompty: command not found`", it is probably because you installed it locally (without `sudo`). This is fine, but you will need to call the prompty executable from its local path:
+
+> **Tip:** If you get an error like "`bash: prompty: command not found`", it is probably because you installed it locally, as a non-root user (without `sudo`). This is fine, but you will need to call the prompty executable from its local path:
 >
 > `~/.local/bin/prompty -b >> ~/.bashrc`
 
@@ -46,11 +49,12 @@ prompt_file = default.prompty
 
 The `prompt_file` variable specifies which prompty file is currently in use. The prompty files are located in `~/.local/share/prompty/`. You can change the configuration to use one of the pre-defined ones, or write your own.
 
+
 # Examples
 
 ## Simple example
 
-You can define a simple `.prompt` file like this:
+You can define a simple `.prompty` file like this:
 
 ```TeX
 \green{\user}\space
@@ -60,7 +64,7 @@ You can define a simple `.prompt` file like this:
 \green[bold]{\unichar{0x27a5}}\space
 ```
 
-And your prompt will look like this:
+And your prompt will end up looking like this:
 
 ![example](./img/example1.gif)
 
@@ -99,13 +103,24 @@ Here is a verbose example with comments to explain the syntax used:
 \dollar\space
 ```
 
-This prompty script will acheve the following prompt:
+This prompty script will achieve the following prompt:
 
 ![example](./img/example2.gif)
 
+
 ## More
 
+[`elite.prompty`](./skel/elite.prompty):
+
+![elite](./img/elite.png)
+
+
+[`red.prompty`](./skel/red.prompty):
+
+![red](./img/red.png)
+
 For a more elaborate example, see [`~/.local/share/prompty/default.prompty`](./skel/default.prompty) (this is the one used for the animation at the top of this page).
+
 
 # Documentation
 
