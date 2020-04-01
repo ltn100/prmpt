@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 # vim:set softtabstop=4 shiftwidth=4 tabstop=4 expandtab:
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import types
+
 
 def getmembers(obj, predicate=None):
     """ ** Extracted from inspect module for optimisation purposes **
@@ -15,15 +20,16 @@ def getmembers(obj, predicate=None):
             continue
         if not predicate or predicate(value):
             results.append((key, value))
-    
+
     results.sort()
     return results
 
+
 def isfunction(obj):
     """ ** Extracted from inspect module for optimisation purposes **
-    
+
     Return true if the object is a user-defined function.
-    
+
     Function objects provide these attributes:
     __doc__         documentation string
     __name__        name with which this function was defined
@@ -33,6 +39,7 @@ def isfunction(obj):
     func_globals    global namespace in which this function was defined
     func_name       (same as __name__)"""
     return isinstance(obj, types.FunctionType)
+
 
 def ismethod(obj):
     """ ** Extracted from inspect module for optimisation purposes **
@@ -47,6 +54,7 @@ def ismethod(obj):
         im_self         instance to which this method is bound, or None"""
     return isinstance(obj, types.MethodType)
 
+
 def isclass(obj):
     """ ** Extracted from inspect module for optimisation purposes **
 
@@ -55,7 +63,7 @@ def isclass(obj):
     Class objects provide these attributes:
         __doc__         documentation string
         __module__      name of module in which this class was defined"""
-    return isinstance(obj, (type, types.ClassType))
+    return isinstance(obj, type)
 
 
 class PromptyFunctions(object):
@@ -74,3 +82,6 @@ class PromptyFunctions(object):
         for name, func in getmembers(self, ismethod):
             if name[0] != "_":
                 self.functions.addFunction(name, func)
+
+    def call(self, func, *args, **kwargs):
+        return self.functions._call(func, *args, **kwargs)

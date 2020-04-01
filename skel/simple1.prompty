@@ -1,30 +1,33 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% This is the default prompt for prompty
+% A simple 1-line prompt script
 %
 % vim: set filetype=tex:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\pal_a3{
+\info1{
     \user
 }
-\pal_c2{
+\default{
     @
 }
-\pal_c1{
+\bright{
     \hostname
 }
 \space
-\pal_a4{
+\info2{
     \workingdir
 }
-\ifexpr{\isrealpath}{}{\space\pal_a1{(!)}}
 \ifexpr{\isrepo}{
     \space
     \ifexpr{\isrepodirty}{
-        \pal_a1{( \repobranch )}
+        \error{( \repobranch )}
     }{
-        \pal_a2{( \repobranch )}
+        \info1{( \repobranch )}
     }
 }{}
-\newline
-\smiley
+\space
+\ifexpr{\exitsuccess}{
+    \green[bold]{\dollar}
+}{
+    \red[bold]{\dollar}
+}
 \space

@@ -1,22 +1,32 @@
 #!/usr/bin/env python
 # vim:set softtabstop=4 shiftwidth=4 tabstop=4 expandtab:
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import datetime
-START = datetime.datetime.now()
+START = datetime.datetime.now()  # noqa
 
 # Import external modules
 import sys
 import os
 import getopt
+import codecs
 
 # Add base directory to path so that it can find the prompty package
-sys.path[0:0] = [os.path.join(os.path.dirname(__file__), "..")]
+sys.path[0:0] = [os.path.join(os.path.dirname(__file__), "..")]  # noqa
 
 import prompty
 
+# Overload sys.stdout to support unicode
+UTF8Writer = codecs.getwriter('utf-8')
+sys.stdout = UTF8Writer(sys.stdout)
 
 USAGE = "Usage: %s [options]" % sys.argv[0] + """
 Options:     -h, --help      Display this help message and exit
 """
+
 
 def usage(msg=''):
     """Print usage information to stderr.
@@ -25,9 +35,8 @@ def usage(msg=''):
     @return: None
     """
     if msg:
-        print >> sys.stderr, msg
-    print >> sys.stderr, USAGE
-
+        print(msg, file=sys.stderr)
+    print(USAGE, file=sys.stderr)
 
 
 def main(argv=None):
@@ -43,12 +52,13 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-
     # Parse command line options
     try:
-        opts, args = getopt.getopt(argv[1:], "hbcdpw:", ["help", "bash", "colours", "debug", "palette", "working-dir="])
-    except getopt.error, msg:
-        usage(msg)
+        opts, args = getopt.getopt(argv[1:], "hbcdpw:v", [
+            "help", "bash", "colours", "debug", "palette", "working-dir=", "version"
+        ])
+    except getopt.error as msg:
+        usage(msg.msg)
         return 1
 
     # Defaults
@@ -57,40 +67,49 @@ def main(argv=None):
 
     # Act upon options
     for option, arg in opts:
-        if option in ("-h","--help"):
+        if option in ("-h", "--help"):
             usage()
             return 0
 
-        if option in ("-b", "--bash"):
-            print "export PS1=\"\\$(%s \\$?)\"" % sys.argv[0]
+        if option in ("-b", "--bashrc"):
+            abs_path = os.path.abspath(sys.argv[0])
+            print("export PS1=\"\\$(%s \\$?)\"" % abs_path)
             return 0
 
         if option in ("-c", "--colours"):
-            for style in prompty.colours.STYLES:
-                for colour in prompty.colours.COLOURS:
-                    print "%s%s : %s%s" % (prompty.colours.startColour(None, colour, style=style, wrap=False), 
-                                           style[prompty.colours.NAME_KEY], 
-                                           colour[prompty.colours.NAME_KEY], 
-                                           prompty.colours.stopColour(None, wrap=False))
+            c = prompty.colours.Colours(prompty.functionContainer.FunctionContainer())
+            for style in c.STYLES:
+                for colour in c.COLOURS:
+                    print("%s%s : %s%s" % (c.startColour(colour, style=style, wrap=False),
+                                           style[c.NAME_KEY],
+                                           colour[c.NAME_KEY],
+                                           c.stopColour(wrap=False)))
             return 0
 
         if option in ("-d", "--debug"):
             debug = True
 
         if option in ("-p", "--palette"):
-            for colour in prompty.colours.PALETTE:
-                print "%s%s%s" % (prompty.colours.startColour(
-                                                    None,
-                                                    fgcolour=colour[prompty.colours.FG_KEY],
-                                                    bgcolour=colour[prompty.colours.BG_KEY],
-                                                    style=colour[prompty.colours.STYLE_KEY],
-                                                    wrap=False),
-                                       colour[prompty.colours.NAME_KEY],
-                                       prompty.colours.stopColour(None, wrap=False))
+            c = prompty.colours.Colours(prompty.functionContainer.FunctionContainer())
+            for colour in c.PALETTE:
+                print("%s%s%s" % (
+                    c.startColour(
+                        fgcolour=colour[c.FG_KEY],
+                        bgcolour=colour[c.BG_KEY],
+                        style=colour[c.STYLE_KEY],
+                        wrap=False
+                    ),
+                    colour[c.NAME_KEY],
+                    c.stopColour(wrap=False))
+                )
             return 0
 
         if option in ("-w", "--working-dir"):
             workingDir = arg
+
+        if option in ("-v", "--version"):
+            print(prompty.__version__)
+            return 0
 
     if len(args) < 1:
         usage("Not enough arguments")
@@ -102,23 +121,20 @@ def main(argv=None):
 
     p = prompty.prompt.Prompt(s)
 
-    # Encode unicode to UTF-8 for terminal printing
-    prompt = p.getPrompt().encode("utf8")
+    prompt = p.getPrompt()
 
     if debug:
         elapsed = datetime.datetime.now() - START
-        sys.stdout.write("%d\n"% (elapsed.total_seconds()*1000))
+        sys.stdout.write("%d\n" % (elapsed.total_seconds()*1000))
 
     sys.stdout.write(prompt)
 
     return exitStatus
 
 
-
-
-#---------------------------------------------------------------------------#
-#                          End of functions                                 #
-#---------------------------------------------------------------------------#
+# ---------------------------------------------------------------------------#
+#                           End of functions                                 #
+# ---------------------------------------------------------------------------#
 # Run main if this file is not imported as a module
 if __name__ == "__main__":
     sys.exit(main())

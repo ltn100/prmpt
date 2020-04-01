@@ -16,15 +16,19 @@
 # see: https://github.com/ltn100/python-make        #
 #####################################################
 PYTHON	?= python
+TWINE	?= twine
 SETUP	:= setup.py
 
 .PHONY: all
 all: build
 
-# Simple pass-through targets
-.PHONY: build sdist bdist rpm
-build sdist bdist rpm:
-	$(PYTHON) $(SETUP) $@
+.PHONY: build
+build:
+	$(PYTHON) $(SETUP) sdist bdist_wheel
+
+.PHONY: upload
+upload: clean build
+	$(TWINE) $@ dist/*
 
 # Pass-through targets dependant on 'build' target
 .PHONY: install test

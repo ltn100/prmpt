@@ -1,13 +1,18 @@
 #!/usr/bin/env python
 # vim:set softtabstop=4 shiftwidth=4 tabstop=4 expandtab:
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
-import os
 import abc
+ABC = abc.ABCMeta(str('ABC'), (object,), {'__slots__': ()})  # noqa, compatible with Python 2 *and* 3
+
+from builtins import str
 import subprocess
 
-import status
+from prompty import functionBase
 
-import functionBase
 
 class VCS(object):
     """
@@ -27,9 +32,9 @@ class VCS(object):
         # types are tested. The first one found to be a valid repo
         # will halt all further searching, so put them in priority
         # order.
-        import git
+        from . import git
         self.vcsObjs.append(git.Git(self.status))
-        import svn
+        from . import svn
         self.vcsObjs.append(svn.Subversion(self.status))
 
     def __getattribute__(self, name):
@@ -40,8 +45,8 @@ class VCS(object):
         """
         if name in ["populateVCS", "vcsObjs", "ranStatus", "cwd", "currentVcsObj", "status"]:
             return object.__getattribute__(self, name)
-        
-        if not  self.ranStatus or self.cwd != self.status.getWorkingDir():
+
+        if not self.ranStatus or self.cwd != self.status.getWorkingDir():
             self.cwd = self.status.getWorkingDir()
             self.ranStatus = True
             for vcs in self.vcsObjs:
@@ -52,13 +57,11 @@ class VCS(object):
         return getattr(object.__getattribute__(self, "currentVcsObj"), name)
 
 
-
-class VCSBase(object):
+class VCSBase(ABC):
     """
     An abstract base class for VCS sub classes
     """
-    __metaclass__ = abc.ABCMeta
-    
+
     @abc.abstractmethod
     def __init__(self, status, cmd):
         self.status = status
@@ -75,6 +78,9 @@ class VCSBase(object):
         self.behind = 0
         self.installed = None
         self.isRepo = None
+        self.commit = ""
+        self.last_fetched = 0
+        self.relative_root = ""
 
     @abc.abstractmethod
     def _runStatus(self):
@@ -100,14 +106,14 @@ class VCSBase(object):
             self._runStatus()
         return object.__getattribute__(self, name)
 
-    def runCommand(self, cmdList, workingDir=None):
+    def runCommand(self, cmdList):
         # Raises OSError if command doesn't exist
         proc = subprocess.Popen(cmdList,
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE,
                                 cwd=self.status.getWorkingDir())
         stdout, stderr = proc.communicate()
-        return stdout, stderr, proc.returncode
+        return stdout.decode('utf-8'), stderr.decode('utf-8'), proc.returncode
 
 
 # --------------------------
@@ -126,3 +132,27 @@ class VCSFunctions(functionBase.PromptyFunctions):
             return True
         else:
             return False
+
+    def ahead(self):
+        return self.status.vcs.ahead
+
+    def behind(self):
+        return self.status.vcs.behind
+
+    def commit(self):
+        return self.status.vcs.commit
+
+    def staged(self):
+        return self.status.vcs.staged
+
+    def changed(self):
+        return self.status.vcs.changed
+
+    def untracked(self):
+        return self.status.vcs.untracked
+
+    def last_fetched(self):
+        return self.status.vcs.last_fetched
+
+    def last_fetched_min(self):
+        return self.status.vcs.last_fetched // 60

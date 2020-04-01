@@ -1,10 +1,16 @@
 #!/usr/bin/env python
 # vim:set softtabstop=4 shiftwidth=4 tabstop=4 expandtab:
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
-import vcs
+import os
+import time
 
+from prompty import vcs
 
-GIT_COMMAND="git"
+GIT_COMMAND = "git"
 
 
 class Git(vcs.VCSBase):
@@ -15,6 +21,9 @@ class Git(vcs.VCSBase):
         try:
             (stdout, stderr, returncode) = self.runCommand(
                 [self.command, "status", "--porcelain", "-b"]
+            )
+            (rstdout, rstderr, rreturncode) = self.runCommand(
+                [self.command, "rev-parse", "--show-cdup", "--verify", "--short", "HEAD"]
             )
         except OSError:
             # Git command not found
@@ -44,6 +53,21 @@ class Git(vcs.VCSBase):
                 self.installed = False
                 self.isRepo = False
 
+        if rreturncode == 0:
+            # Successful git status call
+            self.relative_root, self.commit = rstdout.split('\n')[:-1]
+
+            if self.installed and self.isRepo:
+                self._run_get_last_fetch()
+
+    def _run_get_last_fetch(self):
+        fetch_file = os.path.join(self.relative_root, '.git/FETCH_HEAD')
+        if not os.path.exists(fetch_file):
+            fetch_file = os.path.join(self.relative_root, '.git/HEAD')
+        if not os.path.exists(fetch_file):
+            self.last_fetched = 0
+        else:
+            self.last_fetched = int(time.time() - os.path.getmtime(fetch_file))
 
     def _git_status(self, result):
         """
@@ -54,7 +78,7 @@ class Git(vcs.VCSBase):
         branch = remote_branch = ''
         staged = changed = untracked = unmerged = ahead = behind = 0
         for line in result.splitlines():
-            line = line.decode('utf-8')
+            line = line
             prefix = line[0:2]
             line = line[3:]
 
@@ -72,7 +96,6 @@ class Git(vcs.VCSBase):
 
         return (branch, remote_branch, staged, changed, untracked, unmerged,
                 ahead, behind)
-
 
     def _parse_git_branch(self, line):
         """
@@ -109,14 +132,13 @@ class Git(vcs.VCSBase):
                 ahead_behind = ahead_behind[1:-1]
                 for state in ahead_behind.split(', '):
                     if state.startswith('ahead '):
-                        ahead = state[6:]
+                        ahead = int(state[6:])
                     elif state.startswith('behind '):
-                        behind = state[7:]
+                        behind = int(state[7:])
         else:
             branch = line
 
         return branch, remote_branch, ahead, behind
-
 
     def _git_commit(self):
         """
@@ -126,7 +148,6 @@ class Git(vcs.VCSBase):
         """
         git_cmd = [self.command, 'rev-parse', '--short', 'HEAD']
         return self.runCommand(git_cmd)[0].strip()
-
 
     def _git_tags(self):
         """

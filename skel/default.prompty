@@ -3,31 +3,67 @@
 %
 % vim: set filetype=tex:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\pal_a3{
+\info1{
     \user
 }
-\pal_c2{
+\default{
     @
 }
-\pal_c1{
+\bright{
     \hostname
 }
 \space
-\pal_a4{
+\info2{
     \workingdir
 }
+\ifexpr{\isrealpath}{}{\space\warning{(!)}}
 \ifexpr{\isrepo}{
     \space
-    \ifexpr{\isrepodirty}{
-        \pal_a1{( \repobranch )}
-    }{
-        \pal_a2{( \repobranch )}
+    \ifexpr{\isrepodirty}{\startColour{error}} {
+        \ifexpr{\behind}{\startColour{warning}}{
+            \ifexpr{\ahead}{\startColour{warning}}{
+                \startColour{info1}
+            }
+        }
     }
+        ( \repobranch )
+    \stopColour
+
+    \space
+    \dim3{\opensquare}
+        \ifexpr{\gt{\last_fetched_min}{60}}{\startColour{warning}} {\startColour{dim3}}
+            \unichar{0x29D7}\space\last_fetched_min
+        \stopColour
+        \space
+
+        \ifexpr{\behind}{\startColour{warning}} {\startColour{dim3}}
+            \unichar{0x25be}\behind
+        \stopColour
+        \space
+
+        \dim3{# \commit}
+        \space
+
+        \ifexpr{\ahead}{\startColour{warning}} {\startColour{dim3}}
+            \unichar{0x25b4}\ahead
+        \stopColour
+        \space
+
+        \ifexpr{\staged}{\startColour{warning}} {\startColour{dim3}}
+            \unichar{0x2714}\space\staged
+        \stopColour
+        \space
+
+        \ifexpr{\changed}{\startColour{warning}} {\startColour{dim3}}
+            \unichar{0x270e}\space\changed
+        \stopColour
+        \space
+
+        \ifexpr{\untracked}{\startColour{warning}} {\startColour{dim3}}
+            ?\untracked
+        \stopColour
+    \dim3{\closesquare}
 }{}
-\space
-\ifexpr{\exitsuccess}{
-    \green[bold]{\dollar}
-}{
-    \red[bold]{\dollar}
-}
+\newline
+\smiley
 \space

@@ -1,22 +1,31 @@
 language: python
 
 python:
-  - "2.6"
   - "2.7"
-#  - "3.2"
-#  - "3.3"
+  - "3.4"
+  - "3.5"
+  - "3.6"
+  - "3.7"
+  - "3.8"
 
 install:
     - pip install coverage
     - pip install coveralls
+    - pip install future
+    - pip install mock
+    - pip install configparser
+    - pip install pytest
 
 script:
+    - git fetch
+    - python -m pytest
     - python setup.py sdist --verbose
     - cd dist
     - pip install -vvv prompty*.tar.gz
-    - python  ../test/test_prompty.py
     - pip uninstall -y prompty
-    - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then cd ..; rm -f bin/promptyc; python -m coverage.__main__ run --source=prompty,test,bin/prompty test/test_prompty.py; fi
+    - cd ..
+    - rm -f bin/promptyc
+    - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then python -m coverage.__main__ run --source=prompty,test,bin/prompty -m pytest; fi
     - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then python -m coverage.__main__ report; fi
 
 after_success:
@@ -25,3 +34,5 @@ after_success:
 branches:
   only:
     - master
+    - develop
+    - feature/.*

@@ -1,11 +1,17 @@
 #!/usr/bin/env python
 # vim:set softtabstop=4 shiftwidth=4 tabstop=4 expandtab:
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
-import vcs
 import re
 import xml.dom.minidom
+from xml.parsers.expat import ExpatError
 
-SVN_COMMAND="svn"
+from prompty import vcs
+
+SVN_COMMAND = "svn"
 
 
 class Subversion(vcs.VCSBase):
@@ -15,10 +21,10 @@ class Subversion(vcs.VCSBase):
 
     def _runStatus(self):
         try:
-            (istdout, istderr, ireturncode) = self.runCommand(
+            (istdout, istderr, _) = self.runCommand(
                 [self.command, "info", "--xml"]
             )
-            (sstdout, sstderr, sreturncode) = self.runCommand(
+            (sstdout, sstderr, _) = self.runCommand(
                 [self.command, "status"]
             )
         except OSError:
@@ -40,16 +46,15 @@ class Subversion(vcs.VCSBase):
                 # Some other error?
                 self.installed = False
                 self.isRepo = False
-        
+
         if not sstderr:
             # Successful svn status call
             self._parse_status(sstdout)
 
-
     def _parse_info_xml(self, xml_string):
         """Parse the return string from a 'svn info --xml' command
         Example string
-        
+
         <?xml version="1.0" encoding="UTF-8"?>
         <info>
             <entry
@@ -74,23 +79,22 @@ class Subversion(vcs.VCSBase):
         """
         try:
             info = xml.dom.minidom.parseString(xml_string.strip())
-        except:
+        except ExpatError:
             # Error parsing xml
             return
-        
+
         self.isRepo = True
-        
+
         entry = info.documentElement.getElementsByTagName("entry")[0]
 
         branch = entry.getElementsByTagName("relative-url")[0].childNodes[0].data
-        b = re.search('[\^]?/([^/]*)/?([^/]*)?', branch)
+        b = re.search(r'[\^]?/([^/]*)/?([^/]*)', branch)
         if b:
             self.branch = b.group(1)
             if self.branch in ["branches", "tags"]:
                 self.branch += "/" + b.group(2)
 
         self.remotebranch = self.branch
-
 
     def _parse_status(self, status_string):
         """Parse the return string from a 'svn status' command
@@ -100,7 +104,6 @@ class Subversion(vcs.VCSBase):
             # denote the status
             if len(line) >= 7:
                 self._parse_status_line(line[:7])
-
 
     def _parse_status_line(self, line):
         """From svn help page:
@@ -116,10 +119,8 @@ class Subversion(vcs.VCSBase):
           '!' item is missing (removed by non-svn command) or incomplete
           '~' versioned item obstructed by some item of a different kind
         """
-        if line[0] in ('M', 'A', 'D', 'R', 'C', '!', '~'): # changes in work tree
+        if line[0] in ('M', 'A', 'D', 'R', 'C', '!', '~'):  # changes in work tree
             self.changed += 1
 
-        if line[0] in ('?', 'I'): # untracked files
+        if line[0] in ('?', 'I'):  # untracked files
             self.untracked += 1
-
-

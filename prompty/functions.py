@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 # vim:set softtabstop=4 shiftwidth=4 tabstop=4 expandtab:
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+from builtins import str
+from builtins import chr
 
 # Import external modules
 import os
@@ -8,9 +14,8 @@ import getpass
 import socket
 import datetime
 import random
-import types
 
-import functionBase
+from . import functionBase
 
 
 #            TO DO:
@@ -29,15 +34,11 @@ import functionBase
 #               \#     the command number of this command
 
 
-
-import colours
-
-
 class BaseFunctions(functionBase.PromptyFunctions):
     # ----- Special Characters --------
     # \e
     def unichar(self, code):
-        return unichr(int(code,0))
+        return chr(int(code, 0))
 
     # \\
     def backslash(self):
@@ -71,12 +72,11 @@ class BaseFunctions(functionBase.PromptyFunctions):
 
     # \e
     def escape(self):
-        return unicode("\033")
-
+        return str("\033")
 
     # ----- Bash Prompt Functions --------
     # \D
-    def datefmt(self,fmt=None):
+    def datefmt(self, fmt=None):
         now = datetime.datetime.now()
         if fmt:
             fmt = fmt.replace('#', '%')
@@ -115,9 +115,9 @@ class BaseFunctions(functionBase.PromptyFunctions):
         if euid is None:
             euid = self.status.euid
         if int(euid) == 0:
-            return unicode(r"#")
+            return str(r"#")
         else:
-            return unicode(r"$")
+            return str(r"$")
 
     def isrealpath(self, path=None):
         if path is None:
@@ -127,50 +127,51 @@ class BaseFunctions(functionBase.PromptyFunctions):
         else:
             return False
 
-
     # ----- Expression Functions --------
-
     def exitsuccess(self):
         if self.status.exitCode == 0:
             return True
         else:
             return False
 
-    def equals(self, a,b):
+    def equals(self, a, b):
         return a == b
 
-    def greater(self, a,b):
-        if a > b:
+    def max(self, a, b):
+        if float(a) > float(b):
             return a
         else:
             return b
 
+    def gt(self, a, b):
+        return float(a) > float(b)
+
+    def lt(self, a, b):
+        return float(a) < float(b)
 
     # ----- Control Functions --------
 
-    def ifexpr(self, cond,thenval,elseval=None):
+    def ifexpr(self, cond, thenval, elseval=None):
         if _tobool(cond):
             return thenval
         else:
             if elseval:
                 return elseval
             else:
-                return unicode("")
-
+                return str("")
 
     # ----- String Functions --------
-
     def lower(self, literal):
-        return unicode(literal).lower()
+        return str(literal).lower()
 
     def join(self, *args):
         if len(args) < 1:
             raise TypeError("join needs at least one argument")
         delim = args[0]
         args = args[1:]
-        return unicode(delim).join(args)
+        return str(delim).join(args)
 
-    def justify(self, left, centre, right, lpad=" ", rpad=" "):
+    def justify(self, left, centre, right, lpad=u" ", rpad=u" "):
         sleft = len(left)
         scentre = len(centre)
         sright = len(right)
@@ -180,7 +181,7 @@ class BaseFunctions(functionBase.PromptyFunctions):
             return left + centre + right
 
         # Aim to get the centre in the centre
-        lpadsize = (self.status.window.column/2)-(sleft+(scentre/2))
+        lpadsize = (self.status.window.column//2)-(sleft+(scentre//2))
         if lpadsize <= 0:
             lpadsize = 1
         rpadsize = padsize - lpadsize
@@ -190,86 +191,85 @@ class BaseFunctions(functionBase.PromptyFunctions):
     def right(self, literal):
         return self.justify("", "", literal)
 
-
-
     # ----- Misc Functions --------
-
     def tick(self):
-        return unichr(0x2714)
+        return chr(0x2714)
 
     def cross(self):
-        return unichr(0x2718)
+        return chr(0x2718)
 
     def highvoltage(self):
-        return unichr(0x26A1)
+        return chr(0x26A1)
 
     def plbranch(self):
-        return unichr(0xe0a0)
+        return chr(0xe0a0)
 
     def plline(self):
-        return unichr(0xe0a1)
+        return chr(0xe0a1)
 
     def pllock(self):
-        return unichr(0xe0a2)
+        return chr(0xe0a2)
 
     def plrightarrowfill(self):
-        return unichr(0xe0b0)
+        return chr(0xe0b0)
 
     def plrightarrow(self):
-        return unichr(0xe0b1)
+        return chr(0xe0b1)
 
     def plleftarrowfill(self):
-        return unichr(0xe0b2)
+        return chr(0xe0b2)
 
     def plleftarrow(self):
-        return unichr(0xe0b3)
+        return chr(0xe0b3)
 
-    def powerline(self,content,background="blue",foreground="white"):
-        c = colours.Colours(self.functions)
-        out =  c.startColour(fgcolour=foreground)
-        out += c.startColour(bgcolour=background)
+    def powerline(self, content, background="blue", foreground="white"):
+        out = self.call("startColour", fgcolour=foreground)
+        out += self.call("startColour", bgcolour=background)
         out += " "
         out += content
         out += " "
-        out += c.startColour(bgcolour=foreground)
-        out += c.startColour(fgcolour=background)
+        out += self.call("startColour", bgcolour=foreground)
+        out += self.call("startColour", fgcolour=background)
         out += self.plrightarrowfill()
-        out += c.stopColour()
+        out += self.call("stopColour")
         return out
 
     def smiley(self):
-        c = colours.Colours(self.functions)
         if self.status.exitCode == 0:
-            out = c.startColour("green", style="bold")
-            out += self.dollar()
-            out += unicode(":)")
+            out = self.call("startColour", "green", style="bold")
+            out += self.call("dollar")
+            out += str(":)")
         else:
-            out = c.startColour("red", style="bold")
-            out += self.dollar()
-            out += unicode(":(")
-        out += c.stopColour()
+            out = self.call("startColour", "red", style="bold")
+            out += self.call("dollar")
+            out += str(":(")
+        out += self.call("stopColour")
         return out
 
     def randomcolour(self, literal, seed=None):
         if seed:
             random.seed(seed)
-        c = colours.Colours(self.functions)
-        colour = str(random.randrange(1,255))
-        out = c.startColour(colour)
+        colour = str(random.randrange(1, 255))
+        out = self.call("startColour", colour)
         out += literal
-        out += c.stopColour()
+        out += self.call("stopColour")
         return out
-
 
     def hashedcolour(self, literal):
         return self.randomcolour(literal, seed=literal)
 
+
 # ============================================
 # Internal Functions
 # ============================================
-
 def _tobool(expr):
-    if str(expr).lower() in ['true', '1', 't', 'y', 'yes']:
+    # First try integer cast
+    try:
+        return bool(int(expr))
+    except ValueError:
+        pass
+
+    if str(expr).lower() in ['true', 't', 'y', 'yes']:
         return True
     else:
         return False
