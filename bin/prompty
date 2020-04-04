@@ -80,10 +80,10 @@ def main(argv=None):
             c = prompty.colours.Colours(prompty.functionContainer.FunctionContainer())
             for style in c.STYLES:
                 for colour in c.COLOURS:
-                    print("%s%s : %s%s" % (c.startColour(colour, style=style, wrap=False),
+                    print("%s%s : %s%s" % (c.startColour(colour, style=style, _wrap=False),
                                            style[c.NAME_KEY],
                                            colour[c.NAME_KEY],
-                                           c.stopColour(wrap=False)))
+                                           c.stopColour(_wrap=False)))
             return 0
 
         if option in ("-d", "--debug"):
@@ -97,10 +97,10 @@ def main(argv=None):
                         fgcolour=colour[c.FG_KEY],
                         bgcolour=colour[c.BG_KEY],
                         style=colour[c.STYLE_KEY],
-                        wrap=False
+                        _wrap=False
                     ),
                     colour[c.NAME_KEY],
-                    c.stopColour(wrap=False))
+                    c.stopColour(_wrap=False))
                 )
             return 0
 

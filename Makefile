@@ -35,6 +35,11 @@ upload: clean build
 install test: build
 	$(PYTHON) $(SETUP) $@
 
+.PHONY: docs
+docs:
+	$(PYTHON) $(SETUP) build_sphinx && \
+	xdg-open build/sphinx/html/index.html
+
 # Bespoke targets...
 .PHONY: clean
 clean:
