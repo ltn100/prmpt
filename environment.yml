@@ -1,0 +1,11 @@
+name: prompty-dev
+dependencies:
+  - python==3.7.*
+  - future
+  - configparser
+  - mock
+  - pytest
+  - pycodestyle
+  - wheel
+  - sphinx<2
+  - sphinx_rtd_theme<0.5

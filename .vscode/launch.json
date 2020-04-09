@@ -1,0 +1,24 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Sphinx Module",
+            "type": "python",
+            "request": "launch",
+            "module": "sphinx",
+            "args": [
+                "-a",
+                "-E",
+                "docs",
+                "build/sphinx/html"
+            ]
+        },
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        }
+    ]
+}

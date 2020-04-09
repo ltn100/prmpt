@@ -40,7 +40,8 @@ class Colours(functionBase.PromptyFunctions):
     LCYAN = {NAME_KEY:      "lightcyan",    CODE_KEY: "lc",    VAL_KEY: 96}
     WHITE = {NAME_KEY:      "white",        CODE_KEY: "w",     VAL_KEY: 97}
     COLOURS = [BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, LGREY,
-               DGREY, LRED, LGREEN, LYELLOW, LBLUE, LMAGENTA, LCYAN, WHITE]
+               DGREY, LRED, LGREEN, LYELLOW, LBLUE, LMAGENTA, LCYAN, WHITE,
+               DEFAULT]
 
     # 4-bit colour background offset
     BG_OFFSET = 10
@@ -97,7 +98,7 @@ class Colours(functionBase.PromptyFunctions):
     INFO1 = {NAME_KEY:      'info1',   FG_KEY: GREEN, BG_KEY: None,  STYLE_KEY: None}
     INFO2 = {NAME_KEY:      'info2',   FG_KEY: LBLUE, BG_KEY: None,  STYLE_KEY: None}
     INFO3 = {NAME_KEY:      'info3',   FG_KEY: LMAGENTA, BG_KEY: None, STYLE_KEY: None}
-    PALETTE = [DEFAULT, DIM1, DIM2, DIM3, BRIGHT, ERROR, WARNING, INFO1, INFO2, INFO3]
+    PALETTE = [DIM1, DIM2, DIM3, BRIGHT, ERROR, WARNING, INFO1, INFO2, INFO3]
 
     def _setPalette(self, identifier, fgcolour=None, bgcolour=None, style=None):
         if identifier is None:
@@ -331,7 +332,94 @@ class Colours(functionBase.PromptyFunctions):
 
         raise KeyError("No such style %s" % str(identifier))
 
-    def startColour(self, fgcolour=None, bgcolour=None, style=None, wrap=True):
+    @staticmethod
+    def _colourFuncFactory(clr):
+        def fgfunc(slf, literal, style=None):
+            return slf.startColour(fgcolour=clr, style=style) + \
+                    literal + \
+                    slf.stopColour()
+
+        def bgfunc(slf, literal, style=None):
+            return slf.startColour(bgcolour=clr, style=style) + \
+                    literal + \
+                    slf.stopColour()
+
+        fgfunc.__doc__ = """
+        Set {} foreground colour for ``literal``.
+
+        :param style: The character style.
+        """.format(clr)
+
+        bgfunc.__doc__ = """
+        Set {} background colour for ``literal``.
+
+        :param style: The character style.
+        """.format(clr)
+
+        return fgfunc, bgfunc
+
+    @staticmethod
+    def _styleFuncFactory(style):
+        def func(slf, literal):
+            return slf.startColour(style=style) + \
+                    literal + \
+                    slf.stopColour()
+
+        func.__doc__ = """
+        Set the style to {} for ``literal``.
+        """.format(style)
+
+        return func
+
+    @staticmethod
+    def _paletteFuncFactory(pal):
+        def func(slf, literal):
+            return slf.startColour(fgcolour=pal) + \
+                    literal + \
+                    slf.stopColour()
+
+        func.__doc__ = """
+        Set the pallet colour to {} for ``literal``.
+        """.format(pal)
+
+        return func
+
+    @staticmethod
+    def _populateFunctions():
+        """
+        This will define functions for all 4-bit colours.
+        The function definitions are of the form:
+            red(literal, style)     # fg red
+            redbg(literal, style)   # bg red
+        Also styles are defined, e.g.:
+            bold(literal)
+
+        """
+        for c in Colours.COLOURS:
+            colourName = c[Colours.NAME_KEY]
+            fgfunc, bgfunc = Colours._colourFuncFactory(colourName)
+            setattr(Colours, colourName, fgfunc)
+            setattr(Colours, colourName+"bg", bgfunc)
+        for s in Colours.STYLES:
+            styleName = s[Colours.NAME_KEY]
+            func = Colours._styleFuncFactory(styleName)
+            setattr(Colours, styleName, func)
+        for p in Colours.PALETTE:
+            paletteName = p[Colours.NAME_KEY]
+            func = Colours._paletteFuncFactory(paletteName)
+            setattr(Colours, paletteName, func)
+
+    # ------------------------
+    # Public methods
+    # ------------------------
+    def startColour(self, fgcolour=None, bgcolour=None, style=None, _wrap=True):
+        """
+        Start a colour block.
+
+        :param fgcolour: The foreground colour.
+        :param bgcolour: The background colour.
+        :param style: The character style.
+        """
         colourCode = ""
 
         if style:
@@ -347,66 +435,30 @@ class Colours(functionBase.PromptyFunctions):
                 colourCode += ";"
             colourCode += str(self._getColourCode(bgcolour, self.BACKGROUND))
 
-        return self._encode(colourCode, wrap=wrap)
+        return self._encode(colourCode, wrap=_wrap)
 
-    def stopColour(self, wrap=True):
-        return self._encode(self.RESET_KEY, wrap=wrap)
-
-    def colour(self, literal, fgcolour=None, bgcolour=None, style=None, wrap=True):
-        return self.startColour(fgcolour=fgcolour, bgcolour=bgcolour, style=style, wrap=wrap) + \
-                literal + \
-                self.stopColour(wrap=wrap)
-
-    def _colourFuncFactory(self, clr):
-        def fgfunc(slf, literal, style=None):
-            return slf.startColour(fgcolour=clr, style=style) + \
-                    literal + \
-                    slf.stopColour()
-
-        def bgfunc(slf, literal, style=None):
-            return slf.startColour(bgcolour=clr, style=style) + \
-                    literal + \
-                    slf.stopColour()
-        return fgfunc, bgfunc
-
-    def _styleFuncFactory(self, style):
-        def func(slf, literal):
-            return slf.startColour(style=style) + \
-                    literal + \
-                    slf.stopColour()
-        return func
-
-    def _paletteFuncFactory(self, pal):
-        def func(slf, literal):
-            return slf.startColour(fgcolour=pal) + \
-                    literal + \
-                    slf.stopColour()
-        return func
-
-    def _populateFunctions(self):
+    def stopColour(self, _wrap=True):
         """
-        This will define functions for all 4-bit colours.
-        The function definitions are of the form:
-            red(literal, style)     # fg red
-            redbg(literal, style)   # bg red
-        Also styles are defined, e.g.:
-            bold(literal)
+        Stop a colour block.
 
+        :param wrap: Wrap the code in additional characters
+                to signify non-printing characters are
+                contained
         """
-        for c in self.COLOURS:
-            colourName = c[self.NAME_KEY]
-            fgfunc, bgfunc = self._colourFuncFactory(colourName)
-            setattr(self, colourName, types.MethodType(fgfunc, self))
-            setattr(self, colourName+"bg", types.MethodType(bgfunc, self))
-        for s in self.STYLES:
-            styleName = s[self.NAME_KEY]
-            func = self._styleFuncFactory(styleName)
-            setattr(self, styleName, types.MethodType(func, self))
-        for p in self.PALETTE:
-            paletteName = p[self.NAME_KEY]
-            func = self._paletteFuncFactory(paletteName)
-            setattr(self, paletteName, types.MethodType(func, self))
+        return self._encode(self.RESET_KEY, wrap=_wrap)
+
+    def colour(self, literal, fgcolour=None, bgcolour=None, style=None, _wrap=True):
+        """
+        Wrap the string ``literal`` in a colour block. The colour is stopped when ``literal`` ends.
+
+        :param fgcolour: The foreground colour.
+        :param bgcolour: The background colour.
+        :param style: The character style.
+        """
+        return self.startColour(fgcolour=fgcolour, bgcolour=bgcolour, style=style, _wrap=_wrap) + \
+            literal + \
+            self.stopColour(_wrap=_wrap)
 
 
 # Populate the functions in this module
-# _populateFunctions(sys.modules[__name__])
+Colours._populateFunctions()

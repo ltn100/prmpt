@@ -3,6 +3,7 @@
 
 import setuptools
 from setuptools.command.build_py import build_py
+from sphinx.setup_command import BuildDoc
 import py_compile
 import glob
 import os
@@ -33,9 +34,20 @@ class PostBuild(build_py):
         py_compile.compile('bin/prompty')
 
 
+cmdclass = {
+    # Post build step
+    "build_py": PostBuild,
+
+    # Build docs
+    'build_sphinx': BuildDoc,
+}
+
+name = "prompty"
+version = find_version("prompty", "__init__.py")
+
 setuptools.setup(
-    name="prompty",
-    version=find_version("prompty", "__init__.py"),
+    name=name,
+    version=version,
     description="A command line prompt markup language",
     author="Lee Netherton",
     author_email="lee.netherton@gmail.com",
@@ -75,13 +87,20 @@ setuptools.setup(
         ),
     ],
 
-    cmdclass={
-        # Post build step
-        "build_py": PostBuild,
+    cmdclass=cmdclass,
+
+    command_options={
+        'build_sphinx': {
+            'project': ('setup.py', name),
+            'version': ('setup.py', version),
+            'source_dir': ('setup.py', 'docs')
+        }
     },
 
     setup_requires=[
-        "wheel"
+        "wheel",
+        "sphinx",
+        "sphinx_rtd_theme"
     ],
 
     install_requires=[
