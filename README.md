@@ -1,5 +1,4 @@
-Prompty [![Build Status](https://travis-ci.org/ltn100/prompty.svg?branch=develop)](https://travis-ci.org/ltn100/prompty)
-[![Coverage Status](https://coveralls.io/repos/ltn100/prompty/badge.svg?service=github)](https://coveralls.io/github/ltn100/prompty) [![PyPI version](https://badge.fury.io/py/prompty.svg)](https://pypi.org/project/prompty/) [![MIT license](http://img.shields.io/badge/license-MIT-blue.svg)](http://opensource.org/licenses/MIT)
+Prompty [![Build Status](https://travis-ci.org/ltn100/prompty.svg?branch=develop)](https://travis-ci.org/ltn100/prompty) [![Documentation Status](https://readthedocs.org/projects/prompty/badge/?version=latest)](https://prompty.readthedocs.io/en/latest/) [![Coverage Status](https://coveralls.io/repos/ltn100/prompty/badge.svg?service=github)](https://coveralls.io/github/ltn100/prompty) [![PyPI version](https://badge.fury.io/py/prompty.svg)](https://pypi.org/project/prompty/) [![MIT license](http://img.shields.io/badge/license-MIT-blue.svg)](http://opensource.org/licenses/MIT)
 =======
 
 Prompty is a [command prompt](https://en.wikipedia.org/wiki/Command-line_interface#Command_prompt) [markup language](https://en.wikipedia.org/wiki/Markup_language).
@@ -124,4 +123,4 @@ For a more elaborate example, see [`~/.local/share/prompty/default.prompty`](./s
 
 # Documentation
 
-Documentation will be coming soon...
+Documentation is available at [readthedocs](https://prompty.readthedocs.io/en/latest/).

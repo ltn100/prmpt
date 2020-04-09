@@ -122,37 +122,71 @@ class VCSBase(ABC):
 class VCSFunctions(functionBase.PromptyFunctions):
 
     def isrepo(self):
+        """
+        Return ``True`` if the current working directory is a version control repository.
+
+        :rtype: bool
+        """
         return self.status.vcs.isRepo
 
     def repobranch(self):
+        """
+        The repository branch name.
+        """
         return self.status.vcs.branch
 
     def isrepodirty(self):
+        """
+        Return ``True`` if the repository has uncommited modifications.
+
+        :rtype: bool
+        """
         if self.status.vcs.changed + self.status.vcs.staged + self.status.vcs.unmerged > 0:
             return True
         else:
             return False
 
     def ahead(self):
+        """
+        Get the number of commits ahead of the remote repository.
+        """
         return self.status.vcs.ahead
 
     def behind(self):
+        """
+        Get the number of commits behind the remote repository.
+        """
         return self.status.vcs.behind
 
     def commit(self):
         return self.status.vcs.commit
 
     def staged(self):
+        """
+        Get the number of files that are currently staged.
+        """
         return self.status.vcs.staged
 
     def changed(self):
+        """
+        Get the number of files that are modified and not staged.
+        """
         return self.status.vcs.changed
 
     def untracked(self):
+        """
+        Get the number of untracked files that are in the repository (excluding those ignored).
+        """
         return self.status.vcs.untracked
 
     def last_fetched(self):
+        """
+        Get the time, in seconds, since the remote was last fetched.
+        """
         return self.status.vcs.last_fetched
 
     def last_fetched_min(self):
+        """
+        Get the time, in minutes, since the remote was last fetched.
+        """
         return self.status.vcs.last_fetched // 60
