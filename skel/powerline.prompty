@@ -1,0 +1,33 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% vim: set filetype=tex:
+%
+% Powerline prompty
+% =============
+% A promty script utilising the Powerline fonts
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\ifexpr{\exitsuccess}{
+    \cyan{\unichar{0x250f}\unichar{0x2501}}
+}{
+    \red{\unichar{0x250f}\unichar{0x2501}}
+}
+\powerline[232][cyan][cyan]{\user @ \hostname}
+\ifexpr{\isrepo}{
+    \ifexpr{\isrepodirty}{
+        \powerline[cyan][yellow][232]{\workingdir}
+        \powerline[yellow][default][232]{\plbranch\space\repobranch\space\unichar{0x26a0}}
+    }{
+        \powerline[cyan][lightgreen][232]{\workingdir}
+        \powerline[lightgreen][default][232]{\plbranch\space\repobranch}
+    }
+}{
+    \powerline[cyan][default][232]{\workingdir}
+}
+\newline
+\ifexpr{\exitsuccess}{
+    \cyan{\unichar{0x2517}\plrightarrowfill}
+}{
+    \red{\unichar{0x2517}\plrightarrowfill}
+}
+\space

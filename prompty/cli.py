@@ -93,7 +93,7 @@ def run(config, **kwargs):
 
 
 @cli.command()
-def bashrc():
+def gen_bashrc():
     """
     Print a .bashrc invocation line.
     """
