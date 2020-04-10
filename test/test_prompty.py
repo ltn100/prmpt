@@ -56,7 +56,7 @@ class MainTests(UnitTestWrapper):
         self.assertEqual(result.exit_code, 0)
 
     def test_bash(self):
-        argv = ["bashrc"]
+        argv = ["gen-bashrc"]
         runner = click.testing.CliRunner(mix_stderr=False)
         result = runner.invoke(prompty_bin.prompty.cli.cli, argv)
 
