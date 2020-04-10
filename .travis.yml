@@ -9,13 +9,11 @@ python:
   - "3.8"
 
 install:
+    - pip install -r requirements.txt
+    - pip install -t test/requirements.txt
+    - pip install -r docs/requirements.txt
     - pip install coverage
     - pip install coveralls
-    - pip install future
-    - pip install mock
-    - pip install configparser
-    - pip install pytest
-    - pip install sphinx
 
 script:
     - git fetch
