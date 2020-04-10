@@ -3,12 +3,10 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-from __future__ import unicode_literals
 
 import abc
 ABC = abc.ABCMeta(str('ABC'), (object,), {'__slots__': ()})  # noqa, compatible with Python 2 *and* 3
 
-from builtins import str
 import subprocess
 
 from prompty import functionBase

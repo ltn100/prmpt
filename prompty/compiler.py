@@ -3,7 +3,6 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-from __future__ import unicode_literals
 from builtins import str
 
 from prompty import parser
@@ -44,7 +43,7 @@ class Compiler(object):
         return string
 
     def _execute(self, parsedStruct):
-        out = ""
+        out = u""
         for element in parsedStruct:
             if element['type'] == 'literal':
                 # Literals go to the output verbatim

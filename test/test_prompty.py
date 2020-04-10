@@ -3,7 +3,6 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-from __future__ import unicode_literals
 from builtins import str
 
 # Import external modules
@@ -14,6 +13,7 @@ import socket
 import shutil
 import tempfile
 import unittest
+import click.testing
 import distutils.spawn
 from contextlib import contextmanager
 from io import StringIO
@@ -47,58 +47,62 @@ def captured_output():
 
 class MainTests(UnitTestWrapper):
     def test_help(self):
-        argv = ["", "-h"]
-        with captured_output() as (out, err):
-            ret = prompty_bin.main(argv)
+        argv = ["--help"]
+        runner = click.testing.CliRunner(mix_stderr=False)
+        result = runner.invoke(prompty_bin.prompty.cli.cli, argv)
 
-        self.assertEqual(out.getvalue(), "")
-        self.assertGreater(len(err.getvalue()), 0)
-        self.assertEqual(ret, 0)
+        self.assertGreater(len(result.output), 0)
+        self.assertEqual(len(result.stderr), 0)
+        self.assertEqual(result.exit_code, 0)
 
     def test_bash(self):
-        argv = ["", "-b"]
-        with captured_output() as (out, err):
-            ret = prompty_bin.main(argv)
+        argv = ["bashrc"]
+        runner = click.testing.CliRunner(mix_stderr=False)
+        result = runner.invoke(prompty_bin.prompty.cli.cli, argv)
 
-        self.assertTrue(out.getvalue().startswith("export PS1"))
-        self.assertEqual(err.getvalue(), "")
-        self.assertEqual(ret, 0)
+        self.assertTrue(result.output.startswith("export PS1"))
+        self.assertEqual(len(result.stderr), 0)
+        self.assertEqual(result.exit_code, 0)
 
     def test_prompty(self):
-        argv = ["", "1"]
-        with captured_output() as (out, err):
-            ret = prompty_bin.main(argv)
+        argv = ["-e 1"]
+        runner = click.testing.CliRunner(mix_stderr=False)
+        result = runner.invoke(prompty_bin.prompty.cli.cli, argv)
 
-        self.assertGreater(len(out.getvalue()), 0)
-        self.assertEqual(len(err.getvalue()), 0)
-        self.assertEqual(ret, 1)
+        print("********")
+        print(result)
+        print("********")
+
+        self.assertGreater(len(result.output), 0)
+        self.assertEqual(len(result.stderr), 0)
+        self.assertEqual(result.exit_code, 1)
 
     def test_invalid(self):
-        argv = ["", "-@"]
-        with captured_output() as (out, err):
-            ret = prompty_bin.main(argv)
+        argv = ["-@"]
+        runner = click.testing.CliRunner(mix_stderr=False)
+        result = runner.invoke(prompty_bin.prompty.cli.cli, argv)
 
-        self.assertEqual(out.getvalue(), "")
-        self.assertGreater(len(err.getvalue()), 0)
-        self.assertEqual(ret, 1)
+        self.assertEqual(result.output, "")
+        self.assertGreater(len(result.stderr), 0)
+        self.assertEqual(result.exit_code, 2)
 
     def test_colours(self):
-        argv = ["", "-c"]
-        with captured_output() as (out, err):
-            ret = prompty_bin.main(argv)
+        argv = ["colours"]
+        runner = click.testing.CliRunner(mix_stderr=False)
+        result = runner.invoke(prompty_bin.prompty.cli.cli, argv)
 
-        self.assertGreater(len(out.getvalue().splitlines()), 1)
-        self.assertEqual(err.getvalue(), "")
-        self.assertEqual(ret, 0)
+        self.assertGreater(len(result.output.splitlines()), 1)
+        self.assertEqual(len(result.stderr), 0)
+        self.assertEqual(result.exit_code, 0)
 
     def test_pallete(self):
-        argv = ["", "-p"]
-        with captured_output() as (out, err):
-            ret = prompty_bin.main(argv)
+        argv = ["palette"]
+        runner = click.testing.CliRunner(mix_stderr=False)
+        result = runner.invoke(prompty_bin.prompty.cli.cli, argv)
 
-        self.assertGreater(len(out.getvalue().splitlines()), 1)
-        self.assertEqual(err.getvalue(), "")
-        self.assertEqual(ret, 0)
+        self.assertGreater(len(result.output.splitlines()), 1)
+        self.assertEqual(len(result.stderr), 0)
+        self.assertEqual(result.exit_code, 0)
 
 
 class CoordsTests(UnitTestWrapper):

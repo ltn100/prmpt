@@ -16,3 +16,4 @@ from . import userdir
 from . import config
 from . import git
 from . import svn
+from . import cli
