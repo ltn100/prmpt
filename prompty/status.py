@@ -75,6 +75,7 @@ class Status(object):
         self.userDir = userdir.UserDir()
         self.euid = os.geteuid()
         self.vcs = vcs.VCS(self)
+        self.wrap = True
 
         proc = subprocess.Popen(['stty', 'size'],
                                 stdout=subprocess.PIPE,

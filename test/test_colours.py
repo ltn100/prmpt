@@ -84,12 +84,15 @@ class ColourTests(UnitTestWrapper):
     def test_stopColour(self):
         c = prompty.colours.Colours(None)
         self.assertEqual(c.stopColour(), "\001\033[0m\002")
-        self.assertEqual(c.stopColour(False), "\033[0m")
+        c.status.wrap = False
+        self.assertEqual(c.stopColour(), "\033[0m")
 
     def test_startColour(self):
         c = prompty.colours.Colours(None)
         self.assertEqual(c.startColour("green"), "\001\033[32m\002")
-        self.assertEqual(c.startColour("green", _wrap=False), "\033[32m")
+        c.status.wrap = False
+        self.assertEqual(c.startColour("green"), "\033[32m")
+        c.status.wrap = True
         self.assertEqual(c.startColour("red", style="b"), "\001\033[1;31m\002")
         self.assertEqual(c.startColour("1"), "\001\033[38;5;1m\002")
         self.assertEqual(c.startColour(fgcolour="1", bgcolour="2"), "\001\033[38;5;1;48;5;2m\002")

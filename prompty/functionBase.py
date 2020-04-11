@@ -6,6 +6,10 @@ from __future__ import print_function
 
 import types
 
+class MockStatus(object):
+    def __init__(self):
+        self.wrap = True
+
 
 def getmembers(obj, predicate=None):
     """ ** Extracted from inspect module for optimisation purposes **
@@ -71,7 +75,7 @@ class PromptyFunctions(object):
         if self.functions:
             self.status = self.functions.status
         else:
-            self.status = None
+            self.status = MockStatus()
 
     @staticmethod
     def _isPromptyFunctionsSubClass(obj):

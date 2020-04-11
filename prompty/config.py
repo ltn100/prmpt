@@ -30,6 +30,10 @@ class Config(object):
 
         self.loadPromptFile()
 
+    def save(self):
+        with open(self.configFile, 'w') as f:
+            self.configParser.write(f)
+
     def loadPromptFile(self):
         with open(self.promptFile, "r") as pFile:
             self.promptString = pFile.read()

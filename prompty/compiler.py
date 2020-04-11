@@ -25,6 +25,12 @@ class Compiler(object):
         self.parser = parser.Parser()
         self.parsedStruct = []
 
+    def clear(self):
+        """
+        Clear the compiled struct
+        """
+        self.parsedStruct = []
+
     def compile(self, promptString):
         """ Parse a given promptString. Add the resulting
         list of dictionary items to the internal buffer

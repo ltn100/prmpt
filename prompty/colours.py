@@ -65,20 +65,16 @@ class Colours(functionBase.PromptyFunctions):
         self._populateFunctions()
         super(Colours, self).__init__(container)
 
-    def _encode(self, code, wrap=True):
+    def _encode(self, code):
         """
         Add the bash escape codes for colours
         i.e.: \\e[CODEm
-
-        :param wrap: Wrap the code in additional characters
-                     to signify non-printing characters are
-                     contained
         """
         if code == "":
             return ""
 
         s = self.ESCAPE_CHAR + str(code) + self.END_CODE
-        if wrap:
+        if self.status.wrap:
             s = self.NOCOUNT_START + s + self.NOCOUNT_END
         return s
 
@@ -410,7 +406,7 @@ class Colours(functionBase.PromptyFunctions):
     # ------------------------
     # Public methods
     # ------------------------
-    def startColour(self, fgcolour=None, bgcolour=None, style=None, _wrap=True):
+    def startColour(self, fgcolour=None, bgcolour=None, style=None):
         """
         Start a colour block.
 
@@ -433,19 +429,15 @@ class Colours(functionBase.PromptyFunctions):
                 colourCode += ";"
             colourCode += str(self._getColourCode(bgcolour, self.BACKGROUND))
 
-        return self._encode(colourCode, wrap=_wrap)
+        return self._encode(colourCode)
 
-    def stopColour(self, _wrap=True):
+    def stopColour(self):
         """
         Stop a colour block.
-
-        :param wrap: Wrap the code in additional characters
-                to signify non-printing characters are
-                contained
         """
-        return self._encode(self.RESET_KEY, wrap=_wrap)
+        return self._encode(self.RESET_KEY)
 
-    def colour(self, literal, fgcolour=None, bgcolour=None, style=None, _wrap=True):
+    def colour(self, literal, fgcolour=None, bgcolour=None, style=None):
         """
         Wrap the string ``literal`` in a colour block. The colour is stopped when ``literal`` ends.
 
@@ -453,9 +445,9 @@ class Colours(functionBase.PromptyFunctions):
         :param bgcolour: The background colour.
         :param style: The character style.
         """
-        return self.startColour(fgcolour=fgcolour, bgcolour=bgcolour, style=style, _wrap=_wrap) + \
+        return self.startColour(fgcolour=fgcolour, bgcolour=bgcolour, style=style) + \
             literal + \
-            self.stopColour(_wrap=_wrap)
+            self.stopColour()
 
 
 # Populate the functions in this module
