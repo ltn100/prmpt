@@ -62,7 +62,7 @@ class Colours(functionBase.PromptyFunctions):
     END_CODE = "m"
 
     def __init__(self, container):
-        self._populateFunctions()
+        self._populate_functions()
         super(Colours, self).__init__(container)
 
     def _encode(self, code):
@@ -94,7 +94,7 @@ class Colours(functionBase.PromptyFunctions):
     INFO3 = {NAME_KEY:      'info3',   FG_KEY: LMAGENTA, BG_KEY: None, STYLE_KEY: None}
     PALETTE = [DIM1, DIM2, DIM3, BRIGHT, ERROR, WARNING, INFO1, INFO2, INFO3]
 
-    def _setPalette(self, identifier, fgcolour=None, bgcolour=None, style=None):
+    def _set_palette(self, identifier, fgcolour=None, bgcolour=None, style=None):
         if identifier is None:
             return
 
@@ -117,7 +117,7 @@ class Colours(functionBase.PromptyFunctions):
         if style:
             pal[self.STYLE_KEY] = style
 
-    def _getPaletteColourCode(self, identifier):
+    def _get_palette_colour_code(self, identifier):
         """
         Palette colour codes can be any of the following:
             pal1, pal2, etc.
@@ -127,14 +127,14 @@ class Colours(functionBase.PromptyFunctions):
 
         for pal in self.PALETTE:
             if identifier == pal[self.NAME_KEY]:
-                style = str(self._getStyleCode(pal[self.STYLE_KEY]))
-                fg = str(self._getColourCode(pal[self.FG_KEY], self.FOREGROUND))
-                bg = str(self._getColourCode(pal[self.BG_KEY], self.BACKGROUND))
+                style = str(self._get_style_code(pal[self.STYLE_KEY]))
+                fg = str(self._get_colour_code(pal[self.FG_KEY], self.FOREGROUND))
+                bg = str(self._get_colour_code(pal[self.BG_KEY], self.BACKGROUND))
                 return ";".join([x for x in [style, fg, bg] if x])
 
         raise ValueError
 
-    def _get4bitColourCode(self, identifier, area=FOREGROUND):
+    def _get_4bit_colour_code(self, identifier, area=FOREGROUND):
         """
         4-bit colour codes can be any of the following:
             r, red, lr, lightred, etc.
@@ -173,7 +173,7 @@ class Colours(functionBase.PromptyFunctions):
                               0x5c, 0x63, 0x6e, 0x7b, 0x85, 0x8f, 0x99, 0xa3, 0xad,
                               0xb7, 0xc1, 0xcb, 0xd5, 0xdf, 0xe9, 0xf7, 0xff]
 
-    def _get8bitColourCode(self, identifier, area=FOREGROUND):
+    def _get_8bit_colour_code(self, identifier, area=FOREGROUND):
         """
         8-bit colour codes can be any of the following:
             0, 5, 126, 255, #0f0, #fff, #a3e, etc.
@@ -239,7 +239,7 @@ class Colours(functionBase.PromptyFunctions):
 
         raise ValueError
 
-    def _get24bitColourCode(self, identifier, area=FOREGROUND):
+    def _get_24bit_colour_code(self, identifier, area=FOREGROUND):
         """
         24-bit colour codes can be any of the following:
             #000000, #aaf4d3, 0,255,0, 255,255,255
@@ -279,34 +279,34 @@ class Colours(functionBase.PromptyFunctions):
 
         raise ValueError
 
-    def _getColourCode(self, identifier, area=FOREGROUND):
+    def _get_colour_code(self, identifier, area=FOREGROUND):
         try:
-            colourCode = self._getPaletteColourCode(identifier)
-            return colourCode
+            colour_code = self._get_palette_colour_code(identifier)
+            return colour_code
         except ValueError:
             pass
 
         try:
-            colourCode = self._get4bitColourCode(identifier, area)
-            return colourCode
+            colour_code = self._get_4bit_colour_code(identifier, area)
+            return colour_code
         except ValueError:
             pass
 
         try:
-            colourCode = self._get8bitColourCode(identifier, area)
-            return colourCode
+            colour_code = self._get_8bit_colour_code(identifier, area)
+            return colour_code
         except ValueError:
             pass
 
         try:
-            colourCode = self._get24bitColourCode(identifier, area)
-            return colourCode
+            colour_code = self._get_24bit_colour_code(identifier, area)
+            return colour_code
         except ValueError:
             pass
 
         raise ValueError("No such colour %s" % str(identifier))
 
-    def _getStyleCode(self, identifier):
+    def _get_style_code(self, identifier):
         if identifier is None:
             return ""
 
@@ -327,16 +327,16 @@ class Colours(functionBase.PromptyFunctions):
         raise KeyError("No such style %s" % str(identifier))
 
     @staticmethod
-    def _colourFuncFactory(clr):
+    def _colour_func_factory(clr):
         def fgfunc(slf, literal, style=None):
-            return slf.startColour(fgcolour=clr, style=style) + \
+            return slf.startcolour(fgcolour=clr, style=style) + \
                     literal + \
-                    slf.stopColour()
+                    slf.stopcolour()
 
         def bgfunc(slf, literal, style=None):
-            return slf.startColour(bgcolour=clr, style=style) + \
+            return slf.startcolour(bgcolour=clr, style=style) + \
                     literal + \
-                    slf.stopColour()
+                    slf.stopcolour()
 
         fgfunc.__doc__ = """
         Set {} foreground colour for ``literal``.
@@ -353,11 +353,11 @@ class Colours(functionBase.PromptyFunctions):
         return fgfunc, bgfunc
 
     @staticmethod
-    def _styleFuncFactory(style):
+    def _style_func_factory(style):
         def func(slf, literal):
-            return slf.startColour(style=style) + \
+            return slf.startcolour(style=style) + \
                     literal + \
-                    slf.stopColour()
+                    slf.stopcolour()
 
         func.__doc__ = """
         Set the style to {} for ``literal``.
@@ -366,11 +366,11 @@ class Colours(functionBase.PromptyFunctions):
         return func
 
     @staticmethod
-    def _paletteFuncFactory(pal):
+    def _palette_func_factory(pal):
         def func(slf, literal):
-            return slf.startColour(fgcolour=pal) + \
+            return slf.startcolour(fgcolour=pal) + \
                     literal + \
-                    slf.stopColour()
+                    slf.stopcolour()
 
         func.__doc__ = """
         Set the pallet colour to {} for ``literal``.
@@ -379,7 +379,7 @@ class Colours(functionBase.PromptyFunctions):
         return func
 
     @staticmethod
-    def _populateFunctions():
+    def _populate_functions():
         """
         This will define functions for all 4-bit colours.
         The function definitions are of the form:
@@ -390,23 +390,23 @@ class Colours(functionBase.PromptyFunctions):
 
         """
         for c in Colours.COLOURS:
-            colourName = c[Colours.NAME_KEY]
-            fgfunc, bgfunc = Colours._colourFuncFactory(colourName)
-            setattr(Colours, colourName, fgfunc)
-            setattr(Colours, colourName+"bg", bgfunc)
+            colour_name = c[Colours.NAME_KEY]
+            fgfunc, bgfunc = Colours._colour_func_factory(colour_name)
+            setattr(Colours, colour_name, fgfunc)
+            setattr(Colours, colour_name+"bg", bgfunc)
         for s in Colours.STYLES:
-            styleName = s[Colours.NAME_KEY]
-            func = Colours._styleFuncFactory(styleName)
-            setattr(Colours, styleName, func)
+            style_name = s[Colours.NAME_KEY]
+            func = Colours._style_func_factory(style_name)
+            setattr(Colours, style_name, func)
         for p in Colours.PALETTE:
-            paletteName = p[Colours.NAME_KEY]
-            func = Colours._paletteFuncFactory(paletteName)
-            setattr(Colours, paletteName, func)
+            palette_name = p[Colours.NAME_KEY]
+            func = Colours._palette_func_factory(palette_name)
+            setattr(Colours, palette_name, func)
 
     # ------------------------
     # Public methods
     # ------------------------
-    def startColour(self, fgcolour=None, bgcolour=None, style=None):
+    def startcolour(self, fgcolour=None, bgcolour=None, style=None):
         """
         Start a colour block.
 
@@ -414,24 +414,24 @@ class Colours(functionBase.PromptyFunctions):
         :param bgcolour: The background colour.
         :param style: The character style.
         """
-        colourCode = ""
+        colour_code = ""
 
         if style:
-            colourCode += str(self._getStyleCode(style))
+            colour_code += str(self._get_style_code(style))
 
         if fgcolour:
-            if colourCode:
-                colourCode += ";"
-            colourCode += str(self._getColourCode(fgcolour, self.FOREGROUND))
+            if colour_code:
+                colour_code += ";"
+            colour_code += str(self._get_colour_code(fgcolour, self.FOREGROUND))
 
         if bgcolour:
-            if colourCode:
-                colourCode += ";"
-            colourCode += str(self._getColourCode(bgcolour, self.BACKGROUND))
+            if colour_code:
+                colour_code += ";"
+            colour_code += str(self._get_colour_code(bgcolour, self.BACKGROUND))
 
-        return self._encode(colourCode)
+        return self._encode(colour_code)
 
-    def stopColour(self):
+    def stopcolour(self):
         """
         Stop a colour block.
         """
@@ -445,10 +445,10 @@ class Colours(functionBase.PromptyFunctions):
         :param bgcolour: The background colour.
         :param style: The character style.
         """
-        return self.startColour(fgcolour=fgcolour, bgcolour=bgcolour, style=style) + \
+        return self.startcolour(fgcolour=fgcolour, bgcolour=bgcolour, style=style) + \
             literal + \
-            self.stopColour()
+            self.stopcolour()
 
 
 # Populate the functions in this module
-Colours._populateFunctions()
+Colours._populate_functions()

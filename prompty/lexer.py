@@ -23,19 +23,19 @@ class Lexer(shlex.shlex):
     COMMENT_CHAR = "%"
 
     def __init__(self, instream):
-        instream = self.fixComments(instream)
-        instream = self.fixLineNumbers(instream)
+        instream = self.fix_comments(instream)
+        instream = self.fix_line_numbers(instream)
 
         shlex.shlex.__init__(self, instream=instream)
-        asciiCharSet = set([chr(i) for i in range(128)])
+        ascii_char_set = set([chr(i) for i in range(128)])
         # Discard special chars
         for char in self.SPECIAL_CHARS:
-            asciiCharSet.discard(char)
-        self.wordchars = ''.join(asciiCharSet)
+            ascii_char_set.discard(char)
+        self.wordchars = ''.join(ascii_char_set)
         self.commenters = self.COMMENT_CHAR
 
     @staticmethod
-    def fixComments(instream):
+    def fix_comments(instream):
         """Fix for bug where newline at end of comment gets treated
         as part of the comment (causing 'A\n#comment\nB' to be rendered
         as 'AB' instead of the intended 'A,B').
@@ -49,7 +49,7 @@ class Lexer(shlex.shlex):
                       instream)
 
     @staticmethod
-    def fixLineNumbers(instream):
+    def fix_line_numbers(instream):
         """Fix broken line number reporting by ensuring that every line
         has a trailing whitespace character
         """

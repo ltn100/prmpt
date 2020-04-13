@@ -18,18 +18,18 @@ class Subversion(vcs.VCSBase):
     def __init__(self, status, cmd=SVN_COMMAND):
         super(Subversion, self).__init__(status, cmd)
 
-    def _runStatus(self):
+    def _run_status(self):
         try:
-            (istdout, istderr, _) = self.runCommand(
+            (istdout, istderr, _) = self.run_command(
                 [self.command, "info", "--xml"]
             )
-            (sstdout, sstderr, _) = self.runCommand(
+            (sstdout, sstderr, _) = self.run_command(
                 [self.command, "status"]
             )
         except OSError:
             # SVN command not found
             self.installed = False
-            self.isRepo = False
+            self.is_repo = False
             return
 
         if not istderr:
@@ -40,11 +40,11 @@ class Subversion(vcs.VCSBase):
             if "is not a working copy" in istderr:
                 # The directory is not a svn repo
                 self.installed = True
-                self.isRepo = False
+                self.is_repo = False
             else:
                 # Some other error?
                 self.installed = False
-                self.isRepo = False
+                self.is_repo = False
 
         if not sstderr:
             # Successful svn status call
@@ -82,7 +82,7 @@ class Subversion(vcs.VCSBase):
             # Error parsing xml
             return
 
-        self.isRepo = True
+        self.is_repo = True
 
         entry = info.documentElement.getElementsByTagName("entry")[0]
 

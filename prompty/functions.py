@@ -138,19 +138,19 @@ class PowerlineFunctions(functionBase.PromptyFunctions):
         """
         out = ""
         if dir == "left":
-            out += self.call("startColour", bgcolour=bg_next)
-            out += self.call("startColour", fgcolour=bg)
+            out += self.call("startcolour", bgcolour=bg_next)
+            out += self.call("startcolour", fgcolour=bg)
             out += self.plleftarrowfill()
-        out += self.call("startColour", fgcolour=fg)
-        out += self.call("startColour", bgcolour=bg)
+        out += self.call("startcolour", fgcolour=fg)
+        out += self.call("startcolour", bgcolour=bg)
         out += " "
         out += content
         out += " "
         if dir == "right":
-            out += self.call("startColour", bgcolour=bg_next)
-            out += self.call("startColour", fgcolour=bg)
+            out += self.call("startcolour", bgcolour=bg_next)
+            out += self.call("startcolour", fgcolour=bg)
             out += self.plrightarrowfill()
-        out += self.call("stopColour")
+        out += self.call("stopcolour")
         return out
 
     def plbranch(self):
@@ -274,7 +274,7 @@ class BashPromptEscapes(functionBase.PromptyFunctions):
 
         Equivalent to the bash prompt escape sequence ``\\w``.
         """
-        cwd = self.status.getWorkingDir()
+        cwd = self.status.get_working_dir()
         home = os.path.expanduser(r"~")
         return re.sub(r'^%s' % home, r"~", cwd)
 
@@ -284,7 +284,7 @@ class BashPromptEscapes(functionBase.PromptyFunctions):
 
         Equivalent to the bash prompt escape sequence ``\\W``.
         """
-        return os.path.basename(self.status.getWorkingDir())
+        return os.path.basename(self.status.get_working_dir())
 
     def dollar(self, euid=None):
         """
@@ -312,7 +312,7 @@ class MiscFunctions(functionBase.PromptyFunctions):
         :rtype: bool
         """
         if path is None:
-            path = self.status.getWorkingDir()
+            path = self.status.get_working_dir()
         if path == os.path.realpath(path):
             return True
         else:
@@ -326,7 +326,7 @@ class MiscFunctions(functionBase.PromptyFunctions):
 
         :rtype: bool
         """
-        if self.status.exitCode == 0:
+        if self.status.exit_code == 0:
             return True
         else:
             return False
@@ -516,15 +516,15 @@ class MiscFunctions(functionBase.PromptyFunctions):
         - ``#:)`` - (colour green) Last command succeeded, user is root
         - ``#:(`` - (colour red) Last command failed, user is root
         """
-        if self.status.exitCode == 0:
-            out = self.call("startColour", "green", style="bold")
+        if self.status.exit_code == 0:
+            out = self.call("startcolour", "green", style="bold")
             out += self.call("dollar")
             out += str(":)")
         else:
-            out = self.call("startColour", "red", style="bold")
+            out = self.call("startcolour", "red", style="bold")
             out += self.call("dollar")
             out += str(":(")
-        out += self.call("stopColour")
+        out += self.call("stopcolour")
         return out
 
     def randomcolour(self, literal, seed=None):
@@ -536,9 +536,9 @@ class MiscFunctions(functionBase.PromptyFunctions):
         if seed:
             random.seed(seed)
         colour = str(random.randrange(1, 255))
-        out = self.call("startColour", colour)
+        out = self.call("startcolour", colour)
         out += literal
-        out += self.call("stopColour")
+        out += self.call("stopcolour")
         return out
 
     def hashedcolour(self, literal):

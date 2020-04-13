@@ -19,40 +19,40 @@ class VCS(object):
     """
     def __init__(self, status):
         self.status = status
-        self.vcsObjs = []
-        self.ranStatus = False
+        self.vcs_objs = []
+        self.ran_status = False
         self.cwd = None
-        self.populateVCS()
-        self.currentVcsObj = self.vcsObjs[0]
+        self.populate_vcs()
+        self.current_vcs_obj = self.vcs_objs[0]
 
-    def populateVCS(self):
+    def populate_vcs(self):
         # The order here defines the order in which repository
         # types are tested. The first one found to be a valid repo
         # will halt all further searching, so put them in priority
         # order.
         from . import git
-        self.vcsObjs.append(git.Git(self.status))
+        self.vcs_objs.append(git.Git(self.status))
         from . import svn
-        self.vcsObjs.append(svn.Subversion(self.status))
+        self.vcs_objs.append(svn.Subversion(self.status))
 
     def __getattribute__(self, name):
         """
         If we have not yet run a status call then run one before
-        attempting to get the attribute. _runStatus() is also called
+        attempting to get the attribute. _run_status() is also called
         again if the working directory has changed.
         """
-        if name in ["populateVCS", "vcsObjs", "ranStatus", "cwd", "currentVcsObj", "status"]:
+        if name in ["populate_vcs", "vcs_objs", "ran_status", "cwd", "current_vcs_obj", "status"]:
             return object.__getattribute__(self, name)
 
-        if not self.ranStatus or self.cwd != self.status.getWorkingDir():
-            self.cwd = self.status.getWorkingDir()
-            self.ranStatus = True
-            for vcs in self.vcsObjs:
-                if vcs.isRepo:
-                    self.currentVcsObj = vcs
+        if not self.ran_status or self.cwd != self.status.get_working_dir():
+            self.cwd = self.status.get_working_dir()
+            self.ran_status = True
+            for vcs in self.vcs_objs:
+                if vcs.is_repo:
+                    self.current_vcs_obj = vcs
                     break
 
-        return getattr(object.__getattribute__(self, "currentVcsObj"), name)
+        return getattr(object.__getattribute__(self, "current_vcs_obj"), name)
 
 
 class VCSBase(ABC):
@@ -63,11 +63,11 @@ class VCSBase(ABC):
     @abc.abstractmethod
     def __init__(self, status, cmd):
         self.status = status
-        self.ranStatus = False
+        self.ran_status = False
         self.command = cmd
         self.cwd = None
         self.branch = ""
-        self.remoteBranch = ""
+        self.remote_branch = ""
         self.staged = 0
         self.changed = 0
         self.untracked = 0
@@ -75,13 +75,13 @@ class VCSBase(ABC):
         self.ahead = 0
         self.behind = 0
         self.installed = None
-        self.isRepo = None
+        self.is_repo = None
         self.commit = ""
         self.last_fetched = 0
         self.relative_root = ""
 
     @abc.abstractmethod
-    def _runStatus(self):
+    def _run_status(self):
         """
         Method is abstract and must be implemented. This method
         sets appropriately all of the member variables defined
@@ -92,24 +92,24 @@ class VCSBase(ABC):
     def __getattribute__(self, name):
         """
         If we have not yet run a status call then run one before
-        attempting to get the attribute. _runStatus() is also called
+        attempting to get the attribute. _run_status() is also called
         again if the working directory has changed.
         """
-        if name in ["ranStatus", "cwd", "status"]:
+        if name in ["ran_status", "cwd", "status"]:
             return object.__getattribute__(self, name)
 
-        if not self.ranStatus or self.cwd != self.status.getWorkingDir():
-            self.cwd = self.status.getWorkingDir()
-            self.ranStatus = True
-            self._runStatus()
+        if not self.ran_status or self.cwd != self.status.get_working_dir():
+            self.cwd = self.status.get_working_dir()
+            self.ran_status = True
+            self._run_status()
         return object.__getattribute__(self, name)
 
-    def runCommand(self, cmdList):
+    def run_command(self, cmd_list):
         # Raises OSError if command doesn't exist
-        proc = subprocess.Popen(cmdList,
+        proc = subprocess.Popen(cmd_list,
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE,
-                                cwd=self.status.getWorkingDir())
+                                cwd=self.status.get_working_dir())
         stdout, stderr = proc.communicate()
         return stdout.decode('utf-8'), stderr.decode('utf-8'), proc.returncode
 
@@ -125,7 +125,7 @@ class VCSFunctions(functionBase.PromptyFunctions):
 
         :rtype: bool
         """
-        return self.status.vcs.isRepo
+        return self.status.vcs.is_repo
 
     def repobranch(self):
         """

@@ -112,7 +112,7 @@ class PromptTests(UnitTestWrapper):
 
     def test_getPrompt(self):
         p = prompty.prompt.Prompt(prompty.status.Status())
-        s = p.getPrompt()
+        s = p.get_prompt()
         self.assertIsInstance(s, str)
         self.assertGreater(len(s), 0)
 
@@ -122,21 +122,21 @@ class UserDirTests(UnitTestWrapper):
         u = prompty.userdir.UserDir()
         self.assertEqual(
             os.path.join(os.path.expanduser('~'), prompty.userdir.PROMPTY_USER_DIR),
-            u.getDir()
+            u.get_dir()
         )
 
     def test_functionsDirLocation(self):
         u = prompty.userdir.UserDir()
         self.assertEqual(
             os.path.join(os.path.expanduser('~'), prompty.userdir.PROMPTY_USER_DIR, prompty.userdir.FUNCTIONS_DIR),
-            u.promtyUserFunctionsDir
+            u.promty_user_functions_dir
         )
 
     def test_initialise(self):
         tmpDir = tempfile.mkdtemp()
         u = prompty.userdir.UserDir(tmpDir)
-        self.assertTrue(os.path.isdir(u.getDir()))
-        self.assertTrue(os.path.exists(u.getConfigFile()))
+        self.assertTrue(os.path.isdir(u.get_dir()))
+        self.assertTrue(os.path.exists(u.get_config_file()))
         # Cleanup
         shutil.rmtree(tmpDir)
 
@@ -170,11 +170,11 @@ class ConfigTests(UnitTestWrapper):
                             prompty.userdir.PROMPTY_CONFIG_FILE))
         self.assertEqual(
             os.path.join(os.path.dirname(TEST_DIR), prompty.userdir.SKEL_DIR, "default.prompty"),
-            c.promptFile
+            c.prompt_file
         )
 
     def test_loadPrompt(self):
         c = prompty.config.Config()
-        c.promptFile = os.path.join(os.path.dirname(TEST_DIR), prompty.userdir.SKEL_DIR, "default.prompty")
-        c.loadPromptFile()
-        self.assertGreater(len(c.promptString), 0)
+        c.prompt_file = os.path.join(os.path.dirname(TEST_DIR), prompty.userdir.SKEL_DIR, "default.prompty")
+        c.load_prompt_file()
+        self.assertGreater(len(c.prompt_string), 0)

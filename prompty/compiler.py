@@ -17,40 +17,40 @@ class Compiler(object):
     Literals are output verbatim, or passed into functions for
     processing.
     """
-    def __init__(self, functionContainer):
+    def __init__(self, function_container):
         # Compiler requires a valid FunctionContainer in order
         # to execute functions
-        self.funcs = functionContainer
+        self.funcs = function_container
 
         self.parser = parser.Parser()
-        self.parsedStruct = []
+        self.parsed_struct = []
 
     def clear(self):
         """
         Clear the compiled struct
         """
-        self.parsedStruct = []
+        self.parsed_struct = []
 
-    def compile(self, promptString):
-        """ Parse a given promptString. Add the resulting
+    def compile(self, prompt_string):
+        """ Parse a given prompt_string. Add the resulting
         list of dictionary items to the internal buffer
         ready for executing.
         """
-        self.parsedStruct.extend(self.parser.parse(promptString))
+        self.parsed_struct.extend(self.parser.parse(prompt_string))
 
     def execute(self):
         """ Execute the internal buffer and return the output
         string.
         """
-        return self._execute(self.parsedStruct)
+        return self._execute(self.parsed_struct)
 
     def _move(self, string):
-        self.funcs.status.pos.incFromString(string)
+        self.funcs.status.pos.inc_from_string(string)
         return string
 
-    def _execute(self, parsedStruct):
+    def _execute(self, parsed_struct):
         out = u""
-        for element in parsedStruct:
+        for element in parsed_struct:
             if element['type'] == 'literal':
                 # Literals go to the output verbatim
                 out += self._move(element['value'])

@@ -6,6 +6,7 @@ from __future__ import print_function
 
 import types
 
+
 class MockStatus(object):
     def __init__(self):
         self.wrap = True
@@ -78,13 +79,13 @@ class PromptyFunctions(object):
             self.status = MockStatus()
 
     @staticmethod
-    def _isPromptyFunctionsSubClass(obj):
+    def _is_prompty_functions_subclass(obj):
         return isclass(obj) and issubclass(obj, PromptyFunctions)
 
     def register(self):
         for name, func in getmembers(self, ismethod):
             if name[0] != "_":
-                self.functions.addFunction(name, func)
+                self.functions.add_function(name, func)
 
     def call(self, func, *args, **kwargs):
         return self.functions._call(func, *args, **kwargs)

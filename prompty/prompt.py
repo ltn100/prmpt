@@ -23,16 +23,16 @@ class Prompt(object):
         self.funcs = functionContainer.FunctionContainer(
             self.status
         )
-        self.funcs.addFunctionsFromModule(functions)
-        self.funcs.addFunctionsFromModule(colours)
-        self.funcs.addFunctionsFromModule(vcs)
-        self.funcs.addFunctionsFromDir(self.status.userDir.promtyUserFunctionsDir)
+        self.funcs.add_functions_from_module(functions)
+        self.funcs.add_functions_from_module(colours)
+        self.funcs.add_functions_from_module(vcs)
+        self.funcs.add_functions_from_dir(self.status.user_dir.promty_user_functions_dir)
 
         self.compiler = compiler.Compiler(self.funcs)
         self.config = config.Config()
-        self.config.load(self.status.userDir.getConfigFile())
+        self.config.load(self.status.user_dir.get_config_file())
 
-    def getPrompt(self):
-        self.compiler.compile(self.config.promptString)
+    def get_prompt(self):
+        self.compiler.compile(self.config.prompt_string)
         output = self.compiler.execute()
         return output
