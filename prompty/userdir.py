@@ -55,7 +55,7 @@ class UserDir(object):
                 if not os.path.exists(self.skel_dir):
                     raise IOError("Cannot find installed skel directory")
 
-        # Initialise if promptyUserDir does not exist
+        # Initialise if prompty_user_dir does not exist
         self.initialise()
 
     def initialise(self):

@@ -124,7 +124,7 @@ def gen_bashrc():
     Print a .bashrc invocation line.
     """
     abs_path = os.path.abspath(sys.argv[0])
-    click.echo("export PS1=\"\\$(%s \\$?)\"" % abs_path)
+    click.echo("export PS1=\"\\$(%s -e \\$?)\"" % abs_path)
 
 
 @cli.command()
@@ -196,7 +196,7 @@ def ls(full):
 
             prompt.compiler.clear()
             prompt.config.prompt_file = filepath
-            prompt.config.loadPromptFile()
+            prompt.config.load_prompt_file()
             click.echo(prompt.get_prompt(), nl=False)
             click.echo(chr(9608))
             click.echo(chr(0x2500)*status.window.column)
@@ -211,8 +211,11 @@ def use(file):
     """
     Change the current prompty file
     """
+    status = prompty.status.Status()
+    prompt = prompty.prompt.Prompt(status)
+
     file_with_ext = file+".prompty"
-    files = [os.path.basename(f) for f in _get_prompty_files()]
+    files = [os.path.basename(f) for f in prompt.config.get_prompt_files()]
     if file_with_ext not in files:
         raise click.BadParameter("Prompty file '{}' not found".format(file_with_ext))
 

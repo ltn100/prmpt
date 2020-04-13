@@ -100,7 +100,8 @@ setuptools.setup(
     setup_requires=[
         "wheel",
         "sphinx",
-        "sphinx_rtd_theme"
+        "sphinx_rtd_theme",
+        "twine"
     ],
 
     install_requires=[

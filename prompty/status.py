@@ -34,7 +34,7 @@ class Coords(object):
     def inc_column(self, inc=1):
         self.column += inc
 
-    def resetRow(self):
+    def reset_row(self):
         self.row = 0
 
     def reset_column(self):

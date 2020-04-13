@@ -55,8 +55,8 @@ class Config(object):
         if filename is None:
             filename = self.prompt_file
 
-        with open(filename, "r") as pFile:
-            self.prompt_string = pFile.read()
+        with open(filename, "r") as f:
+            self.prompt_string = f.read()
 
     def get_prompt_files(self):
         return sorted(
