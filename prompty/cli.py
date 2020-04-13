@@ -113,7 +113,7 @@ def run(config, script, **kwargs):
         elapsed = datetime.datetime.now() - START
         sys.stdout.write("%d\n" % (elapsed.total_seconds()*1000))
 
-    click.echo(prompt.get_prompt(), nl=(not config.no_nl))
+    click.echo(prompt.get_prompt(), nl=(not config.no_nl), color=True)
 
     sys.exit(config.exit_status)
 
