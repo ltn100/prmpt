@@ -58,6 +58,8 @@ class Config(object):
         with open(filename, "r") as f:
             self.prompt_string = f.read()
 
+        self.prompt_file = filename
+
     def get_prompt_files(self):
         return sorted(
             glob.glob(

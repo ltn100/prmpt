@@ -338,7 +338,7 @@ class CompilerTests(UnitTestWrapper):
         c = prompty.compiler.Compiler(funcs)
         c.compile("literal1")
         self.assertEqual(r"literal1", c.execute())
-        c.compile("literal2")
+        c.compile("literal2", clear=False)
         self.assertEqual(r"literal1literal2", c.execute())
 
     def test_statusLength(self):

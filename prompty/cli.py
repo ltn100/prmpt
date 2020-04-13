@@ -4,6 +4,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from builtins import chr
+from future.utils import iteritems
 
 # Import external modules
 import datetime
@@ -12,6 +13,7 @@ import os
 import getopt
 import codecs
 import click
+from collections import OrderedDict
 
 import prompty
 
@@ -24,10 +26,11 @@ class RunConfig(object):
         # All options should have default=None
         # Set the real defaults in __init__() below
         click.option("--exit-status", "-e", default=None, type=int, help="The exit status of the last command. Also "
-                                                                         "implies -W and -n."),
+                                                                         "implies -W -n -r."),
         click.option("--wrap", "-W", default=None, is_flag=True, help="Wrap non-printing characters with \\001 and "
                                                                       "\\002 to maintain correct line length."),
         click.option("--no-nl", "-n", default=None, is_flag=True, help="Do not output the trailing newline."),
+        click.option("--raw", "-r", default=None, is_flag=True, help="Print raw output (no titles or boxes)."),
         click.option("--working-dir", "-w", default=None, help="The working directory (default is cwd)."),
         click.option("--debug", "-d", default=None, is_flag=True, help="Run in debug mode."),
         click.option("--version", "-v", default=None, is_flag=True, help="Print the version."),
@@ -40,6 +43,7 @@ class RunConfig(object):
         self.debug = False
         self.no_nl = False
         self.wrap = False
+        self.raw = False
 
     def update(self, kwargs):
         for key, value in kwargs.items():
@@ -77,12 +81,19 @@ def cli(ctx, config, **kwargs):
 
 
 @cli.command()
-@click.argument("script", required=False)
+@click.argument("scripts", nargs=-1)
+@click.option("--all", "-a", is_flag=True, help="Run all installed prompty scripts.")
 @RunConfig.add_options
 @RunConfig.pass_config
-def run(config, script, **kwargs):
+def run(config, all, scripts, **kwargs):
     """
-    Execute a prompty script (default COMMAND).
+    Execute a prompty script (default).
+
+    `run` is the default command, if no other is given.
+
+    If multiple SCRIPTS are provided, each one will be executed.
+    SCRIPTS can either be absolute path names or short names of
+    those installed in the ~/.local/share/prompty/ directory.
     """
     config.update(kwargs)
 
@@ -97,23 +108,41 @@ def run(config, script, **kwargs):
         # Probably called from PS1
         config.wrap = True
         config.no_nl = True
+        config.raw = True
 
     status = prompty.status.Status(config.exit_status, config.working_dir)
     status.wrap = config.wrap
 
-    prompt = prompty.prompt.Prompt(status)
+    if all:
+        # Print installed all scripts
+        prompt = prompty.prompt.Prompt(status)
+        scripts = [os.path.splitext(os.path.basename(s))[0] for s in prompt.config.get_prompt_files()]
 
-    if script is not None:
+    prompts = OrderedDict()
+    for script in scripts:
+        prompt = prompty.prompt.Prompt(status)
         script_filepath = prompt.config.get_prompt_file_path(script)
         if not script_filepath:
             raise click.BadParameter("Prompty file '{}' not found".format(script))
         prompt.config.load_prompt_file(script_filepath)
+        prompts[script] = prompt
+
+    if not prompts:
+        # Add default
+        prompt = prompty.prompt.Prompt(status)
+        prompts["{} (current)".format(os.path.basename(prompt.config.prompt_file))] = prompt
+
+    for file, prompt in iteritems(prompts):
+        if config.raw:
+            click.echo(prompt.get_prompt(), nl=(not config.no_nl), color=True)
+        else:
+            prompt.status.window.column -= 2
+            print_box(file, prompt.get_prompt())
+            prompt.status.window.column += 2
 
     if config.debug and START:
         elapsed = datetime.datetime.now() - START
-        sys.stdout.write("%d\n" % (elapsed.total_seconds()*1000))
-
-    click.echo(prompt.get_prompt(), nl=(not config.no_nl), color=True)
+        sys.stdout.write("Run time: %dms\n" % (elapsed.total_seconds()*1000))
 
     sys.exit(config.exit_status)
 
@@ -164,8 +193,8 @@ def palette():
 
 
 @cli.command()
-@click.option("--full", "-f", is_flag=True, help="Render the output of each prompty script.")
-def ls(full):
+@click.option("--raw", "-r", is_flag=True, help="Print raw filenames")
+def ls(raw):
     """
     Show the list of prompty scripts.
     """
@@ -174,35 +203,16 @@ def ls(full):
     prompt = prompty.prompt.Prompt(status)
     current_prompt_file = prompt.config.prompt_file
 
-    click.echo("Prompty files:")
+    if not raw:
+        click.echo("Prompty files:")
 
     for filepath in prompt.config.get_prompt_files():
-        base, ext = os.path.splitext(os.path.basename(filepath))
-
-        if full:
-            if current_prompt_file == filepath:
-                base = base + " (current)"
-            click.echo(chr(0x2554), nl=False)
-            click.echo(chr(0x2550)*(len(base)+2), nl=False)
-            click.echo(chr(0x2557))
-
-            click.echo(chr(0x2551), nl=False)
-            click.echo(" "+base+" ", nl=False)
-            click.echo(chr(0x2551))
-
-            click.echo(chr(0x255a), nl=False)
-            click.echo(chr(0x2550)*(len(base)+2), nl=False)
-            click.echo(chr(0x255d))
-
-            prompt.compiler.clear()
-            prompt.config.prompt_file = filepath
-            prompt.config.load_prompt_file()
-            click.echo(prompt.get_prompt(), nl=False)
-            click.echo(chr(9608))
-            click.echo(chr(0x2500)*status.window.column)
+        base = os.path.basename(filepath)
+        if raw:
+            leader = ""
         else:
             leader = "[*] " if current_prompt_file == filepath else "[ ] "
-            click.echo(leader + base)
+        click.echo(leader + base)
 
 
 @cli.command()
@@ -224,3 +234,69 @@ def use(file):
     config.load(status.user_dir.get_config_file())
     config.config_parser.set('prompt', 'prompt_file', file_with_ext)
     config.save()
+
+
+def print_box(title, contents):
+    cols = prompty.status.Status().window.column
+
+    # Add fake cursor to end  of prompt
+    contents += chr(9608)
+
+    if not cols:
+        # Print simple
+        click.echo(title)
+        click.echo(chr(0x2550)*len(title))
+        click.echo(contents, color=True)
+        click.echo()
+        return
+
+    # Print with boxes
+
+    # Top bar
+    click.echo(chr(0x2554), nl=False)
+    click.echo(chr(0x2550)*(len(title)+2), nl=False)
+    click.echo(chr(0x2566), nl=False)
+    click.echo(chr(0x2550)*(cols-(len(title)+5)), nl=False)
+    click.echo(chr(0x2557), nl=False)
+    click.echo()
+
+    # Title line
+    click.echo(chr(0x2551), nl=False)
+    click.echo(" "+title+" ", nl=False)
+    click.echo(chr(0x2551), nl=False)
+    click.echo(" "*(cols-(len(title)+5)), nl=False)
+    click.echo(chr(0x2551), nl=False)
+    click.echo()
+
+    # Below title
+    click.echo(chr(0x2560), nl=False)
+    click.echo(chr(0x2550)*(len(title)+2), nl=False)
+    click.echo(chr(0x255d), nl=False)
+    click.echo(" "*(cols-(len(title)+5)), nl=False)
+    click.echo(chr(0x2551), nl=False)
+    click.echo()
+
+    # Contents line
+    contents = add_border(contents, chr(0x2551), cols)
+    click.echo(contents, color=True, nl=False)
+    click.echo()
+
+    # Below contents
+    click.echo(chr(0x255a), nl=False)
+    click.echo(chr(0x2550)*(cols-2), nl=False)
+    click.echo(chr(0x255d), nl=False)
+    click.echo()
+
+
+def add_border(contents, border_chars, cols):
+    new_lines = []
+    for line in contents.splitlines():
+        rpad = " "*(cols-(len(escape_ansi(line))+2))
+        new_lines.append(border_chars + line + rpad + border_chars)
+    return "\n".join(new_lines)
+
+
+def escape_ansi(line):
+    import re
+    ansi_escape = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
+    return ansi_escape.sub('', line)

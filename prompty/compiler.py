@@ -31,11 +31,13 @@ class Compiler(object):
         """
         self.parsed_struct = []
 
-    def compile(self, prompt_string):
+    def compile(self, prompt_string, clear=True):
         """ Parse a given prompt_string. Add the resulting
         list of dictionary items to the internal buffer
         ready for executing.
         """
+        if clear:
+            self.clear()
         self.parsed_struct.extend(self.parser.parse(prompt_string))
 
     def execute(self):
