@@ -29,7 +29,7 @@ If all has gone well, you should see some colourful output. (If not, see the tip
 In order for for prompty to be integrated into your bash prompt, you need to insert a line at the end of your `.bashrc` file so that it is called from your `PS1` environment variable:
 
 ```bash
-prompty bashrc >> ~/.bashrc
+prompty gen-bashrc >> ~/.bashrc
 ```
 
 Now re-source your updated `.bashrc` file:
