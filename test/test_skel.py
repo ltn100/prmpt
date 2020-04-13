@@ -3,7 +3,6 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-from __future__ import unicode_literals
 
 from test import prompty
 from test import UnitTestWrapper
@@ -21,9 +20,9 @@ class SkelTests(UnitTestWrapper):
         files = [os.path.join(test_dir, "..", "skel", f) for f in all_files if f.endswith(".prompty")]
         for file in files:
             p = prompty.prompt.Prompt(prompty.status.Status())
-            p.config.promptFile = file
-            p.config.loadPromptFile()
-            s = p.getPrompt()
+            p.config.prompt_file = file
+            p.config.load_prompt_file()
+            s = p.get_prompt()
             print("Testing " + file)
             print(s.replace(prompty.colours.Colours.NOCOUNT_START, '').replace(prompty.colours.Colours.NOCOUNT_END, ''))
             print()

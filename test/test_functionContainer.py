@@ -3,7 +3,6 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-from __future__ import unicode_literals
 
 import sys
 import os
@@ -13,10 +12,10 @@ from test import UnitTestWrapper
 
 
 class MyFunctions(prompty.functionBase.PromptyFunctions):
-    def testFunc(self):
+    def test_func(self):
         return "This Is A Test"
 
-    def _hiddenFunc(self):
+    def _hidden_func(self):
         return "This is secret"
 
 
@@ -28,12 +27,12 @@ class FunctionContainerTests(UnitTestWrapper):
     def test_extendFunctionContainer(self):
         c = prompty.functionContainer.FunctionContainer()
         # Import this module
-        c.addFunctionsFromModule(sys.modules[__name__])
-        self.assertEqual(r"This Is A Test", c._call("testFunc"))
-        self.assertRaises(KeyError, c._call, "_hiddenFunc")
+        c.add_functions_from_module(sys.modules[__name__])
+        self.assertEqual(r"This Is A Test", c._call("test_func"))
+        self.assertRaises(KeyError, c._call, "_hidden_func")
 
     def test_extendFunctionContainerFromDir(self):
         c = prompty.functionContainer.FunctionContainer()
         # Import this directory
-        c.addFunctionsFromDir(os.path.dirname(sys.modules[__name__].__file__))
-        self.assertEqual(r"This Is A Test", c._call("testFunc"))
+        c.add_functions_from_dir(os.path.dirname(sys.modules[__name__].__file__))
+        self.assertEqual(r"This Is A Test", c._call("test_func"))

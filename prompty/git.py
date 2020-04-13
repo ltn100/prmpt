@@ -3,7 +3,6 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-from __future__ import unicode_literals
 
 import os
 import time
@@ -17,26 +16,26 @@ class Git(vcs.VCSBase):
     def __init__(self, status, cmd=GIT_COMMAND):
         super(Git, self).__init__(status, cmd)
 
-    def _runStatus(self):
+    def _run_status(self):
         try:
-            (stdout, stderr, returncode) = self.runCommand(
+            (stdout, stderr, returncode) = self.run_command(
                 [self.command, "status", "--porcelain", "-b"]
             )
-            (rstdout, rstderr, rreturncode) = self.runCommand(
+            (rstdout, rstderr, rreturncode) = self.run_command(
                 [self.command, "rev-parse", "--show-cdup", "--verify", "--short", "HEAD"]
             )
         except OSError:
             # Git command not found
             self.installed = False
-            self.isRepo = False
+            self.is_repo = False
             return
 
         if returncode == 0:
             # Successful git status call
             self.installed = True
-            self.isRepo = True
+            self.is_repo = True
             (self.branch,
-             self.remoteBranch,
+             self.remote_branch,
              self.staged,
              self.changed,
              self.untracked,
@@ -47,17 +46,17 @@ class Git(vcs.VCSBase):
             if "Not a git repository" in stderr:
                 # The directory is not a git repo
                 self.installed = True
-                self.isRepo = False
+                self.is_repo = False
             else:
                 # Some other error?
                 self.installed = False
-                self.isRepo = False
+                self.is_repo = False
 
         if rreturncode == 0:
             # Successful git status call
             self.relative_root, self.commit = rstdout.split('\n')[:-1]
 
-            if self.installed and self.isRepo:
+            if self.installed and self.is_repo:
                 self._run_get_last_fetch()
 
     def _run_get_last_fetch(self):
@@ -147,11 +146,11 @@ class Git(vcs.VCSBase):
         Get git HEAD commit hash.
         """
         git_cmd = [self.command, 'rev-parse', '--short', 'HEAD']
-        return self.runCommand(git_cmd)[0].strip()
+        return self.run_command(git_cmd)[0].strip()
 
     def _git_tags(self):
         """
         Gets any tags associated with the current HEAD
         """
         git_cmd = [self.command, 'tag', '--points-at', 'HEAD']
-        return ", ".join(line.strip() for line in self.runCommand(git_cmd)[0].strip().splitlines())
+        return ", ".join(line.strip() for line in self.run_command(git_cmd)[0].strip().splitlines())

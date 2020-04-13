@@ -3,7 +3,6 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-from __future__ import unicode_literals
 
 import os
 import subprocess
@@ -29,30 +28,30 @@ class Coords(object):
         return Coords(self.column+other.column,
                       self.row+other.row)
 
-    def incRow(self, inc=1):
+    def inc_row(self, inc=1):
         self.row += inc
 
-    def incColumn(self, inc=1):
+    def inc_column(self, inc=1):
         self.column += inc
 
-    def resetRow(self):
+    def reset_row(self):
         self.row = 0
 
-    def resetColumn(self):
+    def reset_column(self):
         self.column = 0
 
     def set(self, other):
         self.column = other.column
         self.row = other.row
 
-    def incFromString(self, unicodeString):
+    def inc_from_string(self, unicode_string):
         """ Update the cursor position given movements
         from the input string. Adjust for any non-printing
         characters (these are encapsulated by the NOCOUNT_*
         characters from the Colour class)
         """
         non_print = False
-        for char in unicodeString:
+        for char in unicode_string:
             if char == colours.Colours.NOCOUNT_START:
                 non_print = True
                 continue
@@ -61,21 +60,22 @@ class Coords(object):
                 continue
             if not non_print:
                 if char == "\n":
-                    self.incRow()
-                    self.resetColumn()
+                    self.inc_row()
+                    self.reset_column()
                 elif char == "\r":
-                    self.resetColumn()
+                    self.reset_column()
                 else:
-                    self.incColumn()
+                    self.inc_column()
 
 
 class Status(object):
-    def __init__(self, exitCode=0, workingDir=None):
-        self.exitCode = int(exitCode)
-        self.workingDir = workingDir
-        self.userDir = userdir.UserDir()
+    def __init__(self, exit_code=0, working_dir=None):
+        self.exit_code = int(exit_code)
+        self.working_dir = working_dir
+        self.user_dir = userdir.UserDir()
         self.euid = os.geteuid()
         self.vcs = vcs.VCS(self)
+        self.wrap = True
 
         proc = subprocess.Popen(['stty', 'size'],
                                 stdout=subprocess.PIPE,
@@ -88,8 +88,8 @@ class Status(object):
             self.window = Coords()
         self.pos = Coords()
 
-    def getWorkingDir(self):
-        if self.workingDir:
-            return os.path.normpath(self.workingDir)
+    def get_working_dir(self):
+        if self.working_dir:
+            return os.path.normpath(self.working_dir)
         else:
             return os.path.normpath(os.getenv('PWD'))

@@ -3,9 +3,13 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-from __future__ import unicode_literals
 
 import types
+
+
+class MockStatus(object):
+    def __init__(self):
+        self.wrap = True
 
 
 def getmembers(obj, predicate=None):
@@ -72,16 +76,16 @@ class PromptyFunctions(object):
         if self.functions:
             self.status = self.functions.status
         else:
-            self.status = None
+            self.status = MockStatus()
 
     @staticmethod
-    def _isPromptyFunctionsSubClass(obj):
+    def _is_prompty_functions_subclass(obj):
         return isclass(obj) and issubclass(obj, PromptyFunctions)
 
     def register(self):
         for name, func in getmembers(self, ismethod):
             if name[0] != "_":
-                self.functions.addFunction(name, func)
+                self.functions.add_function(name, func)
 
     def call(self, func, *args, **kwargs):
         return self.functions._call(func, *args, **kwargs)

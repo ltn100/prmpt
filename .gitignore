@@ -12,6 +12,7 @@ build/
 develop-eggs/
 dist/
 eggs/
+.eggs/
 lib/
 lib64/
 parts/
@@ -29,6 +30,7 @@ pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
+.pytest_cache/
 .tox/
 .coverage
 .cache

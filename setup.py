@@ -105,6 +105,7 @@ setuptools.setup(
 
     install_requires=[
         "future",
-        "configparser"
+        "configparser",
+        "click"
     ],
 )

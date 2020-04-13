@@ -4,6 +4,7 @@ import os
 import sys
 import imp
 import unittest
+from unittest.util import safe_repr
 
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 

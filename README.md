@@ -18,10 +18,18 @@ The latest version can be installed from PyPI using `pip`:
 sudo pip install prompty
 ```
 
-You then need to insert a line at the end of your `.bashrc` file so that prompty is called from the `PS1` environment variable:
+It is a good idea to test that prompty is working correctly before continuing. Run the `prompty` command on its own and ensure that there are no errors:
 
 ```bash
-prompty -b >> ~/.bashrc
+prompty
+```
+
+If all has gone well, you should see some colourful output. (If not, see the tip section below for some ideas).
+
+In order for for prompty to be integrated into your bash prompt, you need to insert a line at the end of your `.bashrc` file so that it is called from your `PS1` environment variable:
+
+```bash
+prompty gen-bashrc >> ~/.bashrc
 ```
 
 Now re-source your updated `.bashrc` file:
@@ -31,11 +39,18 @@ source ~/.bashrc
 ```
 (alternatively you can restart your shell session)
 
+You should now see the default prompty prompt.
 
-> **Tip:** If you get an error like "`bash: prompty: command not found`", it is probably because you installed it locally, as a non-root user (without `sudo`). This is fine, but you will need to call the prompty executable from its local path:
+> **Tip:** If you get an error like "`prompty: command not found`", it is probably because you installed it locally as a non-root user (without `sudo`). This is fine, but you will need to call the prompty executable from its local path. The previous commands can be replaced with:
 >
-> `~/.local/bin/prompty -b >> ~/.bashrc`
-
+> `# Test that prompty works`  
+> `~/.local/bin/prompty`
+>
+> `# Update .bashrc file`  
+> `~/.local/bin/prompty bashrc >> ~/.bashrc`
+>
+> `# Reload .bashrc`  
+> `source ~/.bashrc`
 
 # Configuration
 

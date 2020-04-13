@@ -3,138 +3,25 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-from __future__ import unicode_literals
 
 import datetime
 START = datetime.datetime.now()  # noqa
 
 # Import external modules
 import sys
-import os
-import getopt
-import codecs
+import os.path
 
 # Add base directory to path so that it can find the prompty package
 sys.path[0:0] = [os.path.join(os.path.dirname(__file__), "..")]  # noqa
 
-import prompty
-
-# Overload sys.stdout to support unicode
-UTF8Writer = codecs.getwriter('utf-8')
-sys.stdout = UTF8Writer(sys.stdout)
-
-USAGE = "Usage: %s [options]" % sys.argv[0] + """
-Options:     -h, --help      Display this help message and exit
-"""
+import prompty.cli
+prompty.cli.START = START
 
 
-def usage(msg=''):
-    """Print usage information to stderr.
-
-    @param msg: An optional message that will be displayed before the usage
-    @return: None
-    """
-    if msg:
-        print(msg, file=sys.stderr)
-    print(USAGE, file=sys.stderr)
+def main():
+    prompty.cli.cli()
 
 
-def main(argv=None):
-    """Main function. This is the entry point for the program and is run when
-    the script is executed stand-alone (i.e. not included as a module
-
-    @param argv: A list of argumets that can over-rule the command line arguments.
-    @return: Error status
-    @rtype: int
-    """
-
-    # Use the command line (system) arguments if none were passed to main
-    if argv is None:
-        argv = sys.argv
-
-    # Parse command line options
-    try:
-        opts, args = getopt.getopt(argv[1:], "hbcdpw:v", [
-            "help", "bash", "colours", "debug", "palette", "working-dir=", "version"
-        ])
-    except getopt.error as msg:
-        usage(msg.msg)
-        return 1
-
-    # Defaults
-    debug = False
-    workingDir = None
-
-    # Act upon options
-    for option, arg in opts:
-        if option in ("-h", "--help"):
-            usage()
-            return 0
-
-        if option in ("-b", "--bashrc"):
-            abs_path = os.path.abspath(sys.argv[0])
-            print("export PS1=\"\\$(%s \\$?)\"" % abs_path)
-            return 0
-
-        if option in ("-c", "--colours"):
-            c = prompty.colours.Colours(prompty.functionContainer.FunctionContainer())
-            for style in c.STYLES:
-                for colour in c.COLOURS:
-                    print("%s%s : %s%s" % (c.startColour(colour, style=style, _wrap=False),
-                                           style[c.NAME_KEY],
-                                           colour[c.NAME_KEY],
-                                           c.stopColour(_wrap=False)))
-            return 0
-
-        if option in ("-d", "--debug"):
-            debug = True
-
-        if option in ("-p", "--palette"):
-            c = prompty.colours.Colours(prompty.functionContainer.FunctionContainer())
-            for colour in c.PALETTE:
-                print("%s%s%s" % (
-                    c.startColour(
-                        fgcolour=colour[c.FG_KEY],
-                        bgcolour=colour[c.BG_KEY],
-                        style=colour[c.STYLE_KEY],
-                        _wrap=False
-                    ),
-                    colour[c.NAME_KEY],
-                    c.stopColour(_wrap=False))
-                )
-            return 0
-
-        if option in ("-w", "--working-dir"):
-            workingDir = arg
-
-        if option in ("-v", "--version"):
-            print(prompty.__version__)
-            return 0
-
-    if len(args) < 1:
-        usage("Not enough arguments")
-        return 1
-
-    exitStatus = int(args[0])
-
-    s = prompty.status.Status(exitStatus, workingDir)
-
-    p = prompty.prompt.Prompt(s)
-
-    prompt = p.getPrompt()
-
-    if debug:
-        elapsed = datetime.datetime.now() - START
-        sys.stdout.write("%d\n" % (elapsed.total_seconds()*1000))
-
-    sys.stdout.write(prompt)
-
-    return exitStatus
-
-
-# ---------------------------------------------------------------------------#
-#                           End of functions                                 #
-# ---------------------------------------------------------------------------#
 # Run main if this file is not imported as a module
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

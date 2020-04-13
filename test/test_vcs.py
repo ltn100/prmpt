@@ -3,7 +3,6 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-from __future__ import unicode_literals
 
 import socket
 import getpass
@@ -56,7 +55,7 @@ class GitTests(UnitTestWrapper):
 
         g = prompty.git.Git(prompty.status.Status(0))
         self.assertEqual(False, g.installed)
-        self.assertEqual(False, g.isRepo)
+        self.assertEqual(False, g.is_repo)
         self.assertEqual("", g.branch)
         self.assertEqual(0, g.changed)
         self.assertEqual(0, g.staged)
@@ -82,7 +81,7 @@ class GitTests(UnitTestWrapper):
 
         g = prompty.git.Git(prompty.status.Status(0))
         self.assertEqual(True, g.installed)
-        self.assertEqual(True, g.isRepo)
+        self.assertEqual(True, g.is_repo)
         self.assertEqual("develop", g.branch)
         self.assertEqual(0, g.changed)
         self.assertEqual(0, g.staged)
@@ -114,7 +113,7 @@ class GitTests(UnitTestWrapper):
 
         g = prompty.git.Git(prompty.status.Status(0))
         self.assertEqual(True, g.installed)
-        self.assertEqual(True, g.isRepo)
+        self.assertEqual(True, g.is_repo)
         self.assertEqual("master", g.branch)
         self.assertEqual(1, g.changed)
         self.assertEqual(2, g.staged)
@@ -143,7 +142,7 @@ class GitTests(UnitTestWrapper):
 
         g = prompty.git.Git(prompty.status.Status(0))
         self.assertEqual(True, g.installed)
-        self.assertEqual(False, g.isRepo)
+        self.assertEqual(False, g.is_repo)
         self.assertEqual("", g.branch)
         self.assertEqual(0, g.changed)
         self.assertEqual(0, g.staged)
@@ -191,7 +190,7 @@ class SvnTests(UnitTestWrapper):
 
         g = prompty.svn.Subversion(prompty.status.Status(0))
         self.assertEqual(False, g.installed)
-        self.assertEqual(False, g.isRepo)
+        self.assertEqual(False, g.is_repo)
         self.assertEqual("", g.branch)
         self.assertEqual(0, g.changed)
         self.assertEqual(0, g.untracked)
@@ -209,7 +208,7 @@ class SvnTests(UnitTestWrapper):
 
         g = prompty.svn.Subversion(prompty.status.Status(0))
         self.assertEqual(True, g.installed)
-        self.assertEqual(False, g.isRepo)
+        self.assertEqual(False, g.is_repo)
         self.assertEqual("", g.branch)
         self.assertEqual(0, g.changed)
         self.assertEqual(0, g.staged)
@@ -252,7 +251,7 @@ class SvnTests(UnitTestWrapper):
 
         g = prompty.svn.Subversion(prompty.status.Status(0))
         self.assertEqual(True, g.installed)
-        self.assertEqual(True, g.isRepo)
+        self.assertEqual(True, g.is_repo)
         self.assertEqual("trunk", g.branch)
 
     @mock.patch('prompty.vcs.subprocess')

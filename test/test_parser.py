@@ -3,7 +3,6 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-from __future__ import unicode_literals
 
 import socket
 import getpass
@@ -97,33 +96,33 @@ class LexerTests(UnitTestWrapper):
     def test_fixComments(self):
         i = "% comment"
         o = " % comment"
-        self.assertEqual(o, prompty.lexer.Lexer.fixComments(i))
+        self.assertEqual(o, prompty.lexer.Lexer.fix_comments(i))
         i = "A% comment\nB"
         o = "A % comment\nB"
-        self.assertEqual(o, prompty.lexer.Lexer.fixComments(i))
+        self.assertEqual(o, prompty.lexer.Lexer.fix_comments(i))
         i = "% comment\nB %comment\n%comment"
         o = " % comment\nB  %comment\n %comment"
-        self.assertEqual(o, prompty.lexer.Lexer.fixComments(i))
+        self.assertEqual(o, prompty.lexer.Lexer.fix_comments(i))
         i = "\\myfunc{% comment\n\targ% comment\n}% comment"
         o = "\\myfunc{ % comment\n\targ % comment\n} % comment"
-        self.assertEqual(o, prompty.lexer.Lexer.fixComments(i))
+        self.assertEqual(o, prompty.lexer.Lexer.fix_comments(i))
 
     def test_fixLineNumbers(self):
         i = "% comment"
         o = i
-        self.assertEqual(o, prompty.lexer.Lexer.fixLineNumbers(i))
+        self.assertEqual(o, prompty.lexer.Lexer.fix_line_numbers(i))
         i = "% comment\n"
         o = "% comment \n"
-        self.assertEqual(o, prompty.lexer.Lexer.fixLineNumbers(i))
+        self.assertEqual(o, prompty.lexer.Lexer.fix_line_numbers(i))
         i = "\nA\nB"
         o = " \nA \nB"
-        self.assertEqual(o, prompty.lexer.Lexer.fixLineNumbers(i))
+        self.assertEqual(o, prompty.lexer.Lexer.fix_line_numbers(i))
         i = "\r\nA\r\nB"
         o = " \r\nA \r\nB"
-        self.assertEqual(o, prompty.lexer.Lexer.fixLineNumbers(i))
+        self.assertEqual(o, prompty.lexer.Lexer.fix_line_numbers(i))
         i = " \nA \nB"
         o = "  \nA  \nB"
-        self.assertEqual(o, prompty.lexer.Lexer.fixLineNumbers(i))
+        self.assertEqual(o, prompty.lexer.Lexer.fix_line_numbers(i))
 
     def test_lineNumbers(self):
         s = r"""% Comment (line 1)
@@ -339,7 +338,7 @@ class CompilerTests(UnitTestWrapper):
         c = prompty.compiler.Compiler(funcs)
         c.compile("literal1")
         self.assertEqual(r"literal1", c.execute())
-        c.compile("literal2")
+        c.compile("literal2", clear=False)
         self.assertEqual(r"literal1literal2", c.execute())
 
     def test_statusLength(self):
@@ -352,7 +351,7 @@ class CompilerTests(UnitTestWrapper):
 
     def test_statusLength2(self):
         funcs = prompty.functionContainer.FunctionContainer()
-        funcs.addFunctionsFromModule(prompty.functions)
+        funcs.add_functions_from_module(prompty.functions)
         c = prompty.compiler.Compiler(funcs)
         c.compile(r"a b\newline")
         c.execute()
@@ -361,29 +360,29 @@ class CompilerTests(UnitTestWrapper):
 
     def test_singleLiteral(self):
         funcs = prompty.functionContainer.FunctionContainer()
-        funcs.addFunctionsFromModule(prompty.functions)
+        funcs.add_functions_from_module(prompty.functions)
         c = prompty.compiler.Compiler(funcs)
         self.assertEqual(r"literalvalue", c._execute(
             [{'lineno': 1, 'type': 'literal', 'value': r"literalvalue"}]))
 
     def test_multipleLiteral(self):
         funcs = prompty.functionContainer.FunctionContainer()
-        funcs.addFunctionsFromModule(prompty.functions)
+        funcs.add_functions_from_module(prompty.functions)
         c = prompty.compiler.Compiler(funcs)
         self.assertEqual(r"literalvalue", c._execute([{'lineno': 1, 'type': 'literal', 'value': r"literal"},
                                                       {'lineno': 1, 'type': 'literal', 'value': r"value"}]))
 
     def test_singleFunction(self):
         funcs = prompty.functionContainer.FunctionContainer()
-        funcs.addFunctionsFromModule(prompty.functions)
+        funcs.add_functions_from_module(prompty.functions)
         c = prompty.compiler.Compiler(funcs)
         self.assertEqual(CompilerTests.user, c._execute(
             [{'lineno': 1, 'type': 'function', 'name': r"user"}]))
 
     def test_nestedFunction(self):
         funcs = prompty.functionContainer.FunctionContainer()
-        funcs.addFunctionsFromModule(prompty.functions)
-        funcs.addFunctionsFromModule(prompty.colours)
+        funcs.add_functions_from_module(prompty.functions)
+        funcs.add_functions_from_module(prompty.colours)
         c = prompty.compiler.Compiler(funcs)
         self.assertEqual("\001\033[32m\002%s\001\033[0m\002" % CompilerTests.user,
                          c._execute([{'lineno': 1, 'type': 'function', 'name': r"green", 'args':
@@ -391,8 +390,8 @@ class CompilerTests(UnitTestWrapper):
 
     def test_functionWithMultipleLiteralArgument(self):
         funcs = prompty.functionContainer.FunctionContainer()
-        funcs.addFunctionsFromModule(prompty.functions)
-        funcs.addFunctionsFromModule(prompty.colours)
+        funcs.add_functions_from_module(prompty.functions)
+        funcs.add_functions_from_module(prompty.colours)
         c = prompty.compiler.Compiler(funcs)
         self.assertEqual("\001\033[32m\002a%sb%s\001\033[0m\002" % (CompilerTests.user, CompilerTests.host),
                          c._execute([{'lineno': 1, 'type': 'function', 'name': r"green", 'args':
@@ -406,8 +405,8 @@ class CompilerTests(UnitTestWrapper):
 
     def test_nestedFunctionOptionalArg(self):
         funcs = prompty.functionContainer.FunctionContainer()
-        funcs.addFunctionsFromModule(prompty.functions)
-        funcs.addFunctionsFromModule(prompty.colours)
+        funcs.add_functions_from_module(prompty.functions)
+        funcs.add_functions_from_module(prompty.colours)
         c = prompty.compiler.Compiler(funcs)
         self.assertEqual("\001\033[1;32m\002%s\001\033[0m\002" % CompilerTests.user,
                          c._execute([{'lineno': 1, 'type': 'function', 'name': r"green", 'args':
@@ -417,7 +416,7 @@ class CompilerTests(UnitTestWrapper):
 
     def test_multipleAruments(self):
         funcs = prompty.functionContainer.FunctionContainer()
-        funcs.addFunctionsFromModule(prompty.functions)
+        funcs.add_functions_from_module(prompty.functions)
         c = prompty.compiler.Compiler(funcs)
         self.assertEqual(r"2", c._execute([{'lineno': 1, 'type': 'function', 'name': r"max", 'args':
                                             [[{'lineno': 1, 'type': 'literal', 'value': r"1"}],
@@ -427,7 +426,7 @@ class CompilerTests(UnitTestWrapper):
 
     def test_emptyAruments(self):
         funcs = prompty.functionContainer.FunctionContainer()
-        funcs.addFunctionsFromModule(prompty.functions)
+        funcs.add_functions_from_module(prompty.functions)
         c = prompty.compiler.Compiler(funcs)
         self.assertEqual("..", c._execute([{'lineno': 1, 'type': 'function', 'name': r"join", 'args':
                                             [[{'lineno': 1, 'type': 'literal', 'value': r"."}],
@@ -442,8 +441,8 @@ class CompilerTests(UnitTestWrapper):
 
     def test_equalFunction(self):
         funcs = prompty.functionContainer.FunctionContainer()
-        funcs.addFunctionsFromModule(prompty.functions)
-        funcs.addFunctionsFromModule(prompty.colours)
+        funcs.add_functions_from_module(prompty.functions)
+        funcs.add_functions_from_module(prompty.colours)
         c = prompty.compiler.Compiler(funcs)
         self.assertEqual("True", c._execute([{'args': [[{'lineno': 1, 'type': 'literal', 'value': '1'}],
                                                        [{'lineno': 1, 'type': 'literal', 'value': '1'}]],
