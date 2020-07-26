@@ -39,29 +39,32 @@ class UserDir(object):
         self.promtyUserDir = os.path.join(self.homeDir, PROMPTY_USER_DIR)
         self.promtyBaseDir = getPromptyBaseDir()
         self.promtyUserFunctionsDir = os.path.join(self.promtyUserDir, FUNCTIONS_DIR)
+        self.skelDir = self.getSkelDir()
 
-        self.skelDir = os.path.join(self.promtyBaseDir, SKEL_DIR)
-        if not os.path.exists(self.skelDir):
-            # Installed locally
-            self.skelDir = os.path.join(self.homeDir, ".local", "share", "prompty", SKEL_DIR)
-
-            if not os.path.exists(self.skelDir):
-                # Install dir as defined in setup.py
-                self.skelDir = os.path.join(sys.prefix, "share", "prompty", SKEL_DIR)
-
-                if not os.path.exists(self.skelDir):
-                    # Mac OSX
-                    self.skelDir = os.path.join(self.promtyBaseDir, "share", "prompty", SKEL_DIR)
-
-                    if not os.path.exists(self.skelDir):
-                        # Install dir as defined in setup.py
-                        self.skelDir = os.path.join(sys.prefix, "local", "share", "prompty", SKEL_DIR)
-
-                        if not os.path.exists(self.skelDir):
-                            raise IOError("Cannot find installed skel directory")
+        if not self.skelDir:
+            raise IOError("Cannot find installed skel directory")
 
         # Initialise if promptyUserDir does not exist
         self.initialise()
+
+    def getSkelDir(self):
+        paths = [
+            (getPromptyBaseDir(), SKEL_DIR),
+            (getPromptyBaseDir(), "share", "prompty", SKEL_DIR),
+            (self.homeDir, ".local", "share", "prompty", SKEL_DIR),
+            (sys.prefix, "share", "prompty", SKEL_DIR),
+            (sys.prefix, "local", "share", "prompty", SKEL_DIR)
+        ]
+        for path in sys.path:
+            paths.append((path, "share", "prompty", SKEL_DIR))
+            paths.append((path, "..", "share", "prompty", SKEL_DIR))
+            paths.append((path, "..", "..", "share", "prompty", SKEL_DIR))
+
+        for path in paths:
+            full_path = os.path.join(*path)
+            if os.path.exists(full_path):
+                return full_path
+        return None
 
     def initialise(self):
         if not os.path.isfile(self.getConfigFile()):
