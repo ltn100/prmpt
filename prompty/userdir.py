@@ -50,11 +50,15 @@ class UserDir(object):
                 self.skelDir = os.path.join(sys.prefix, "share", "prompty", SKEL_DIR)
 
                 if not os.path.exists(self.skelDir):
-                    # Install dir as defined in setup.py
-                    self.skelDir = os.path.join(sys.prefix, "local", "share", "prompty", SKEL_DIR)
+                    # Mac OSX
+                    self.skelDir = os.path.join(self.promtyBaseDir, "share", "prompty", SKEL_DIR)
 
-                if not os.path.exists(self.skelDir):
-                    raise IOError("Cannot find installed skel directory")
+                    if not os.path.exists(self.skelDir):
+                        # Install dir as defined in setup.py
+                        self.skelDir = os.path.join(sys.prefix, "local", "share", "prompty", SKEL_DIR)
+
+                        if not os.path.exists(self.skelDir):
+                            raise IOError("Cannot find installed skel directory")
 
         # Initialise if promptyUserDir does not exist
         self.initialise()
