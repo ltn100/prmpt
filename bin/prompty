@@ -19,9 +19,10 @@ sys.path[0:0] = [os.path.join(os.path.dirname(__file__), "..")]  # noqa
 
 import prompty
 
-# Overload sys.stdout to support unicode
-UTF8Writer = codecs.getwriter('utf-8')
-sys.stdout = UTF8Writer(sys.stdout)
+if (sys.version_info < (3, 0)):
+    # Overload sys.stdout to support unicode in python 2
+    UTF8Writer = codecs.getwriter('utf-8')
+    sys.stdout = UTF8Writer(sys.stdout)
 
 USAGE = "Usage: %s [options]" % sys.argv[0] + """
 Options:     -h, --help      Display this help message and exit
