@@ -9,6 +9,7 @@ from builtins import str
 # Import external modules
 import re
 import types
+import os
 
 from prompty import functionBase
 
@@ -58,10 +59,19 @@ class Colours(functionBase.PromptyFunctions):
     STYLES = [NORMAL, BOLD, DIM, ITALIC, UNDERLINE, BLINK, INVERTED]
 
     RESET_KEY = 0
-    NOCOUNT_START = "\001"
-    NOCOUNT_END = "\002"
+    NOCOUNT_START_BASH = "\001"
+    NOCOUNT_END_BASH = "\002"
+    NOCOUNT_START_ZSH = "%{"
+    NOCOUNT_END_ZSH = "%}"
     ESCAPE_CHAR = "\033["
     END_CODE = "m"
+
+    if os.environ.get('SHELL', 'sh').split(os.sep)[-1] == "zsh":
+        NOCOUNT_START = NOCOUNT_START_ZSH
+        NOCOUNT_END = NOCOUNT_END_ZSH
+    else:
+        NOCOUNT_START = NOCOUNT_START_BASH
+        NOCOUNT_END = NOCOUNT_END_BASH
 
     def __init__(self, container):
         self._populateFunctions()
