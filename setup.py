@@ -106,5 +106,6 @@ setuptools.setup(
     install_requires=[
         "future",
         "configparser"
+        "colorama"
     ],
 )
