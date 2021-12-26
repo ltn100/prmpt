@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 # vim:set softtabstop=4 shiftwidth=4 tabstop=4 expandtab:
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 from builtins import str
+from platform import system
+from colorama import init
 
 # Import external modules
 import re
@@ -15,6 +18,9 @@ from prompty import functionBase
 
 
 class Colours(functionBase.PromptyFunctions):
+    if system() == 'Windows':
+        init() # Uses Colorama's `init()` function for Prompty text styles be able to run on Windows.
+    
     NAME_KEY = 0
     CODE_KEY = 1
     VAL_KEY = 2
