@@ -64,8 +64,8 @@ class Compiler(object):
                 try:
                     out += self._move(str(self.funcs._call(*args)))
                 except ValueError as e:
-                    return "Prompty error on line %d: %s\n$ " % (element['lineno'], str(e))
+                    return "Prmpt error on line %d: %s\n$ " % (element['lineno'], str(e))
                 except KeyError as e:
-                    return "Prompty error on line %d: No such function %s\n$ " % (element['lineno'], str(e))
+                    return "Prmpt error on line %d: No such function %s\n$ " % (element['lineno'], str(e))
 
         return out

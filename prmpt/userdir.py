@@ -18,7 +18,7 @@ SKEL_DIR = "skel"
 FUNCTIONS_DIR = "functions"
 
 
-def getPromptyBaseDir():
+def getPrmptBaseDir():
     """
     Get the directory where the prmpt module is located
     """
@@ -37,7 +37,7 @@ class UserDir(object):
         else:
             self.homeDir = homeDir
         self.promtyUserDir = os.path.join(self.homeDir, PROMPTY_USER_DIR)
-        self.promtyBaseDir = getPromptyBaseDir()
+        self.promtyBaseDir = getPrmptBaseDir()
         self.promtyUserFunctionsDir = os.path.join(self.promtyUserDir, FUNCTIONS_DIR)
         self.skelDir = self.getSkelDir()
 
@@ -49,8 +49,8 @@ class UserDir(object):
 
     def getSkelDir(self):
         paths = [
-            (getPromptyBaseDir(), SKEL_DIR),
-            (getPromptyBaseDir(), "share", "prmpt", SKEL_DIR),
+            (getPrmptBaseDir(), SKEL_DIR),
+            (getPrmptBaseDir(), "share", "prmpt", SKEL_DIR),
             (self.homeDir, ".local", "share", "prmpt", SKEL_DIR),
             (sys.prefix, "share", "prmpt", SKEL_DIR),
             (sys.prefix, "local", "share", "prmpt", SKEL_DIR)

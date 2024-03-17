@@ -13,7 +13,7 @@ from six import StringIO, itervalues
 from .. import functionBase
 
 
-class PromptySignature(sphinx.util.inspect.Signature):
+class PrmptSignature(sphinx.util.inspect.Signature):
     def format_args(self):
         """
         Format the arguments like ``[oparg][optarg=default]{reqarg}``.
@@ -51,7 +51,7 @@ class PromptySignature(sphinx.util.inspect.Signature):
         return ''.join(optional_args) + ''.join(required_args)
 
 
-class PromptyMethodDocumenter(MethodDocumenter):
+class PrmptMethodDocumenter(MethodDocumenter):
     objtype = 'prmptmethod'
     priority = 20  # higher priority than MethodDocumenter
 
@@ -61,10 +61,10 @@ class PromptyMethodDocumenter(MethodDocumenter):
         """
         # Monkey patch the Signature class
         OldSignature = sphinx.ext.autodoc.Signature
-        sphinx.ext.autodoc.Signature = PromptySignature
+        sphinx.ext.autodoc.Signature = PrmptSignature
 
         # Call base class member
-        args = super(PromptyMethodDocumenter, self).format_args(**kwargs)
+        args = super(PrmptMethodDocumenter, self).format_args(**kwargs)
 
         # Revert patch
         sphinx.ext.autodoc.Signature = OldSignature
@@ -74,11 +74,11 @@ class PromptyMethodDocumenter(MethodDocumenter):
         """
         Format the function name like ``\\function``.
         """
-        name = super(PromptyMethodDocumenter, self).format_name(**kwargs)
+        name = super(PrmptMethodDocumenter, self).format_name(**kwargs)
         # Remove class name
         name = name.split('.')[-1]
         return "\\\\" + name
 
 
 def setup(app):
-    app.add_autodocumenter(PromptyMethodDocumenter)
+    app.add_autodocumenter(PrmptMethodDocumenter)

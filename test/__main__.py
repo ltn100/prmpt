@@ -18,5 +18,5 @@ from test.test_skel import *
 
 
 if __name__ == "__main__":
-    print("Prompty module path: %s" % prmpt.__path__[0])
+    print("Prmpt module path: %s" % prmpt.__path__[0])
     sys.exit(unittest.main())

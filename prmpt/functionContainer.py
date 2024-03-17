@@ -31,7 +31,7 @@ class FunctionContainer(object):
     def addFunctionsFromModule(self, module):
         for _, cls in functionBase.getmembers(
                 module,
-                functionBase.PromptyFunctions._isPromptyFunctionsSubClass):
+                functionBase.PrmptFunctions._isPrmptFunctionsSubClass):
             # Instantiate class
             obj = cls(self)
             # Store object so that it is not garbage collected

@@ -12,7 +12,7 @@ from test import prmpt
 from test import UnitTestWrapper
 
 
-class MyFunctions(prmpt.functionBase.PromptyFunctions):
+class MyFunctions(prmpt.functionBase.PrmptFunctions):
     def testFunc(self):
         return "This Is A Test"
 

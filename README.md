@@ -1,7 +1,7 @@
-Prompty [![Build Status](https://travis-ci.org/ltn100/prmpt.svg?branch=develop)](https://travis-ci.org/ltn100/prmpt) [![Documentation Status](https://readthedocs.org/projects/prmpt/badge/?version=latest)](https://prmpt.readthedocs.io/en/latest/) [![Coverage Status](https://coveralls.io/repos/ltn100/prmpt/badge.svg?service=github)](https://coveralls.io/github/ltn100/prmpt) [![PyPI version](https://badge.fury.io/py/prmpt.svg)](https://pypi.org/project/prmpt/) [![MIT license](http://img.shields.io/badge/license-MIT-blue.svg)](http://opensource.org/licenses/MIT)
+Prmpt [![Build Status](https://travis-ci.org/ltn100/prmpt.svg?branch=develop)](https://travis-ci.org/ltn100/prmpt) [![Documentation Status](https://readthedocs.org/projects/prmpt/badge/?version=latest)](https://prmpt.readthedocs.io/en/latest/) [![Coverage Status](https://coveralls.io/repos/ltn100/prmpt/badge.svg?service=github)](https://coveralls.io/github/ltn100/prmpt) [![PyPI version](https://badge.fury.io/py/prmpt.svg)](https://pypi.org/project/prmpt/) [![MIT license](http://img.shields.io/badge/license-MIT-blue.svg)](http://opensource.org/licenses/MIT)
 =======
 
-Prompty is a [command prompt](https://en.wikipedia.org/wiki/Command-line_interface#Command_prompt) [markup language](https://en.wikipedia.org/wiki/Markup_language).
+Prmpt is a [command prompt](https://en.wikipedia.org/wiki/Command-line_interface#Command_prompt) [markup language](https://en.wikipedia.org/wiki/Markup_language).
 
 The language is loosely modelled on the [LaTeX](https://en.wikipedia.org/wiki/LaTeX) markup language, used for typesetting.
 

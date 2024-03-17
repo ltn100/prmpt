@@ -117,9 +117,9 @@ class VCSBase(ABC):
 
 
 # --------------------------
-# Prompty functions
+# Prmpt functions
 # --------------------------
-class VCSFunctions(functionBase.PromptyFunctions):
+class VCSFunctions(functionBase.PrmptFunctions):
 
     def isrepo(self):
         """

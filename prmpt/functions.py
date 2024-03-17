@@ -18,7 +18,7 @@ import random
 from . import functionBase
 
 
-class SpecialCharacters(functionBase.PromptyFunctions):
+class SpecialCharacters(functionBase.PrmptFunctions):
     """
     Functions to print special characters.
     """
@@ -110,7 +110,7 @@ class SpecialCharacters(functionBase.PromptyFunctions):
         return chr(0x26A1)
 
 
-class PowerlineFunctions(functionBase.PromptyFunctions):
+class PowerlineFunctions(functionBase.PrmptFunctions):
     """
     Functions for use with
     `Powerline <https://github.com/powerline/powerline>`_ fonts.
@@ -198,7 +198,7 @@ class PowerlineFunctions(functionBase.PromptyFunctions):
         return chr(0xe0b3)
 
 
-class BashPromptEscapes(functionBase.PromptyFunctions):
+class BashPromptEscapes(functionBase.PrmptFunctions):
     """
     Functions to mimic bash prompt escape sequences, similar to those defined
     here:
@@ -304,7 +304,7 @@ class BashPromptEscapes(functionBase.PromptyFunctions):
             return str(r"$")
 
 
-class MiscFunctions(functionBase.PromptyFunctions):
+class MiscFunctions(functionBase.PrmptFunctions):
     def isrealpath(self, path=None):
         """
         If the current directory is a real path (i.e. not via a symbolic link)
