@@ -8,7 +8,7 @@ from __future__ import unicode_literals
 import os
 import time
 
-from prompty import vcs
+from prmpt import vcs
 
 GIT_COMMAND = "git"
 

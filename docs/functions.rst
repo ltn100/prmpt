@@ -1,11 +1,11 @@
 Functions
 =========
 
-.. automodule:: prompty.functions
+.. automodule:: prmpt.functions
    :members:
    :undoc-members:
 
-.. automodule:: prompty.vcs
+.. automodule:: prmpt.vcs
    :members:
    :undoc-members:
    :exclude-members: VCS, VCSBase

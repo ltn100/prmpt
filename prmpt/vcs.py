@@ -11,7 +11,7 @@ ABC = abc.ABCMeta(str('ABC'), (object,), {'__slots__': ()})  # noqa, compatible 
 from builtins import str
 import subprocess
 
-from prompty import functionBase
+from prmpt import functionBase
 
 
 class VCS(object):
@@ -117,9 +117,9 @@ class VCSBase(ABC):
 
 
 # --------------------------
-# Prompty functions
+# Prmpt functions
 # --------------------------
-class VCSFunctions(functionBase.PromptyFunctions):
+class VCSFunctions(functionBase.PrmptFunctions):
 
     def isrepo(self):
         """

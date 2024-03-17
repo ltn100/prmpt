@@ -12,7 +12,7 @@ import re
 
 
 class Lexer(shlex.shlex):
-    """ A lexer to split tokens in a prompty script.
+    """ A lexer to split tokens in a prmpt script.
 
     Usage: l = Lexer("\\my\\amazing{}function")
     renders an iterable object, l, which will generate:

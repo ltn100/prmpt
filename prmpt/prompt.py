@@ -8,13 +8,13 @@ from __future__ import unicode_literals
 # Import external modules
 
 
-# Import prompty modules
-from prompty import functionContainer
-from prompty import compiler
-from prompty import config
-from prompty import functions
-from prompty import colours
-from prompty import vcs
+# Import prmpt modules
+from prmpt import functionContainer
+from prmpt import compiler
+from prmpt import config
+from prmpt import functions
+from prmpt import colours
+from prmpt import vcs
 
 
 class Prompt(object):

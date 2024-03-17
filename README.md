@@ -1,13 +1,13 @@
-Prompty [![Build Status](https://travis-ci.org/ltn100/prompty.svg?branch=develop)](https://travis-ci.org/ltn100/prompty) [![Documentation Status](https://readthedocs.org/projects/prompty/badge/?version=latest)](https://prompty.readthedocs.io/en/latest/) [![Coverage Status](https://coveralls.io/repos/ltn100/prompty/badge.svg?service=github)](https://coveralls.io/github/ltn100/prompty) [![PyPI version](https://badge.fury.io/py/prompty.svg)](https://pypi.org/project/prompty/) [![MIT license](http://img.shields.io/badge/license-MIT-blue.svg)](http://opensource.org/licenses/MIT)
+Prmpt [![Build Status](https://travis-ci.org/ltn100/prmpt.svg?branch=develop)](https://travis-ci.org/ltn100/prmpt) [![Documentation Status](https://readthedocs.org/projects/prmpt/badge/?version=latest)](https://prmpt.readthedocs.io/en/latest/) [![Coverage Status](https://coveralls.io/repos/ltn100/prmpt/badge.svg?service=github)](https://coveralls.io/github/ltn100/prmpt) [![PyPI version](https://badge.fury.io/py/prmpt.svg)](https://pypi.org/project/prmpt/) [![MIT license](http://img.shields.io/badge/license-MIT-blue.svg)](http://opensource.org/licenses/MIT)
 =======
 
-Prompty is a [command prompt](https://en.wikipedia.org/wiki/Command-line_interface#Command_prompt) [markup language](https://en.wikipedia.org/wiki/Markup_language).
+Prmpt is a [command prompt](https://en.wikipedia.org/wiki/Command-line_interface#Command_prompt) [markup language](https://en.wikipedia.org/wiki/Markup_language).
 
 The language is loosely modelled on the [LaTeX](https://en.wikipedia.org/wiki/LaTeX) markup language, used for typesetting.
 
-Here is an example of the sort of interactive command prompt that can be built using prompty:
+Here is an example of the sort of interactive command prompt that can be built using prmpt:
 
-![prompty demonstration](./img/demo.gif)
+![prmpt demonstration](./img/demo.gif)
 
 
 # Installation
@@ -15,13 +15,13 @@ Here is an example of the sort of interactive command prompt that can be built u
 The latest version can be installed from PyPI using `pip`:
 
 ```bash
-sudo pip install prompty
+sudo pip install prmpt
 ```
 
-You then need to insert a line at the end of your `.bashrc` file so that prompty is called from the `PS1` environment variable:
+You then need to insert a line at the end of your `.bashrc` file so that prmpt is called from the `PS1` environment variable:
 
 ```bash
-prompty -b >> ~/.bashrc
+prmpt -b >> ~/.bashrc
 ```
 
 Now re-source your updated `.bashrc` file:
@@ -32,28 +32,28 @@ source ~/.bashrc
 (alternatively you can restart your shell session)
 
 
-> **Tip:** If you get an error like "`bash: prompty: command not found`", it is probably because you installed it locally, as a non-root user (without `sudo`). This is fine, but you will need to call the prompty executable from its local path:
+> **Tip:** If you get an error like "`bash: prmpt: command not found`", it is probably because you installed it locally, as a non-root user (without `sudo`). This is fine, but you will need to call the prmpt executable from its local path:
 >
-> `~/.local/bin/prompty -b >> ~/.bashrc`
+> `~/.local/bin/prmpt -b >> ~/.bashrc`
 
 
 # Configuration
 
-The configuration for prompty is defined in your `~/.local/share/prompty/prompty.cfg` file:
+The configuration for prmpt is defined in your `~/.local/share/prmpt/prmpt.cfg` file:
 
 ```cfg
 [prompt]
-prompt_file = default.prompty
+prompt_file = default.prmpt
 ```
 
-The `prompt_file` variable specifies which prompty file is currently in use. The prompty files are located in `~/.local/share/prompty/`. You can change the configuration to use one of the pre-defined ones, or write your own.
+The `prompt_file` variable specifies which prmpt file is currently in use. The prmpt files are located in `~/.local/share/prmpt/`. You can change the configuration to use one of the pre-defined ones, or write your own.
 
 
 # Examples
 
 ## Simple example
 
-You can define a simple `.prompty` file like this:
+You can define a simple `.prmpt` file like this:
 
 ```TeX
 \green{\user}\space
@@ -102,25 +102,25 @@ Here is a verbose example with comments to explain the syntax used:
 \dollar\space
 ```
 
-This prompty script will achieve the following prompt:
+This prmpt script will achieve the following prompt:
 
 ![example](./img/example2.gif)
 
 
 ## More
 
-[`elite.prompty`](./skel/elite.prompty):
+[`elite.prmpt`](./skel/elite.prmpt):
 
 ![elite](./img/elite.png)
 
 
-[`red.prompty`](./skel/red.prompty):
+[`red.prmpt`](./skel/red.prmpt):
 
 ![red](./img/red.png)
 
-For a more elaborate example, see [`~/.local/share/prompty/default.prompty`](./skel/default.prompty) (this is the one used for the animation at the top of this page).
+For a more elaborate example, see [`~/.local/share/prmpt/default.prmpt`](./skel/default.prmpt) (this is the one used for the animation at the top of this page).
 
 
 # Documentation
 
-Documentation is available at [readthedocs](https://prompty.readthedocs.io/en/latest/).
+Documentation is available at [readthedocs](https://prmpt.readthedocs.io/en/latest/).

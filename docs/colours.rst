@@ -1,5 +1,5 @@
 Colours
 =======
 
-.. autoclass:: prompty.colours.Colours
+.. autoclass:: prmpt.colours.Colours
    :members:

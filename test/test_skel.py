@@ -5,7 +5,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from test import prompty
+from test import prmpt
 from test import UnitTestWrapper
 
 import os
@@ -18,13 +18,13 @@ class SkelTests(UnitTestWrapper):
         print()
         test_dir = os.path.dirname(os.path.abspath(__file__))
         all_files = os.listdir(os.path.join(test_dir, "..", "skel"))
-        files = [os.path.join(test_dir, "..", "skel", f) for f in all_files if f.endswith(".prompty")]
+        files = [os.path.join(test_dir, "..", "skel", f) for f in all_files if f.endswith(".prmpt")]
         for file in files:
-            p = prompty.prompt.Prompt(prompty.status.Status())
+            p = prmpt.prompt.Prompt(prmpt.status.Status())
             p.config.promptFile = file
             p.config.loadPromptFile()
             s = p.getPrompt()
             print("Testing " + file)
-            print(s.replace(prompty.colours.Colours.NOCOUNT_START, '').replace(prompty.colours.Colours.NOCOUNT_END, ''))
+            print(s.replace(prmpt.colours.Colours.NOCOUNT_START, '').replace(prmpt.colours.Colours.NOCOUNT_END, ''))
             print()
         self.assertEqual(1, 1)

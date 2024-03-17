@@ -8,9 +8,9 @@ from __future__ import unicode_literals
 import os
 import subprocess
 
-from prompty import userdir
-from prompty import vcs
-from prompty import colours
+from prmpt import userdir
+from prmpt import vcs
+from prmpt import colours
 
 
 class Coords(object):

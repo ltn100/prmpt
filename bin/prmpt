@@ -14,10 +14,10 @@ import os
 import getopt
 import codecs
 
-# Add base directory to path so that it can find the prompty package
+# Add base directory to path so that it can find the prmpt package
 sys.path[0:0] = [os.path.join(os.path.dirname(__file__), "..")]  # noqa
 
-import prompty
+import prmpt
 
 if (sys.version_info < (3, 0)):
     # Overload sys.stdout to support unicode in python 2
@@ -78,7 +78,7 @@ def main(argv=None):
             return 0
 
         if option in ("-c", "--colours"):
-            c = prompty.colours.Colours(prompty.functionContainer.FunctionContainer())
+            c = prmpt.colours.Colours(prmpt.functionContainer.FunctionContainer())
             for style in c.STYLES:
                 for colour in c.COLOURS:
                     print("%s%s : %s%s" % (c.startColour(colour, style=style, _wrap=False),
@@ -91,7 +91,7 @@ def main(argv=None):
             debug = True
 
         if option in ("-p", "--palette"):
-            c = prompty.colours.Colours(prompty.functionContainer.FunctionContainer())
+            c = prmpt.colours.Colours(prmpt.functionContainer.FunctionContainer())
             for colour in c.PALETTE:
                 print("%s%s%s" % (
                     c.startColour(
@@ -109,7 +109,7 @@ def main(argv=None):
             workingDir = arg
 
         if option in ("-v", "--version"):
-            print(prompty.__version__)
+            print(prmpt.__version__)
             return 0
 
     if len(args) < 1:
@@ -118,9 +118,9 @@ def main(argv=None):
 
     exitStatus = int(args[0])
 
-    s = prompty.status.Status(exitStatus, workingDir)
+    s = prmpt.status.Status(exitStatus, workingDir)
 
-    p = prompty.prompt.Prompt(s)
+    p = prmpt.prompt.Prompt(s)
 
     prompt = p.getPrompt()
 

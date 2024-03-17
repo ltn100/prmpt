@@ -11,10 +11,10 @@ import re
 import types
 import os
 
-from prompty import functionBase
+from prmpt import functionBase
 
 
-class Colours(functionBase.PromptyFunctions):
+class Colours(functionBase.PrmptFunctions):
     NAME_KEY = 0
     CODE_KEY = 1
     VAL_KEY = 2

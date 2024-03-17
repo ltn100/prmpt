@@ -22,11 +22,11 @@ script:
     - python -m pytest
     - python setup.py sdist --verbose
     - cd dist
-    - pip install -vvv prompty*.tar.gz
-    - pip uninstall -y prompty
+    - pip install -vvv prmpt*.tar.gz
+    - pip uninstall -y prmpt
     - cd ..
-    - rm -f bin/promptyc
-    - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then python -m coverage.__main__ run --source=prompty,test,bin/prompty -m pytest; fi
+    - rm -f bin/prmptc
+    - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then python -m coverage.__main__ run --source=prmpt,test,bin/prmpt -m pytest; fi
     - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then python -m coverage.__main__ report; fi
 
 after_success:

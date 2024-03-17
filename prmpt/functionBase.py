@@ -66,7 +66,7 @@ def isclass(obj):
     return isinstance(obj, type)
 
 
-class PromptyFunctions(object):
+class PrmptFunctions(object):
     def __init__(self, container=None):
         self.functions = container
         if self.functions:
@@ -75,8 +75,8 @@ class PromptyFunctions(object):
             self.status = None
 
     @staticmethod
-    def _isPromptyFunctionsSubClass(obj):
-        return isclass(obj) and issubclass(obj, PromptyFunctions)
+    def _isPrmptFunctionsSubClass(obj):
+        return isclass(obj) and issubclass(obj, PrmptFunctions)
 
     def register(self):
         for name, func in getmembers(self, ismethod):

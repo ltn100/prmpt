@@ -12,9 +12,9 @@ import imp
 import glob
 import os
 
-# Import prompty modules
-from prompty import functionBase
-from prompty import status as statusmod
+# Import prmpt modules
+from prmpt import functionBase
+from prmpt import status as statusmod
 
 
 class FunctionContainer(object):
@@ -31,12 +31,12 @@ class FunctionContainer(object):
     def addFunctionsFromModule(self, module):
         for _, cls in functionBase.getmembers(
                 module,
-                functionBase.PromptyFunctions._isPromptyFunctionsSubClass):
+                functionBase.PrmptFunctions._isPrmptFunctionsSubClass):
             # Instantiate class
             obj = cls(self)
             # Store object so that it is not garbage collected
             self.instances.append(obj)
-            # Register prompty functions
+            # Register prmpt functions
             obj.register()
 
     def addFunctionsFromDir(self, directory):

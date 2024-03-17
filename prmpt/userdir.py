@@ -12,15 +12,15 @@ import errno
 import distutils.dir_util
 
 
-PROMPTY_USER_DIR = os.path.join(".local", "share", "prompty")
-PROMPTY_CONFIG_FILE = "prompty.cfg"
+PROMPTY_USER_DIR = os.path.join(".local", "share", "prmpt")
+PROMPTY_CONFIG_FILE = "prmpt.cfg"
 SKEL_DIR = "skel"
 FUNCTIONS_DIR = "functions"
 
 
-def getPromptyBaseDir():
+def getPrmptBaseDir():
     """
-    Get the directory where the prompty module is located
+    Get the directory where the prmpt module is located
     """
     return os.path.dirname(
         os.path.dirname(
@@ -37,28 +37,28 @@ class UserDir(object):
         else:
             self.homeDir = homeDir
         self.promtyUserDir = os.path.join(self.homeDir, PROMPTY_USER_DIR)
-        self.promtyBaseDir = getPromptyBaseDir()
+        self.promtyBaseDir = getPrmptBaseDir()
         self.promtyUserFunctionsDir = os.path.join(self.promtyUserDir, FUNCTIONS_DIR)
         self.skelDir = self.getSkelDir()
 
         if not self.skelDir:
             raise IOError("Cannot find installed skel directory")
 
-        # Initialise if promptyUserDir does not exist
+        # Initialise if prmptUserDir does not exist
         self.initialise()
 
     def getSkelDir(self):
         paths = [
-            (getPromptyBaseDir(), SKEL_DIR),
-            (getPromptyBaseDir(), "share", "prompty", SKEL_DIR),
-            (self.homeDir, ".local", "share", "prompty", SKEL_DIR),
-            (sys.prefix, "share", "prompty", SKEL_DIR),
-            (sys.prefix, "local", "share", "prompty", SKEL_DIR)
+            (getPrmptBaseDir(), SKEL_DIR),
+            (getPrmptBaseDir(), "share", "prmpt", SKEL_DIR),
+            (self.homeDir, ".local", "share", "prmpt", SKEL_DIR),
+            (sys.prefix, "share", "prmpt", SKEL_DIR),
+            (sys.prefix, "local", "share", "prmpt", SKEL_DIR)
         ]
         for path in sys.path:
-            paths.append((path, "share", "prompty", SKEL_DIR))
-            paths.append((path, "..", "share", "prompty", SKEL_DIR))
-            paths.append((path, "..", "..", "share", "prompty", SKEL_DIR))
+            paths.append((path, "share", "prmpt", SKEL_DIR))
+            paths.append((path, "..", "share", "prmpt", SKEL_DIR))
+            paths.append((path, "..", "..", "share", "prmpt", SKEL_DIR))
 
         for path in paths:
             full_path = os.path.join(*path)
@@ -68,11 +68,11 @@ class UserDir(object):
 
     def initialise(self):
         if not os.path.isfile(self.getConfigFile()):
-            # No prompty dir - check if there is a file blocking the name
+            # No prmpt dir - check if there is a file blocking the name
             if os.path.isfile(self.promtyUserDir):
                 raise IOError("Cannot create %s directory - file exists!" % PROMPTY_USER_DIR)
 
-            # Create prompty dir from skel
+            # Create prmpt dir from skel
             self.copy(self.skelDir, self.promtyUserDir)
 
     @staticmethod

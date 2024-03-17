@@ -1,4 +1,4 @@
-Welcome to prompty's documentation!
+Welcome to prmpt's documentation!
 ===================================
 
 .. toctree::
