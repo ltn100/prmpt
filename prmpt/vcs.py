@@ -11,7 +11,7 @@ ABC = abc.ABCMeta(str('ABC'), (object,), {'__slots__': ()})  # noqa, compatible 
 from builtins import str
 import subprocess
 
-from prompty import functionBase
+from prmpt import functionBase
 
 
 class VCS(object):

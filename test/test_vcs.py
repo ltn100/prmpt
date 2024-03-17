@@ -10,13 +10,13 @@ import getpass
 import distutils
 import mock
 
-from test import prompty
+from test import prmpt
 from test import MockProc
 from test import UnitTestWrapper
 
 
 class GitTests(UnitTestWrapper):
-    @mock.patch('prompty.vcs.subprocess')
+    @mock.patch('prmpt.vcs.subprocess')
     def test_init(self, mock_sp):
         # Set up mock
         status_output = (
@@ -33,11 +33,11 @@ class GitTests(UnitTestWrapper):
         )
         mock_sp.Popen.side_effect = [MockProc(status_output), MockProc(revparse_output)]
 
-        g = prompty.git.Git(prompty.status.Status(0))
-        self.assertIsInstance(g, prompty.vcs.VCSBase)
-        self.assertEqual(g.command, prompty.git.GIT_COMMAND)
+        g = prmpt.git.Git(prmpt.status.Status(0))
+        self.assertIsInstance(g, prmpt.vcs.VCSBase)
+        self.assertEqual(g.command, prmpt.git.GIT_COMMAND)
 
-    @mock.patch('prompty.vcs.subprocess')
+    @mock.patch('prmpt.vcs.subprocess')
     def test_gitUnavailable(self, mock_sp):
         # Set up mock
         status_output = (
@@ -54,7 +54,7 @@ class GitTests(UnitTestWrapper):
         )
         mock_sp.Popen.side_effect = [MockProc(status_output), MockProc(revparse_output)]
 
-        g = prompty.git.Git(prompty.status.Status(0))
+        g = prmpt.git.Git(prmpt.status.Status(0))
         self.assertEqual(False, g.installed)
         self.assertEqual(False, g.isRepo)
         self.assertEqual("", g.branch)
@@ -63,7 +63,7 @@ class GitTests(UnitTestWrapper):
         self.assertEqual(0, g.unmerged)
         self.assertEqual(0, g.untracked)
 
-    @mock.patch('prompty.vcs.subprocess')
+    @mock.patch('prmpt.vcs.subprocess')
     def test_cleanRepo(self, mock_sp):
         # Set up mock
         status_output = (
@@ -80,7 +80,7 @@ class GitTests(UnitTestWrapper):
         )
         mock_sp.Popen.side_effect = [MockProc(status_output), MockProc(revparse_output)]
 
-        g = prompty.git.Git(prompty.status.Status(0))
+        g = prmpt.git.Git(prmpt.status.Status(0))
         self.assertEqual(True, g.installed)
         self.assertEqual(True, g.isRepo)
         self.assertEqual("develop", g.branch)
@@ -90,14 +90,14 @@ class GitTests(UnitTestWrapper):
         self.assertEqual(0, g.untracked)
         self.assertEqual("1234567", g.commit)
 
-    @mock.patch('prompty.vcs.subprocess')
+    @mock.patch('prmpt.vcs.subprocess')
     def test_dirtyRepo(self, mock_sp):
         # Set up mock
         status_output = (
             b"## master...origin/master [ahead 14, behind 58]\n" +
-            b"M  bin/prompty\n" +
-            b" M prompty/prompt.py\n" +
-            b"A  test/test_prompty.py\n" +
+            b"M  bin/prmpt\n" +
+            b" M prmpt/prompt.py\n" +
+            b"A  test/test_prmpt.py\n" +
             b"AU test.py\n" +
             b"?? test/test_git.py",
             b"",
@@ -112,7 +112,7 @@ class GitTests(UnitTestWrapper):
         )
         mock_sp.Popen.side_effect = [MockProc(status_output), MockProc(revparse_output)]
 
-        g = prompty.git.Git(prompty.status.Status(0))
+        g = prmpt.git.Git(prmpt.status.Status(0))
         self.assertEqual(True, g.installed)
         self.assertEqual(True, g.isRepo)
         self.assertEqual("master", g.branch)
@@ -124,7 +124,7 @@ class GitTests(UnitTestWrapper):
         self.assertEqual(58, g.behind)
         self.assertEqual("1234567", g.commit)
 
-    @mock.patch('prompty.vcs.subprocess')
+    @mock.patch('prmpt.vcs.subprocess')
     def test_notARepo(self, mock_sp):
         # Set up mock
         status_output = (
@@ -141,7 +141,7 @@ class GitTests(UnitTestWrapper):
         )
         mock_sp.Popen.side_effect = [MockProc(status_output), MockProc(revparse_output)]
 
-        g = prompty.git.Git(prompty.status.Status(0))
+        g = prmpt.git.Git(prmpt.status.Status(0))
         self.assertEqual(True, g.installed)
         self.assertEqual(False, g.isRepo)
         self.assertEqual("", g.branch)
@@ -151,7 +151,7 @@ class GitTests(UnitTestWrapper):
         self.assertEqual(0, g.untracked)
         self.assertEqual("1234567", g.commit)
 
-    @mock.patch('prompty.vcs.subprocess')
+    @mock.patch('prmpt.vcs.subprocess')
     def test_last_fetched(self, mock_sp):
         # Set up mock
         status_output = (
@@ -167,18 +167,18 @@ class GitTests(UnitTestWrapper):
             None
         )
         mock_sp.Popen.side_effect = [MockProc(status_output), MockProc(revparse_output)]
-        g = prompty.git.Git(prompty.status.Status(0))
+        g = prmpt.git.Git(prmpt.status.Status(0))
         self.assertGreaterEqual(g.last_fetched, 0)
         self.assertEqual('1234567', g.commit)
 
 
 class SvnTests(UnitTestWrapper):
     def test_init(self):
-        g = prompty.svn.Subversion(prompty.status.Status(0))
-        self.assertIsInstance(g, prompty.vcs.VCSBase)
-        self.assertEqual(g.command, prompty.svn.SVN_COMMAND)
+        g = prmpt.svn.Subversion(prmpt.status.Status(0))
+        self.assertIsInstance(g, prmpt.vcs.VCSBase)
+        self.assertEqual(g.command, prmpt.svn.SVN_COMMAND)
 
-    @mock.patch('prompty.vcs.subprocess')
+    @mock.patch('prmpt.vcs.subprocess')
     def test_svnUnavailable(self, mock_sp):
         # Set up mock
         output = (
@@ -189,14 +189,14 @@ class SvnTests(UnitTestWrapper):
         )
         mock_sp.Popen.return_value = MockProc(output)
 
-        g = prompty.svn.Subversion(prompty.status.Status(0))
+        g = prmpt.svn.Subversion(prmpt.status.Status(0))
         self.assertEqual(False, g.installed)
         self.assertEqual(False, g.isRepo)
         self.assertEqual("", g.branch)
         self.assertEqual(0, g.changed)
         self.assertEqual(0, g.untracked)
 
-    @mock.patch('prompty.vcs.subprocess')
+    @mock.patch('prmpt.vcs.subprocess')
     def test_notARepo(self, mock_sp):
         # Set up mock
         output = (
@@ -207,7 +207,7 @@ class SvnTests(UnitTestWrapper):
         )
         mock_sp.Popen.return_value = MockProc(output)
 
-        g = prompty.svn.Subversion(prompty.status.Status(0))
+        g = prmpt.svn.Subversion(prmpt.status.Status(0))
         self.assertEqual(True, g.installed)
         self.assertEqual(False, g.isRepo)
         self.assertEqual("", g.branch)
@@ -216,7 +216,7 @@ class SvnTests(UnitTestWrapper):
         self.assertEqual(0, g.unmerged)
         self.assertEqual(0, g.untracked)
 
-    @mock.patch('prompty.vcs.subprocess')
+    @mock.patch('prmpt.vcs.subprocess')
     def test_info(self, mock_sp):
         # Set up mock
         output = (
@@ -250,12 +250,12 @@ class SvnTests(UnitTestWrapper):
         )
         mock_sp.Popen.return_value = MockProc(output)
 
-        g = prompty.svn.Subversion(prompty.status.Status(0))
+        g = prmpt.svn.Subversion(prmpt.status.Status(0))
         self.assertEqual(True, g.installed)
         self.assertEqual(True, g.isRepo)
         self.assertEqual("trunk", g.branch)
 
-    @mock.patch('prompty.vcs.subprocess')
+    @mock.patch('prmpt.vcs.subprocess')
     def test_status(self, mock_sp):
         # Set up mock
         output = (
@@ -272,6 +272,6 @@ class SvnTests(UnitTestWrapper):
         )
         mock_sp.Popen.return_value = MockProc(output)
 
-        g = prompty.svn.Subversion(prompty.status.Status(0))
+        g = prmpt.svn.Subversion(prmpt.status.Status(0))
         self.assertEqual(5, g.changed)
         self.assertEqual(2, g.untracked)

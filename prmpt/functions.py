@@ -233,7 +233,7 @@ class BashPromptEscapes(functionBase.PromptyFunctions):
         given ``fmt`` string. Formats are given in the `strptime()
         <https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior>`_
         function documentation. However, because ``%`` is a special character
-        in prompty, the control character is changed to ``#``. For example:
+        in prmpt, the control character is changed to ``#``. For example:
         ``#a #b #d`` will render to "Weekday Month Date".
 
         If no ``fmt`` string is given, then the local time in 24hr format is

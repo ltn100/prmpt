@@ -9,7 +9,7 @@ import re
 import xml.dom.minidom
 from xml.parsers.expat import ExpatError
 
-from prompty import vcs
+from prmpt import vcs
 
 SVN_COMMAND = "svn"
 

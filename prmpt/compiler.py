@@ -6,9 +6,9 @@ from __future__ import print_function
 from __future__ import unicode_literals
 from builtins import str
 
-from prompty import parser
-from prompty import colours
-from prompty import status
+from prmpt import parser
+from prmpt import colours
+from prmpt import status
 
 
 class Compiler(object):

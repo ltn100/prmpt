@@ -52,7 +52,7 @@ class PromptySignature(sphinx.util.inspect.Signature):
 
 
 class PromptyMethodDocumenter(MethodDocumenter):
-    objtype = 'promptymethod'
+    objtype = 'prmptmethod'
     priority = 20  # higher priority than MethodDocumenter
 
     def format_args(self, **kwargs):

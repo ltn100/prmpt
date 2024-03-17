@@ -15,7 +15,7 @@ import shutil
 import getpass
 import mock
 
-from test import prompty
+from test import prmpt
 from test import MockProc
 from test import UnitTestWrapper
 
@@ -23,24 +23,24 @@ from test import UnitTestWrapper
 class StandardFunctionTests(UnitTestWrapper):
 
     def test_user(self):
-        c = prompty.functionContainer.FunctionContainer()
-        c.addFunctionsFromModule(prompty.functions)
+        c = prmpt.functionContainer.FunctionContainer()
+        c.addFunctionsFromModule(prmpt.functions)
         self.assertEqual(getpass.getuser(), c._call("user"))
 
     def test_hostname(self):
-        c = prompty.functionContainer.FunctionContainer()
-        c.addFunctionsFromModule(prompty.functions)
+        c = prmpt.functionContainer.FunctionContainer()
+        c.addFunctionsFromModule(prmpt.functions)
         self.assertEqual(socket.gethostname().split(".")[0], c._call("hostname"))
 
     def test_hostnamefull(self):
-        c = prompty.functionContainer.FunctionContainer()
-        c.addFunctionsFromModule(prompty.functions)
+        c = prmpt.functionContainer.FunctionContainer()
+        c.addFunctionsFromModule(prmpt.functions)
         self.assertEqual(socket.gethostname(), c._call("hostnamefull"))
 
     def test_workingdir(self):
         origcwd = os.getcwd()
-        c = prompty.functionContainer.FunctionContainer()
-        c.addFunctionsFromModule(prompty.functions)
+        c = prmpt.functionContainer.FunctionContainer()
+        c.addFunctionsFromModule(prmpt.functions)
         os.chdir(os.path.expanduser("~"))
         os.environ["PWD"] = os.getcwd()
         self.assertEqual(r"~", c._call("workingdir"))
@@ -55,8 +55,8 @@ class StandardFunctionTests(UnitTestWrapper):
 
     def test_workingdirbase(self):
         origcwd = os.getcwd()
-        c = prompty.functionContainer.FunctionContainer()
-        c.addFunctionsFromModule(prompty.functions)
+        c = prmpt.functionContainer.FunctionContainer()
+        c.addFunctionsFromModule(prmpt.functions)
         tmpDir = tempfile.mkdtemp()
         os.chdir(tmpDir)
         os.environ["PWD"] = os.getcwd()
@@ -70,14 +70,14 @@ class StandardFunctionTests(UnitTestWrapper):
         shutil.rmtree(tmpDir)
 
     def test_dollar(self):
-        c = prompty.functionContainer.FunctionContainer()
-        c.addFunctionsFromModule(prompty.functions)
+        c = prmpt.functionContainer.FunctionContainer()
+        c.addFunctionsFromModule(prmpt.functions)
         self.assertEqual(r"$", c._call("dollar"))
         self.assertEqual(r"#", c._call("dollar", 0))
 
     def test_specialChars(self):
-        c = prompty.functionContainer.FunctionContainer()
-        c.addFunctionsFromModule(prompty.functions)
+        c = prmpt.functionContainer.FunctionContainer()
+        c.addFunctionsFromModule(prmpt.functions)
         chars = [
                  ("newline",            "\n"),
                  ("carriagereturn",     "\r"),
@@ -94,28 +94,28 @@ class StandardFunctionTests(UnitTestWrapper):
             self.assertEqual(char[1], c._call(char[0]))
 
     def test_uniChar(self):
-        c = prompty.functionContainer.FunctionContainer()
-        c.addFunctionsFromModule(prompty.functions)
+        c = prmpt.functionContainer.FunctionContainer()
+        c.addFunctionsFromModule(prmpt.functions)
         self.assertEqual('a', c._call("unichar", "97"))
         self.assertEqual('b', c._call("unichar", "0x62"))
         self.assertEqual('c', c._call("unichar", "0o143"))
 
     def test_lower(self):
-        c = prompty.functionContainer.FunctionContainer()
-        c.addFunctionsFromModule(prompty.functions)
+        c = prmpt.functionContainer.FunctionContainer()
+        c.addFunctionsFromModule(prmpt.functions)
         self.assertEqual('lower', c._call("lower", "lower"))
         self.assertEqual('mixed', c._call("lower", "MiXEd"))
         self.assertEqual('all_upper with spaces', c._call("lower", "ALL_UPPER WITH SPACES"))
 
     def test_join(self):
-        c = prompty.functionContainer.FunctionContainer()
-        c.addFunctionsFromModule(prompty.functions)
+        c = prmpt.functionContainer.FunctionContainer()
+        c.addFunctionsFromModule(prmpt.functions)
         self.assertEqual('one:fish', c._call("join", ":", "one", "fish"))
         self.assertEqual('one/fish/cheese', c._call("join", "/", "one", "fish", "cheese"))
         self.assertEqual('', c._call("join", "/"))
         self.assertRaises(TypeError, c._call, "join")
 
-    @mock.patch('prompty.status.subprocess')
+    @mock.patch('prmpt.status.subprocess')
     def test_justify(self, mock_sp):
         # Set up mock
         output = (
@@ -126,45 +126,45 @@ class StandardFunctionTests(UnitTestWrapper):
         )
         mock_sp.Popen.return_value = MockProc(output)
 
-        c = prompty.functionContainer.FunctionContainer()
-        c.addFunctionsFromModule(prompty.functions)
+        c = prmpt.functionContainer.FunctionContainer()
+        c.addFunctionsFromModule(prmpt.functions)
         self.assertEqual('|     |     |', c._call("justify", "|", "|", "|"))
         self.assertEqual('|-----|=====|', c._call("justify", "|", "|", "|", "-", "="))
         self.assertEqual('            |', c._call("right", "|"))
         self.assertEqual('lt@@@cen   rt', c._call("justify", "lt", "cen", "rt", "@"))
 
     def test_smiley(self):
-        c = prompty.functionContainer.FunctionContainer()
-        c.addFunctionsFromModule(prompty.functions)
-        c.addFunctionsFromModule(prompty.colours)
+        c = prmpt.functionContainer.FunctionContainer()
+        c.addFunctionsFromModule(prmpt.functions)
+        c.addFunctionsFromModule(prmpt.colours)
         c.status.exitCode = 0
         self.assertIn(":)", c._call("smiley"))
         c.status.exitCode = 1
         self.assertIn(":(", c._call("smiley"))
 
     def test_powerline(self):
-        c = prompty.functionContainer.FunctionContainer()
-        c.addFunctionsFromModule(prompty.functions)
-        c.addFunctionsFromModule(prompty.colours)
+        c = prmpt.functionContainer.FunctionContainer()
+        c.addFunctionsFromModule(prmpt.functions)
+        c.addFunctionsFromModule(prmpt.colours)
         self.assertIn("test", c._call("powerline", "test"))
         self.assertIn(chr(0xe0b0), c._call("powerline", "test"))
 
     def test_date(self):
-        c = prompty.functionContainer.FunctionContainer()
-        c.addFunctionsFromModule(prompty.functions)
+        c = prmpt.functionContainer.FunctionContainer()
+        c.addFunctionsFromModule(prmpt.functions)
         self.assertTrue(bool(re.match(r"^[a-zA-z]+ [a-zA-z]+ [0-9]+$", c._call("date"))))
 
     def test_datefmt(self):
-        c = prompty.functionContainer.FunctionContainer()
-        c.addFunctionsFromModule(prompty.functions)
+        c = prmpt.functionContainer.FunctionContainer()
+        c.addFunctionsFromModule(prmpt.functions)
         self.assertTrue(bool(re.match(r"^[0-9:]+$", c._call("datefmt"))))
         self.assertTrue(bool(re.match(r"^hello$", c._call("datefmt", "hello"))))
         self.assertTrue(bool(re.match(r"^[0-9]{2}$", c._call("datefmt", "#d"))))
 
     def test_isRealPath(self):
         origcwd = os.getcwd()
-        c = prompty.functionContainer.FunctionContainer()
-        c.addFunctionsFromModule(prompty.functions)
+        c = prmpt.functionContainer.FunctionContainer()
+        c.addFunctionsFromModule(prmpt.functions)
         self.assertTrue(c._call("isrealpath"))
         tmpDir = tempfile.mkdtemp()
         link = os.path.join(tmpDir, "link")
@@ -180,20 +180,20 @@ class StandardFunctionTests(UnitTestWrapper):
 
 class ExpressionFunctionTests(UnitTestWrapper):
     def test_equal(self):
-        c = prompty.functionContainer.FunctionContainer()
-        c.addFunctionsFromModule(prompty.functions)
+        c = prmpt.functionContainer.FunctionContainer()
+        c.addFunctionsFromModule(prmpt.functions)
         self.assertEqual(True, c._call("equals", "1", "1"))
 
     def test_max(self):
-        c = prompty.functionContainer.FunctionContainer()
-        c.addFunctionsFromModule(prompty.functions)
+        c = prmpt.functionContainer.FunctionContainer()
+        c.addFunctionsFromModule(prmpt.functions)
         self.assertEqual("2", c._call("max", "2", "1"))
         self.assertEqual("1", c._call("max", "1", "1"))
         self.assertEqual("2", c._call("max", "1", "2"))
 
     def test_if(self):
-        c = prompty.functionContainer.FunctionContainer()
-        c.addFunctionsFromModule(prompty.functions)
+        c = prmpt.functionContainer.FunctionContainer()
+        c.addFunctionsFromModule(prmpt.functions)
         self.assertEqual("1", c._call("ifexpr", "True", "1", "2"))
         self.assertEqual("2", c._call("ifexpr", "False", "1", "2"))
         self.assertEqual("1", c._call("ifexpr", "True", "1"))
@@ -201,9 +201,9 @@ class ExpressionFunctionTests(UnitTestWrapper):
         self.assertEqual("1", c._call("ifexpr", "1", "1"))
 
     def test_exitSuccess(self):
-        c = prompty.functionContainer.FunctionContainer(prompty.status.Status(0))
-        c.addFunctionsFromModule(prompty.functions)
+        c = prmpt.functionContainer.FunctionContainer(prmpt.status.Status(0))
+        c.addFunctionsFromModule(prmpt.functions)
         self.assertEqual(True, c._call("exitsuccess"))
-        c = prompty.functionContainer.FunctionContainer(prompty.status.Status(1))
-        c.addFunctionsFromModule(prompty.functions)
+        c = prmpt.functionContainer.FunctionContainer(prmpt.status.Status(1))
+        c.addFunctionsFromModule(prmpt.functions)
         self.assertEqual(False, c._call("exitsuccess"))

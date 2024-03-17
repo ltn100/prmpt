@@ -8,11 +8,11 @@ from __future__ import unicode_literals
 import sys
 import os
 
-from test import prompty
+from test import prmpt
 from test import UnitTestWrapper
 
 
-class MyFunctions(prompty.functionBase.PromptyFunctions):
+class MyFunctions(prmpt.functionBase.PromptyFunctions):
     def testFunc(self):
         return "This Is A Test"
 
@@ -22,18 +22,18 @@ class MyFunctions(prompty.functionBase.PromptyFunctions):
 
 class FunctionContainerTests(UnitTestWrapper):
     def test_noname(self):
-        c = prompty.functionContainer.FunctionContainer()
+        c = prmpt.functionContainer.FunctionContainer()
         self.assertRaises(TypeError, c._call)
 
     def test_extendFunctionContainer(self):
-        c = prompty.functionContainer.FunctionContainer()
+        c = prmpt.functionContainer.FunctionContainer()
         # Import this module
         c.addFunctionsFromModule(sys.modules[__name__])
         self.assertEqual(r"This Is A Test", c._call("testFunc"))
         self.assertRaises(KeyError, c._call, "_hiddenFunc")
 
     def test_extendFunctionContainerFromDir(self):
-        c = prompty.functionContainer.FunctionContainer()
+        c = prmpt.functionContainer.FunctionContainer()
         # Import this directory
         c.addFunctionsFromDir(os.path.dirname(sys.modules[__name__].__file__))
         self.assertEqual(r"This Is A Test", c._call("testFunc"))

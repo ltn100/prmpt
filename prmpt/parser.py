@@ -5,7 +5,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from prompty import lexer
+from prmpt import lexer
 
 
 class Parser(object):

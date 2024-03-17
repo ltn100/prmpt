@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 
-project = u'prompty'
+project = u'prmpt'
 copyright = u'2020, Lee Netherton'
 author = u'Lee Netherton'
 
@@ -40,7 +40,7 @@ release = u'0.4.0'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'prompty.utils.sphinx'
+    'prmpt.utils.sphinx'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -104,7 +104,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'promptydoc'
+htmlhelp_basename = 'prmptdoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -131,7 +131,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'prompty.tex', u'prompty Documentation',
+    (master_doc, 'prmpt.tex', u'prmpt Documentation',
      u'Lee Netherton', 'manual'),
 ]
 
@@ -141,7 +141,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'prompty', u'prompty Documentation',
+    (master_doc, 'prmpt', u'prmpt Documentation',
      [author], 1)
 ]
 
@@ -152,8 +152,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'prompty', u'prompty Documentation',
-     author, 'prompty', 'One line description of project.',
+    (master_doc, 'prmpt', u'prmpt Documentation',
+     author, 'prmpt', 'One line description of project.',
      'Miscellaneous'),
 ]
 

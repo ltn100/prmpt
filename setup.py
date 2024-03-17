@@ -30,8 +30,8 @@ def find_version(*file_paths):
 class PostBuild(build_py):
     def run(self):
         build_py.run(self)
-        print("compiling promptyc")
-        py_compile.compile('bin/prompty')
+        print("compiling prmptc")
+        py_compile.compile('bin/prmpt')
 
 
 cmdclass = {
@@ -42,8 +42,8 @@ cmdclass = {
     'build_sphinx': BuildDoc,
 }
 
-name = "prompty"
-version = find_version("prompty", "__init__.py")
+name = "prmpt"
+version = find_version("prmpt", "__init__.py")
 
 setuptools.setup(
     name=name,
@@ -51,10 +51,10 @@ setuptools.setup(
     description="A command line prompt markup language",
     author="Lee Netherton",
     author_email="lee.netherton@gmail.com",
-    url="https://github.com/ltn100/prompty",
+    url="https://github.com/ltn100/prmpt",
     license="MIT licence, see LICENCE",
 
-    packages=["prompty"],
+    packages=["prmpt"],
 
     classifiers=[
         "License :: OSI Approved :: MIT License",
@@ -74,15 +74,15 @@ setuptools.setup(
         "Operating System :: MacOS"
     ],
 
-    scripts=["bin/prompty"],
+    scripts=["bin/prmpt"],
 
     data_files=[
         (
-            "share/prompty/skel",
+            "share/prmpt/skel",
             [f for f in glob.glob("skel/*") if os.path.isfile(f)]
         ),
         (
-            "share/prompty/skel/functions",
+            "share/prmpt/skel/functions",
             [f for f in glob.glob("skel/functions/*") if os.path.isfile(f)]
         ),
     ],

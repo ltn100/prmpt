@@ -8,7 +8,7 @@ from __future__ import unicode_literals
 import sys
 import unittest
 
-from test.test_prompty import *
+from test.test_prmpt import *
 from test.test_parser import *
 from test.test_colours import *
 from test.test_functionContainer import *
@@ -18,5 +18,5 @@ from test.test_skel import *
 
 
 if __name__ == "__main__":
-    print("Prompty module path: %s" % prompty.__path__[0])
+    print("Prompty module path: %s" % prmpt.__path__[0])
     sys.exit(unittest.main())

@@ -20,7 +20,7 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
-bin/promptyc
+bin/prmptc
 MANIFEST
 
 # Installer logs

@@ -8,38 +8,38 @@ import unittest
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 
 try:
-    # If we are running this from the source prompty dir then use
-    # the source prompty module. Otherwise try to import the system
+    # If we are running this from the source prmpt dir then use
+    # the source prmpt module. Otherwise try to import the system
     # installed package
-    if os.path.isdir("prompty") and os.path.isdir("test") and os.path.isdir("bin"):
+    if os.path.isdir("prmpt") and os.path.isdir("test") and os.path.isdir("bin"):
         sys.path[0:0] = [os.getcwd()]
-        prompty_exec = os.path.join("bin", "prompty")
+        prmpt_exec = os.path.join("bin", "prmpt")
     else:
-        prompty_exec = distutils.spawn.find_executable("prompty")
+        prmpt_exec = distutils.spawn.find_executable("prmpt")
 
-    import prompty
-    if 'colours' not in dir(prompty):
+    import prmpt
+    if 'colours' not in dir(prmpt):
         # This will stop accidentally importing the module
-        # 'prompty.py' (we want the package)
+        # 'prmpt.py' (we want the package)
         raise ImportError
 except ImportError:
-    if 'prompty' in sys.modules:
-        del sys.modules['prompty']
-    # Add base directory to path so that it can find the prompty package
+    if 'prmpt' in sys.modules:
+        del sys.modules['prmpt']
+    # Add base directory to path so that it can find the prmpt package
     print(__file__)
     print(os.path.dirname(TEST_DIR))
     sys.path[0:0] = [os.path.dirname(TEST_DIR)]
-    import prompty
-    if 'colours' not in dir(prompty):
+    import prmpt
+    if 'colours' not in dir(prmpt):
         # This will stop accidentally importing the module
-        # 'prompty.py' (we want the package)
+        # 'prmpt.py' (we want the package)
         raise ImportError
 
-if not prompty_exec:
-    # If prompty not found in the system path get the version from the bin dir
-    prompty_exec = os.path.join(TEST_DIR, "..", "bin", "prompty")
+if not prmpt_exec:
+    # If prmpt not found in the system path get the version from the bin dir
+    prmpt_exec = os.path.join(TEST_DIR, "..", "bin", "prmpt")
 
-prompty_bin = imp.load_source("prompty_bin", prompty_exec)
+prmpt_bin = imp.load_source("prmpt_bin", prmpt_exec)
 
 
 class UnitTestWrapper(unittest.TestCase):

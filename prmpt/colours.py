@@ -11,7 +11,7 @@ import re
 import types
 import os
 
-from prompty import functionBase
+from prmpt import functionBase
 
 
 class Colours(functionBase.PromptyFunctions):
