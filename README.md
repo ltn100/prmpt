@@ -1,3 +1,6 @@
+# ⚠️  Deprecated!! ⚠️
+### This project is no longer active. I have ported the default theme to a ZSH theme here: https://github.com/ltn100/prompty
+
 Prmpt [![Build Status](https://travis-ci.org/ltn100/prmpt.svg?branch=develop)](https://travis-ci.org/ltn100/prmpt) [![Documentation Status](https://readthedocs.org/projects/prmpt/badge/?version=latest)](https://prmpt.readthedocs.io/en/latest/) [![Coverage Status](https://coveralls.io/repos/ltn100/prmpt/badge.svg?service=github)](https://coveralls.io/github/ltn100/prmpt) [![PyPI version](https://badge.fury.io/py/prmpt.svg)](https://pypi.org/project/prmpt/) [![MIT license](http://img.shields.io/badge/license-MIT-blue.svg)](http://opensource.org/licenses/MIT)
 =======
 
